@@ -1,0 +1,22 @@
+{
+  "key": "{{key}}",
+  "name": "{{name}}",
+  "title": "{{title}}",
+  "line": "{{line}}",
+  "status": "live",
+  "door": { "local": "http://127.0.0.1:{{port}}/", "phone": null },
+  "probe": { "port": "{{port}}", "path": "/health" },
+  "start": "node dashboard/server.js",
+  "autostart": true,
+  "match": ["{{key}}", "{{match_word}}"],
+  "brand": {
+    "bg": "{{bg}}", "panel": "{{panel}}", "ink": "{{ink}}", "accent": "{{accent}}", "accent2": "{{accent2}}",
+    "font": "Inter, system-ui, sans-serif", "mark": "mark.svg"
+  },
+  "art": "art.svg",
+  "jokes": [
+    "{{name}} here. Knock again when you have work for me.",
+    "I'd tell you what I learned today, but it's already in my memory folder.",
+    "Left-click comes in. Right-click just gets more jokes."
+  ]
+}

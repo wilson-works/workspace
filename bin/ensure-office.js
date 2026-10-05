@@ -29,10 +29,10 @@ function probe() {
     // The forwarder first, every time: it is pid-locked (a second copy exits at
     // once) and exits by itself on the hub, so this costs one short-lived node
     // and guarantees a forwarder that died comes back with the next session.
-    const fwd = spawn(process.execPath, [path.join(__dirname, 'office-forward.js')], {
-      detached: true, stdio: 'ignore', windowsHide: true,
+    const { homeDir } = require('../src/server/home');
+    require('./detach').startDetached(process.execPath, [path.join(__dirname, 'office-forward.js')], {
+      cwd: path.join(__dirname, '..'), log: path.join(homeDir(), 'forward.log'),
     });
-    fwd.unref();
     if (await probe()) process.exit(0);
     const child = spawn(process.execPath, [path.join(__dirname, 'office-start.js')], {
       detached: true, stdio: 'ignore', windowsHide: true,

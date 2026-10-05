@@ -1,0 +1,1 @@
+{ "type": "commonjs", "_": "The server, CLIs and drill are CommonJS. The root package.json is type:module for Vite and the React sources; this scopes that boundary rather than forcing one style on both halves." }

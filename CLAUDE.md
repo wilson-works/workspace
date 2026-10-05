@@ -12,11 +12,24 @@ Code. Speak plainly, explain a term the first time you use it, and do one step a
 - If they ask what to do next, run `node bin/work.js list` and suggest the next step of the
   Get started course.
 
+## Where this folder sits
+
+Installed the usual way, this folder is `<Hub>/50-AI/workspace`, and the person opens their chats on
+the **Hub** (the folder two levels up), not here. From a chat on the Hub, run these commands as
+`node 50-AI/workspace/<command>`, or `cd` here first. Read the Hub's `CLAUDE.md` and `NAV.md` for
+where things go, and never search the whole Hub at once.
+
 ## The commands (run from this folder)
 
 | Job | Command |
 |---|---|
-| Start the office | `node bin/office-start.js` → http://127.0.0.1:4316 |
+| Install, or check the install (Hub, skills, office, agents folder, fleet) | `node install.js --dry-run` (the plan), `node install.js` (asks before each part), `--yes` (no questions; keeps the person's files), `--remove` (takes out what it added), `--help` |
+| Regenerate the Hub's map | `node hub/bin/hub.js nav --root <Hub>` |
+| A new project in the Hub's code zone | `node hub/bin/hub.js new-project <name>` |
+| A new specialist agent, with its office | `node agents/bin/new-agent.js <key> --name <Name> --title "<Title>"` |
+| Install an agent package | `node agents/bin/install-agent.js <package>` (plan first; `--yes`) |
+| Several computers (the fleet) | `node fleet/bin/fleet.js init [--create-repo]`, `join <owner/name>`, `schedule [--remove]` |
+| Start the office | `node bin/office-start.js` → http://127.0.0.1:4316 (or `office.port` in workspace.config.json) |
 | Restart it (after changing machines in workspace.config.json) | `node bin/office-start.js --restart` |
 | See what an installer part would change | `node bin/install.js` (all parts) or `node bin/install.js <part>` |
 | Install a part | `node bin/install.js hooks\|permissions\|startup --apply` (undo: `--remove`) |
@@ -57,6 +70,11 @@ re-reads them). Adding or renaming a machine needs `--restart`.
   built page (committed, so other computers install by pulling).
 - `.claude/hooks/` the hooks that report sessions to the office and hand them notes.
 - `bin/` the command-line tools above. `config/` thresholds, callsign pools, the org roster, avatars.
-- `config/agents.json` the Agents' wing (an office per specialist, with a door to its dashboard).
+- `config/agents.json` the Agents' wing (an office per specialist, with a door to its dashboard). Agents
+  in the Hub's `50-AI/agents/<key>/agent.json` get an office without being listed there.
+- `install.js` the one installer (its parts are in `bin/install-suite.js`); `install.ps1` and
+  `install.sh` fetch this repo on a fresh computer and run it. `skills/starter.json` the pinned
+  starter skills. `hub/`, `agents/`, `fleet/` the Hub template, the agent contract and the fleet
+  template. `guides/` 01 to 08 cover all of it.
 - `org/` the CTO org (18 agents, comms bus, path guard). `permissions/` the permission setup and
   walkaway hooks. `projects/` the Work page's projects. `guides/` and `prompts/` the documentation.

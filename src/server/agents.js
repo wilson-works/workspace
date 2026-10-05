@@ -4,9 +4,20 @@
  * agents.js — the Agents' wing: an office for each of your specialist agents, in its own branding,
  * with a door into its dashboard.
  *
- * config/agents.json names each agent once. GET /api/agents answers, per agent: who it is, its
- * brand, its doors, whether it is running (re-checked at most every PROBE_EVERY_MS and never awaited
- * by a request), and how many of its sessions are at a desk now. Only the count of sessions leaves: a
+ * Two places name agents, and the office reads both on every request:
+ *   - config/agents.json (agents on any machine, written by hand);
+ *   - every <dir>/<key>/agent.json in the agents folders (opts.dirs, default config.agentsDirs(): the
+ *     Hub's 50-AI/agents). new-agent and install-agent write these; writing one IS the registration.
+ *     Only manifests that pass the contract (agents/lib/agents.js validateManifest) are shown. A
+ *     manifest agent runs on this machine. Its mark and art become /agent-files/<key>/<file>, which
+ *     the server serves from that agent's own folder (fileFor).
+ * config/agents.json wins a key both name. The placeholder "your-specialist" is hidden once any
+ * other agent exists.
+ *
+ * GET /api/agents answers, per agent: who it is, its
+ * brand, its doors, whether it is running (re-checked at most every PROBE_EVERY_MS, at once for an
+ * agent never checked yet, and never awaited by a request), and how many of its sessions are at a
+ * desk now. Only the count of sessions leaves: a
  * specialist's sessions can be private work, so their titles never do.
  *
  * Two kinds of probe:
@@ -21,12 +32,39 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const https = require('https');
+const contract = require('../../agents/lib/agents');
 
 const AGENTS = path.join(__dirname, '..', '..', 'config', 'agents.json');
 const PROBE_EVERY_MS = 20000;
 const PROBE_TIMEOUT_MS = 1500;
 const REMOTE_TIMEOUT_MS = 4000;
 const KEY_RE = /^[a-z][a-z0-9-]{0,30}$/;
+const PLACEHOLDER = 'your-specialist';
+const fileUrl = (key, name) => `/agent-files/${key}/${name}`;
+
+/** The figure in the door: one of the office's own svgs, or an svg/png in that agent's own folder. */
+function artOk(a) {
+  if (typeof a.art !== 'string') return false;
+  if (/^\/agents\/[\w.-]+\.svg$/.test(a.art)) return true;
+  const own = fileUrl(a.key, '');
+  return a.art.startsWith(own) && contract.isImageName(a.art.slice(own.length));
+}
+
+/** The agents named by agent.json files that pass the contract, shaped like config/agents.json entries. */
+function manifestAgents(dirs) {
+  return contract.listAgents(dirs).filter((x) => x.ok).map(({ key, manifest: m }) => {
+    const brand = Object.assign({}, m.brand);
+    if (m.brand.mark) brand.mark = fileUrl(key, m.brand.mark);
+    return {
+      key, name: m.name, title: m.title || null, line: m.line || null, status: m.status || 'live', repo: null,
+      machine: null, // it runs on the computer it is installed on: this one
+      door: { local: (m.door && m.door.local) || null, phone: (m.door && m.door.phone) || null },
+      probe: m.probe || null, match: m.match || [], brand,
+      art: m.art ? fileUrl(key, m.art) : null,
+      jokes: m.jokes || [],
+    };
+  });
+}
 
 /** A remote probe goes to a tailnet name only: the office never reaches out to the internet. */
 function tailnetUrl(u) {
@@ -76,7 +114,8 @@ function sessionsOf(agent, sessions) {
 }
 
 /**
- * @param opts { file, self (this machine), probe (injectable), now }
+ * @param opts { file, dirs (agents folders; default config.agentsDirs()), self (this machine),
+ *               probe (injectable), now }
  */
 function createAgents(opts) {
   const o = opts || {};
@@ -86,15 +125,37 @@ function createAgents(opts) {
   let lastCheck = 0;
   // A tailnet probe from any machine; a loopback probe only on the agent's own machine.
   const probed = (a) => !!(a.probe && (a.probe.url ? tailnetUrl(a.probe.url) : a.probe.port && (a.machine || o.self) === o.self));
+  const dirs = () => (o.dirs !== undefined ? o.dirs : require('./config').agentsDirs());
+
+  /** config/agents.json, then every manifest it does not already name; the placeholder only while alone. */
+  function all() {
+    const own = loadAgents(o.file);
+    const named = new Set(own.map((a) => a.key));
+    const list = own.concat(manifestAgents(dirs()).filter((a) => !named.has(a.key)));
+    return list.some((a) => a.key !== PLACEHOLDER) ? list.filter((a) => a.key !== PLACEHOLDER) : list;
+  }
 
   function refresh(force) {
     if (checking) return checking;
-    if (!force && Date.now() - lastCheck < PROBE_EVERY_MS) return Promise.resolve();
+    const mine = all().filter(probed);
+    if (!force && Date.now() - lastCheck < PROBE_EVERY_MS && mine.every((a) => up.has(a.key))) return Promise.resolve();
     lastCheck = Date.now();
-    const mine = loadAgents(o.file).filter(probed);
     checking = Promise.all(mine.map(async (a) => { up.set(a.key, { up: await probe(a.probe), at: Date.now() }); }))
       .finally(() => { checking = null; });
     return checking;
+  }
+
+  /**
+   * The file behind /agent-files/<key>/<name>: an .svg or .png directly inside that agent's own folder
+   * (no "..", no sub-folder, no link), or null.
+   */
+  function fileFor(key, name) {
+    if (!KEY_RE.test(String(key)) || !contract.isImageName(name)) return null;
+    const hit = contract.listAgents(dirs()).find((x) => x.key === key && x.ok);
+    if (!hit) return null;
+    const f = path.join(hit.dir, name);
+    if (path.dirname(f) !== hit.dir) return null;
+    try { return fs.lstatSync(f).isFile() ? f : null; } catch (_) { return null; }
   }
 
   /** GET /api/agents */
@@ -103,7 +164,7 @@ function createAgents(opts) {
     const at = typeof now === 'number' ? now : Date.now();
     return {
       asOf: at,
-      agents: loadAgents(o.file).map((a) => {
+      agents: all().map((a) => {
         const here = (a.machine || o.self) === o.self;
         const seen = up.get(a.key);
         const at_desks = sessionsOf(a, sessions);
@@ -118,7 +179,7 @@ function createAgents(opts) {
           brand: a.brand || {},
           // Who stands inside the open door (one of the office's own svgs, never another site), and what
           // it says when someone knocks (a dozen short lines at most).
-          art: typeof a.art === 'string' && /^\/agents\/[\w.-]+\.svg$/.test(a.art) ? a.art : null,
+          art: artOk(a) ? a.art : null,
           jokes: (Array.isArray(a.jokes) ? a.jokes : []).filter((j) => typeof j === 'string' && j.length <= 160).slice(0, 12),
           // A door is only offered while it leads somewhere: running (the local door on its own machine
           // only), or on another machine this office cannot probe. A stopped, planned or unbuilt
@@ -142,7 +203,7 @@ function createAgents(opts) {
     };
   }
 
-  return { view, refresh };
+  return { view, refresh, fileFor };
 }
 
-module.exports = { createAgents, loadAgents, sessionsOf, probeOnce, tailnetUrl, PROBE_EVERY_MS };
+module.exports = { createAgents, loadAgents, manifestAgents, sessionsOf, probeOnce, tailnetUrl, PROBE_EVERY_MS };

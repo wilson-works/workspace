@@ -34,6 +34,21 @@
   "work_folders": [],
   "_work_folders": "Extra folders whose project folders show on the Work page, beside projects/ in this repo. Good for private work you never want inside this repo.",
 
+  "office": {
+    "port": "{{CLAUDE: the port this office listens on. install.js writes it: 4316, or the next free port when 4316 is taken. Keep what is there unless the person asks; change it only if the office cannot start because the port is in use. A whole number from 1024 to 65535.}}",
+    "home": "{{CLAUDE: the folder where this office keeps its own files (notes, questions, chat, progress, logs), as a FULL path, so a hook from any session finds the same office. install.js writes it. Keep what is there unless the person asks; the default is %LOCALAPPDATA%\\WorkSpace on Windows, ~/Library/Application Support/WorkSpace on macOS.}}"
+  },
+  "_office": "Where this office listens and keeps its state. Change either one, then run node bin/office-start.js --restart.",
+
+  "agents_dirs": [
+    "{{CLAUDE: usually leave this empty: the office already finds every agent in the Hub's 50-AI/agents/<key>/agent.json. Only ask if the person keeps agents somewhere else; list those folders here (each holds one folder per agent).}}"
+  ],
+
+  "fleet": {
+    "repo": "{{CLAUDE: usually leave this empty: the office finds the fleet at the Hub's 50-AI/fleet-ops on its own (install.js --fleet sets it up). Only ask if the person keeps their fleet-ops clone somewhere else; then write its full path.}}"
+  },
+  "_fleet": "Several computers sharing work through the person's own private fleet-ops repo: guides/07-several-computers.md.",
+
   "privacy": {
     "private_work": [],
     "_private_work": "{{CLAUDE: ask whether any work is private, such as client folders, tax or health records. List those folders (full paths) or words that appear in their folder names. A session working there never has its title, tasks or summaries shown on the office or the phone.}}",

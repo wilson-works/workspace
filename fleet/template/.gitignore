@@ -1,0 +1,3 @@
+# Machine-local: the last sync result and its stop flags. Never shared.
+.sync/
+*.local.json
