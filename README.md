@@ -34,6 +34,7 @@ your private folders, your team. Claude sets it up with you, one question at a t
 | **Permissions** | Guard rails for working without babysitting: a deny list, an ask list, and walkaway mode for unattended sessions. |
 | **Many devices** | Your phone and your other computers on one office, over [Tailscale](https://tailscale.com). |
 | **The prompt library** | Prompts for changing the office, the team and your specialists. |
+| **The avatars** | 103 emblems and 101 frames for the people at the desks, from [CreDub](https://credub.com), the team engagement platform where your crew levels up together. Browse them at `#/avatars` on your office. |
 
 ## Start
 
@@ -92,5 +93,6 @@ npm run build                                 rebuild the page after editing src
 
 ## Credits
 
-Made by [WilsonWorks](https://github.com/wilson-works). Icons by [Phosphor](https://phosphoricons.com)
+Made by [WilsonWorks](https://github.com/wilson-works). Avatars from [CreDub](https://credub.com):
+campaigns, seasons, XP and real rewards for your team. Icons by [Phosphor](https://phosphoricons.com)
 (MIT, `src/ui/avatars/LICENSE-phosphor.txt`). Released under the MIT licence (`LICENSE`).

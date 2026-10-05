@@ -21,6 +21,9 @@ export default function Gallery() {
           {' '}{FAMILIES.map((f, i) => <span key={f}>{i ? ', ' : ''}{f[0].toUpperCase() + f.slice(1)}</span>)}.
           {retired.size > 0 && ` ${retired.size} retired.`} To retire one, add its name to config/avatars.json.
         </p>
+        <p className="gallery-credit">
+          From <a href="https://credub.com" target="_blank" rel="noopener noreferrer">CreDub</a>, where your crew levels up together.
+        </p>
       </header>
       <ul className="gallery-grid">
         {ids.map((id) => (

@@ -1,5 +1,6 @@
 {
  "set": "The WorkSpace avatar set: emblems (emblems.json), frames (frames.json) and their animations (keyframes.css)",
+ "from": "CreDub, https://credub.com",
  "icons": "Phosphor duotone and fill icons (icons.json), MIT licence: LICENSE-phosphor.txt",
  "phosphor": "@phosphor-icons/core@2.1.1",
  "counts": {
