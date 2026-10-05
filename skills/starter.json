@@ -1,0 +1,21 @@
+{
+  "_readme": "The starter skills install.js copies into a new Hub. They come from the free claude_skills pack at the commit in ref, never from a copy kept in this repo. skills/README.md explains each one and how to move the pin.",
+  "pack": "https://github.com/wilson-works/claude_skills.git",
+  "ref": "88fa01598bc1596b884d125c2b3a5b0c57d17f64",
+  "_ref": "A commit, not a tag. A tag can be moved to point at different files later; a commit id cannot, so everyone who installs this version gets exactly the same skills. Moving the pin is a one-line change here, reviewed like any other.",
+  "path": "skills",
+  "skills": [
+    { "name": "handoff", "why": "Closes a session into a note the next session, or another computer, picks up: how work moves between sessions and machines." },
+    { "name": "file-organizer", "why": "Sorts Downloads and 00-Inbox into the Hub's zones. It shows the plan first and never deletes." },
+    { "name": "claude-md-doctor", "why": "Keeps the Hub's CLAUDE.md and each project's short and checkable, so every session follows them." },
+    { "name": "systems-map", "why": "Maps a project's parts and what depends on what: how Claude finds its way around inside a codebase." },
+    { "name": "backlog", "why": "One place for the work you have not done yet." },
+    { "name": "work-orders", "why": "Works through that backlog, one order at a time, with helpers." },
+    { "name": "quick-design", "why": "A short plan before a change, so the change is the one you meant." },
+    { "name": "scope-check", "why": "Checks the work matched the plan: the question a gate asks before anything merges." },
+    { "name": "smoke-check", "why": "A two-minute \"is it still working?\" before you merge." },
+    { "name": "notetaker", "why": "Notes every future session can find, so you stop explaining the same thing twice." },
+    { "name": "quick-research", "why": "Answers a question with sources, in one sitting." },
+    { "name": "prompt-coach", "why": "Teaches you to ask Claude for things well, with your own prompts as the examples." }
+  ]
+}

@@ -6,7 +6,7 @@ Two projects ship with WorkSpace:
 
 | Folder | What it is |
 |---|---|
-| `getting-started` | The Get started course: nine lessons, from your first note to your first specialist agent. |
+| `getting-started` | The Get started course: eleven lessons, from your first note to your first specialist agent, your Hub and your computers working together. |
 | `demo-app` | A tiny practice app with four work orders for the CTO org. |
 
 ## How a project is laid out
