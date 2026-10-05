@@ -7,8 +7,8 @@ import { term } from './helpers';
 export default function promoAgents(portrait) {
   const card = portrait ? { frame: 'card' } : {};
   const dashboard = () => (portrait
-    ? { frame: 'card', keys: [{ at: 0, box: 'main', pad: 20 }] }
-    : { keys: [{ at: 0, box: 'full' }, { at: 0.4, box: 'main', pad: 30 }] });
+    ? { frame: 'card', keys: [{ at: 0, box: 'scene', pad: 20 }] }
+    : { keys: [{ at: 0, box: 'full' }, { at: 1.4, box: 'scene', pad: 40, dur: 1.4 }] });
   return {
     id: portrait ? 'PromoAgents-9x16' : 'PromoAgents-16x9',
     out: portrait ? 'agents-promo-9x16.mp4' : 'agents-promo-16x9.mp4',

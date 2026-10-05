@@ -89,9 +89,9 @@ function dayOf(computer) {
         },
       },
       {
-        callsign: 'Birch', cwd: where(c, '50-AI/agents/bryn'), branch: null, model: OPUS, state: 'waiting',
+        callsign: 'Birch', cwd: where(c, '50-AI/agents/bryn'), branch: null, model: OPUS, state: 'working',
         title: 'Bryn: should the bakery website take orders?',
-        tools: [['Agent', 'Five scouts weigh the question'], ['ScheduleWakeup', 'Check back when the scouts report']],
+        tools: [['Read'], ['Agent', 'Five scouts weigh the question']],
         helpers: [],
       },
       {

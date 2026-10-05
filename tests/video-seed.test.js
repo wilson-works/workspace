@@ -63,7 +63,7 @@ test('the DESK floor reads every session with its title and state', () => {
   assert.strictEqual(byTitle['Plan the frost dates feature'], 'working');
   assert.strictEqual(byTitle['Gate review: frost dates'], 'working');
   assert.strictEqual(byTitle['Louise: research brief on raised-bed soil'], 'working');
-  assert.strictEqual(byTitle['Bryn: should the bakery website take orders?'], 'waiting');
+  assert.strictEqual(byTitle['Bryn: should the bakery website take orders?'], 'working');
   assert.strictEqual(byTitle['Sort the inbox into zones'], 'stale');
   const cedar = state.desks.find((d) => d.title === 'Plan the frost dates feature');
   assert.strictEqual(cedar.seats.length, 1, 'its helper is at the desk');
