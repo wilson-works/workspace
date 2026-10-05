@@ -233,7 +233,7 @@ export default function App() {
       view = <WorkBoard onClose={back} onProject={openProject} onStep={openStep} />;
     }
   } else if (route.tab === 'agents') {
-    view = <AgentsWing onClose={back} />;
+    view = <AgentsWing onClose={back} questions={questions} onQuestions={() => go({ tab: 'questions' })} />;
   } else if (route.tab === 'questions') {
     view = <Questions questions={questions} token={frame.token} ago={ago} onClose={back} />;
   } else if (route.tab === 'chat') {

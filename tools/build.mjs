@@ -5,7 +5,7 @@
  *   node tools/build.mjs [--esbuild <dir holding node_modules/esbuild, react, react-dom>]
  *
  * Bundles src/ui/main.jsx into dist/app.js and dist/app.css, copies public/ (the
- * service worker, manifest and icons) and writes dist/index.html. dist/ is
+ * service worker, manifest, icons and agents' art) and writes dist/index.html. dist/ is
  * committed, so another computer installs the office by pulling, with no build
  * step. esbuild comes with `npm install` (it is part of Vite); --esbuild points
  * at another install of it instead.
@@ -37,9 +37,8 @@ await esbuild.build({
   logLevel: 'warning',
 });
 
-for (const f of fs.readdirSync(path.join(ROOT, 'public'))) {
-  fs.copyFileSync(path.join(ROOT, 'public', f), path.join(DIST, f));
-}
+// Folders too: an agent's mark and figure live in public/agents/.
+fs.cpSync(path.join(ROOT, 'public'), DIST, { recursive: true });
 
 fs.writeFileSync(path.join(DIST, 'index.html'), `<!doctype html>
 <html lang="en">

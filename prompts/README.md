@@ -214,8 +214,8 @@ out who hands what to whom, and update both agent files so they work together. S
 ```
 Add my specialist <name> (agent file <slug>.md) to the roster in config/org-people.json. Give it an
 office in the Agents' wing: an entry in config/agents.json with its name, title, one-line job,
-status, the machine it runs on, match words, and brand colours that suit it (and its logo in
-public/agents/ if I have one). Then make a Work project for it in projects/<slug>/ with a PROJECT.md
+status, the machine it runs on, match words, brand colours that suit it (and its logo in
+public/agents/ if I have one), and three short jokes it answers with when I knock on its door. Then make a Work project for it in projects/<slug>/ with a PROJECT.md
 and its first three real orders as steps. Show me each file before saving.
 ```
 
@@ -225,7 +225,8 @@ and its first three real orders as steps. Show me each file before saving.
 My specialist <name> has a dashboard at <http://127.0.0.1:port/path> on <machine>. Set door.local to
 that address in its config/agents.json entry, and a probe on that port with a path that does not
 hand out a login token (the home page is usually right). If I want it on my phone too, walk me
-through publishing it with tailscale serve on another port, then set door.phone to that address.
+through publishing it with tailscale serve on another port, then set door.phone to that address and
+make the probe that tailnet address ({ "url": ... }), so its door opens from every machine.
 ```
 
 ---

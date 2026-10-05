@@ -925,18 +925,27 @@ body::after {
   background: radial-gradient(ellipse at 50% 35%, color-mix(in srgb, var(--a-accent) 45%, var(--a-panel)), var(--a-bg) 75%);
 }
 .aoffice:not(.is-lit) .adoor-room { filter: saturate(0.35) brightness(0.7); }
-.adoor-mark { width: 64px; height: 64px; filter: drop-shadow(0 4px 14px color-mix(in srgb, var(--a-accent) 60%, transparent)); }
+.adoor.posture-open .adoor-room { filter: none; }
+/* Who stands inside: the agent's full figure (an svg of its own can carry a wave), else its mark. */
+.adoor-figure {
+  width: 112px; height: 124px; object-fit: contain; align-self: flex-end; margin-bottom: 6px;
+  filter: drop-shadow(0 6px 16px color-mix(in srgb, var(--a-accent) 55%, transparent));
+}
 .adoor-leaf {
   position: absolute; inset: 4px; border-radius: 62px 62px 7px 7px; transform-origin: left center;
   background:
     linear-gradient(90deg, rgba(255, 255, 255, 0.06), transparent 40%),
     linear-gradient(180deg, color-mix(in srgb, var(--a-panel) 92%, #000), color-mix(in srgb, var(--a-bg) 85%, #000));
   border: 1px solid color-mix(in srgb, var(--a-ink) 14%, transparent);
-  transform: rotateY(-58deg); transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform: rotateY(0deg); transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
   box-shadow: 8px 0 18px -10px rgba(0, 0, 0, 0.7);
 }
-.aoffice:not(.is-lit) .adoor-leaf { transform: rotateY(0deg); }
-.adoor.can-open:hover .adoor-leaf, .adoor.can-open:focus-visible .adoor-leaf { transform: rotateY(-82deg); }
+/* Open while it works; shut while it rests or is off. A shut door that can be opened peeks on hover. */
+.adoor.posture-open .adoor-leaf { transform: rotateY(-76deg); }
+.adoor.posture-open.can-open:hover .adoor-leaf, .adoor.posture-open.can-open:focus-visible .adoor-leaf { transform: rotateY(-86deg); }
+.adoor.can-open:not(.posture-open):hover .adoor-leaf, .adoor.can-open:not(.posture-open):focus-visible .adoor-leaf { transform: rotateY(-34deg); }
+.adoor.is-knocking .adoor-leaf { animation: knock 0.25s ease-in-out 3; }
+@keyframes knock { 50% { transform: rotateY(-3deg) translateX(1px); } }
 .adoor.can-open:focus-visible { outline: none; }
 .adoor.can-open:focus-visible .adoor-frame { box-shadow: 0 0 0 3px var(--a-accent); }
 .adoor-knob { position: absolute; right: 12px; top: 54%; width: 8px; height: 8px; border-radius: 50%; background: var(--a-accent2); box-shadow: 0 0 8px var(--a-accent2); }
@@ -959,11 +968,60 @@ body::after {
 }
 .aenter:hover { transform: translateY(-1px); }
 .aclosed { margin-top: 4px; font-size: 12.5px; opacity: 0.7; min-height: 20px; }
+/* The sign on the leaf: the agent's mark with its name under it, in its own type. */
+.adoor-sign {
+  position: absolute; left: 50%; top: 24%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  max-width: calc(100% - 44px); /* a long name wraps clear of the knob */
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+}
+.adoor-sign img { width: 36px; height: 36px; opacity: 0.9; }
+.adoor-word { font-size: 15px; font-weight: 800; letter-spacing: 0.02em; color: var(--a-accent); line-height: 1; text-align: center; overflow-wrap: break-word; }
+.adoor-word.is-long { font-size: 12px; }
+
+/* Resting: zzz float up from the shut door. */
+.adoor-wrap { position: relative; display: flex; flex-direction: column; align-items: center; }
+.azzz { position: absolute; left: calc(50% + 46px); top: 6px; pointer-events: none; }
+.azzz span {
+  position: absolute; left: 0; top: 0; font-weight: 800; color: var(--a-accent2); opacity: 0;
+  animation: zfloat 3.6s ease-out infinite;
+}
+.azzz span:nth-child(1) { font-size: 13px; }
+.azzz span:nth-child(2) { font-size: 17px; animation-delay: 1.2s; }
+.azzz span:nth-child(3) { font-size: 21px; animation-delay: 2.4s; }
+@keyframes zfloat {
+  0% { transform: translate(0, 18px) rotate(-8deg); opacity: 0; }
+  20% { opacity: 0.95; }
+  100% { transform: translate(22px, -34px) rotate(10deg); opacity: 0; }
+}
+
+/* A knock, and whoever answers. */
+.aknock {
+  position: absolute; top: 44%; left: calc(50% + 70px); pointer-events: none;
+  font-family: "JetBrains Mono", ui-monospace, Consolas, monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--a-ink); opacity: 0.8; animation: knocktext 0.75s ease-out;
+}
+@keyframes knocktext { from { opacity: 0; transform: translateX(-6px); } }
+.ajoke { margin: 0; min-height: 0; width: 100%; display: flex; justify-content: center; }
+.ajoke-say {
+  position: relative; margin-top: 12px; max-width: 30ch; padding: 10px 14px; border-radius: 16px;
+  background: var(--a-ink); color: var(--a-bg); font-size: 13.5px; font-weight: 600; line-height: 1.35; text-align: center;
+  box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.8); animation: jokein 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.ajoke-say::before {
+  content: ""; position: absolute; top: -6px; left: 50%; width: 12px; height: 12px; transform: translateX(-50%) rotate(45deg);
+  background: inherit; border-radius: 2px;
+}
+.ajoke-say.is-out { background: color-mix(in srgb, var(--a-ink) 14%, transparent); color: var(--a-ink); font-weight: 500; }
+@keyframes jokein { from { opacity: 0; transform: translateY(-6px) scale(0.96); } }
+
 @media (prefers-reduced-motion: reduce) {
   .adoor-leaf { transition: none; }
-  .aoffice.is-lit .aoffice-light, .aoffice.state-running .astatus-dot { animation: none !important; }
+  .aoffice.is-lit .aoffice-light, .aoffice.state-running .astatus-dot, .adoor.is-knocking .adoor-leaf, .aknock, .ajoke-say { animation: none !important; }
+  .azzz span { animation: none !important; opacity: 0.8; }
+  .azzz span:nth-child(2) { transform: translate(10px, -14px); }
+  .azzz span:nth-child(3) { transform: translate(22px, -32px); }
 }
-.adoor-sign { position: absolute; left: 50%; top: 30%; width: 38px; height: 38px; transform: translateX(-50%); opacity: 0.85; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5)); }
 /* An agent with no mark of its own: its first letter, in its colours. */
 .adoor-monogram {
   display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 18px;
@@ -972,3 +1030,15 @@ body::after {
   box-shadow: 0 4px 14px color-mix(in srgb, var(--a-accent, #A855F7) 50%, transparent);
 }
 .adoor-monogram-sign { width: 38px; height: 38px; border-radius: 11px; font-size: 20px; }
+.atalk { font-size: 13px; font-weight: 650; color: var(--a-ink); opacity: 0.85; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--a-accent) 60%, transparent); text-underline-offset: 3px; min-height: 32px; display: inline-flex; align-items: center; }
+.atalk:hover { opacity: 1; }
+/* A note for you from this agent: a bubble by its door. */
+.abubble {
+  position: absolute; top: 18px; right: 18px; z-index: 2; display: inline-flex; align-items: center; gap: 7px;
+  min-height: 34px; padding: 4px 12px 4px 5px; border-radius: 999px; border: 0; cursor: pointer;
+  background: var(--tone-haiku); color: #1a1205; font-weight: 700; font-size: 12.5px;
+  box-shadow: 0 8px 22px -8px rgba(240, 172, 44, 0.8); animation: bubblebob 2.4s ease-in-out infinite;
+}
+.abubble-n { min-width: 24px; height: 24px; padding: 0 6px; border-radius: 12px; background: #1a1205; color: var(--tone-haiku); display: inline-flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums; }
+@keyframes bubblebob { 50% { transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .abubble { animation: none !important; } }

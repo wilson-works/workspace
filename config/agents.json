@@ -1,5 +1,5 @@
 {
-  "_": "The Agents' wing: one office per specialist agent, in its own colours, with a door into its dashboard. Add your own here (lesson GS-09 and prompts/README.md, 'Put it in the office'). key: lower-case id. machine: the machine (workspace.config.json machines) it runs on. status: live, building or planned. door.local: its dashboard on that machine (opens only while it is running); door.phone: its tailnet address once tailscale serve publishes it (the office never proxies a dashboard). probe: a loopback port and path the office checks every 20 s to see whether it is running (any HTTP answer counts; never a path that hands out a login token). match: words that find its sessions on the floor by title or folder; only their count is shown. brand: its colours (bg, panel, ink, accent, accent2), a font, and an optional mark (an image under public/agents/); with no mark its first letter is drawn.",
+  "_": "The Agents' wing: one office per specialist agent, in its own colours, with a door into its dashboard. Add your own here (lesson GS-09 and prompts/README.md, 'Put it in the office'). key: lower-case id. machine: the machine (workspace.config.json machines) it runs on. status: live, building or planned. door.local: its dashboard on that machine (opens only while it is running); door.phone: its tailnet address once tailscale serve publishes it (the office never proxies a dashboard). probe: how the office checks every 20 s whether it is running: {port, path} on its own machine, or {url} at its tailnet address (https://...ts.net) so it shows running from every machine and the phone (an answer below 500 counts; never a path that hands out a login token). match: words that find its sessions on the floor by title or folder; only their count is shown. brand: its colours (bg, panel, ink, accent, accent2), a font, and an optional mark (an image under public/agents/); with no mark its first letter is drawn. art: an optional full figure that stands inside the open door (an svg in public/agents/, written /agents/<file>.svg); without one its mark stands there. jokes: up to 12 lines of 160 characters or fewer it answers with when someone right-clicks its door to knock.",
   "agents": [
     {
       "key": "your-specialist",
@@ -12,6 +12,11 @@
       "door": { "local": null, "phone": null },
       "probe": null,
       "match": [],
+      "jokes": [
+        "Knock knock. Who's there? Nobody yet. Finish lesson GS-09 and I move in.",
+        "I'd answer properly, but I haven't been built yet. GS-09 fixes that.",
+        "Left-click goes in, right-click knocks. Once I'm running, the door opens on its own."
+      ],
       "brand": { "bg": "#0D0524", "panel": "#2E1065", "ink": "#E0E7FF", "accent": "#A855F7", "accent2": "#6D28D9", "font": "Inter, system-ui, sans-serif" }
     }
   ]
