@@ -147,7 +147,48 @@ function load() {
   return cache.cfg;
 }
 
-function machines() { return load().machines; }
+// The fleet's registry (machines/<NAME>.json in the fleet repo), read at most every 15 seconds.
+const FLEET_TTL_MS = 15000;
+let fleetCache = null;
+
+/**
+ * The computers that share this office: workspace.config.json `machines`, then every computer the
+ * fleet repo has registered that the settings do not already list (by name or by computer), so the
+ * mesh knows each one without hand-editing. A fleet computer marked office_hub is the hub, unless
+ * the settings list that computer themselves: then the settings decide. A computer that left the
+ * fleet is left out.
+ */
+function machines() {
+  const c = load();
+  const own = c.machines;
+  const key = `${file()}|${c.fleet.repo || ''}`;
+  const now = Date.now();
+  if (!fleetCache || fleetCache.key !== key || now - fleetCache.at > FLEET_TTL_MS) {
+    let reg = [];
+    try {
+      const dir = fleetRepo();
+      if (dir) reg = require('./fleet').registeredMachines(dir);
+    } catch (_) { /* no fleet: the settings alone */ }
+    fleetCache = { key, at: now, reg };
+  }
+  const out = own.map((m) => Object.assign({}, m));
+  const taken = new Set(out.map((m) => m.callsigns).filter(Boolean));
+  const pools = poolNames();
+  let fleetHub = null;
+  for (const f of fleetCache.reg) {
+    if (f.status === 'left') continue;
+    const name = wallName(f.name);
+    const computer = unset(f.computer) ? null : wallName(f.computer);
+    if (!NAME_RE.test(name) || out.some((m) => m.name === name || (computer && m.computer === computer))) continue;
+    const callsigns = pools.find((p) => !taken.has(p)) || null;
+    if (callsigns) taken.add(callsigns);
+    const m = { name, computer, hub: false, callsigns };
+    if (f.office_hub === true && !fleetHub) fleetHub = m;
+    out.push(m);
+  }
+  if (fleetHub) for (const m of out) m.hub = m === fleetHub;
+  return out;
+}
 function machineNames() { return machines().map((m) => m.name); }
 function hubMachine() { return machines().find((m) => m.hub).name; }
 
