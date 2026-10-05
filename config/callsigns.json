@@ -1,0 +1,31 @@
+{
+  "_": "Session callsigns: one name pool per machine, so the name says where the session is. Each machine in workspace.config.json picks a pool with \"callsigns\" (trees, stars or rivers; by default the first machine gets trees, the second stars, the third rivers). Pools are disjoint, so no cross-machine lock is needed. A callsign is the address for group-chat --to. A desk shows the org person who runs it when config/org-people.json names one (\"James-1-Planning\"), and its callsign otherwise. Allocation: .claude/hooks/callsign.js. A released name is not reused for hold_ms. Add your own pool by adding a key here and naming it on a machine.",
+  "hold_ms": 86400000,
+  "stale_release_ms": 86400000,
+  "pools": {
+    "trees": [
+      "Cedar", "Aspen", "Rowan", "Birch", "Maple", "Alder", "Holly", "Juniper", "Laurel", "Linden",
+      "Willow", "Elm", "Oak", "Pine", "Spruce", "Larch", "Hemlock", "Cypress", "Sequoia", "Redwood",
+      "Magnolia", "Poplar", "Sycamore", "Hickory", "Walnut", "Chestnut", "Beech", "Hawthorn", "Yew", "Fir",
+      "Acacia", "Banyan", "Baobab", "Catalpa", "Dogwood", "Ebony", "Ginkgo", "Hornbeam", "Ironwood", "Jacaranda",
+      "Kauri", "Locust", "Mahogany", "Mesquite", "Olive", "Palmetto", "Pecan", "Persimmon", "Sassafras", "Tamarack",
+      "Teak", "Tupelo", "Buckeye", "Cottonwood", "Myrtle", "Sumac", "Pinyon", "Bayberry", "Basswood", "Boxelder"
+    ],
+    "stars": [
+      "Vega", "Rigel", "Lyra", "Sirius", "Altair", "Deneb", "Capella", "Arcturus", "Antares", "Spica",
+      "Castor", "Pollux", "Procyon", "Canopus", "Achernar", "Hadar", "Mimosa", "Bellatrix", "Alnitak", "Mintaka",
+      "Alnilam", "Saiph", "Mira", "Algol", "Mizar", "Alcor", "Dubhe", "Merak", "Phecda", "Megrez",
+      "Alioth", "Alkaid", "Thuban", "Kochab", "Shaula", "Nunki", "Alphecca", "Izar", "Mirfak", "Hamal",
+      "Diphda", "Fomalhaut", "Enif", "Markab", "Scheat", "Alpheratz", "Mirach", "Almach", "Schedar", "Caph",
+      "Electra", "Merope", "Alcyone", "Sadr", "Albireo", "Tarazed", "Zosma", "Denebola", "Regulus", "Alphard"
+    ],
+    "rivers": [
+      "Brazos", "Pecos", "Sabine", "Nueces", "Llano", "Frio", "Medina", "Neches", "Angelina", "Sulphur",
+      "Lampasas", "Paluxy", "Bosque", "Concho", "Blanco", "Comal", "Navasota", "Lavaca", "Wichita", "Canadian",
+      "Platte", "Yukon", "Snake", "Columbia", "Hudson", "Wabash", "Cimarron", "Gila", "Verde", "Kern",
+      "Yuba", "Klamath", "Rogue", "Umpqua", "Deschutes", "Powder", "Bighorn", "Gunnison", "Dolores", "Animas",
+      "Chama", "Shenandoah", "Potomac", "Savannah", "Suwannee", "Cumberland", "Kanawha", "Allegheny", "Mohawk", "Penobscot",
+      "Kennebec", "Merrimack", "Sacramento", "Truckee", "Owyhee", "Salmon", "Spokane", "Missouri", "Arkansas", "Ouachita"
+    ]
+  }
+}

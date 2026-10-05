@@ -1,0 +1,28 @@
+{
+  "_": "Who runs a session, in one place. A desk, its panel and the hub floor show <person>-<n>-<workscope>: the person from the first rule that matches below, n counting that person's sessions in the order they started, the workscope a few words. A session no rule names keeps its callsign (config/callsigns.json), else its title. Rules match, case-insensitive, on the session's title, its code folder and its launch seat (the WORKSPACE_SEAT environment variable). Order: (1) a run below whose match is in the session, then the first of its lanes whose match is also there; (2) a seat that is an org agent (roster key or name): that agent; (3) a gate seat, or the word gate in the title: the gate person.",
+  "_roster": "The org: agent file name -> the name it goes by. Ships with the CTO org (org/agents). When you rename an agent, add a department or build your own specialist, add it here too (prompts/README.md has the prompt).",
+  "roster": {
+    "chief-engineer-john": "John",
+    "cto-james": "James",
+    "exec-assistant-tim": "Tim",
+    "head-api-josh": "Josh",
+    "head-backend-cindy": "Cindy",
+    "head-database-diana": "Diana",
+    "head-frontend-gavin": "Gavin",
+    "head-qa-rachel": "Rachel",
+    "junior-api-felix": "Felix",
+    "junior-api-zara": "Zara",
+    "junior-backend-marcus": "Marcus",
+    "junior-backend-priya": "Priya",
+    "junior-database-leo": "Leo",
+    "junior-database-nora": "Nora",
+    "junior-frontend-ava": "Ava",
+    "junior-frontend-kai": "Kai",
+    "junior-qa-maya": "Maya",
+    "junior-qa-owen": "Owen"
+  },
+  "_gate": "The gate is the last check before code reaches main: John, the Chief Engineer, in the CTO org.",
+  "gate": "John",
+  "_runs": "Parallel runs: a run's lanes, so each lane's session is named for the person running it. Empty until you run one. Example: {\"run\": \"Night 1\", \"match\": \"night-1\", \"lanes\": [{\"match\": \"lane A\", \"person\": \"Cindy\", \"scope\": \"API cleanup\"}, {\"match\": \"gate\", \"person\": \"John\", \"scope\": \"Merge gate\"}]}",
+  "runs": []
+}

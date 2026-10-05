@@ -1,0 +1,16 @@
+node_modules/
+*.log
+.DS_Store
+.vite/
+
+# Your settings name you, your computers and your folders. Never commit them.
+workspace.config.json
+
+# Your own Work projects stay on your computer. Only the two that ship are tracked.
+projects/*
+!projects/README.md
+!projects/getting-started/
+!projects/demo-app/
+
+# Your own logo and brand files (brand.logo in workspace.config.json).
+brand/

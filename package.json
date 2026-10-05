@@ -1,0 +1,25 @@
+{
+  "name": "workspace",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node bin/office-start.js",
+    "build": "node tools/build.mjs",
+    "dev": "vite"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.0",
+    "esbuild": "^0.21.5"
+  },
+  "description": "WorkSpace from WilsonWorks: a virtual office for your Claude Code sessions, with a get-started course and a CTO org.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  }
+}

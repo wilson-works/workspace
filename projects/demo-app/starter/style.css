@@ -1,0 +1,40 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #f4f4f4;
+  color: #222;
+}
+
+main {
+  max-width: 420px;
+  margin: 40px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+}
+
+h1 { margin-top: 0; }
+
+.hint { color: #aaa; }
+
+label {
+  display: block;
+  margin-top: 16px;
+  font-size: 14px;
+  color: #999;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+}
+
+.result {
+  margin-top: 24px;
+  font-size: 18px;
+  color: #888;
+}

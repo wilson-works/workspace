@@ -1,0 +1,7 @@
+{
+  "_comment": "Copy to <claude-home>/walkaway.local.json and edit for THIS machine. Never commit the filled-in copy to a shared repo: it names your private paths.",
+  "off_limits": ["C:\\Users\\another-person", "D:\\PRIVATE"],
+  "push_main_ok": ["my-coordination-repo", "my-docs-repo"],
+  "local_mcp": ["chrome-devtools"],
+  "extra_roots": ["D:\\MyWorkspaceRoot"]
+}

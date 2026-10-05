@@ -1,0 +1,11 @@
+{
+  "_": "Session avatars (src/server/avatars.js). retired: emblem ids never handed out again (pick them from #/avatars). family_frames: the one frame per model family, so the model reads at a glance; each id is a key of src/ui/avatars/frames.json.",
+  "retired": [],
+  "family_frames": {
+    "opus": "frame-nebula",
+    "fable": "frame-specialist",
+    "sonnet": "frame-eater",
+    "haiku": "frame-amber",
+    "unknown": "frame-recruit"
+  }
+}

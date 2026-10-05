@@ -1,0 +1,6 @@
+# Walkaway mode is a switch for one computer, not part of the app.
+.claude/WALKAWAY
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
