@@ -91,7 +91,12 @@ function createAgents(opts) {
           key: a.key, name: a.name, title: a.title || null, line: a.line || null,
           machine: a.machine || o.self, status: a.status || null, repo: a.repo || null,
           brand: a.brand || {},
-          door: { local: here && state === 'running' ? (a.door && a.door.local) || null : null, phone: (a.door && a.door.phone) || null },
+          // A door is only offered while it leads somewhere: running here, or on another machine
+          // (which this office cannot probe). A stopped, planned or unbuilt agent's door stays shut.
+          door: {
+            local: here && state === 'running' ? (a.door && a.door.local) || null : null,
+            phone: state === 'running' || state === 'elsewhere' ? (a.door && a.door.phone) || null : null,
+          },
           state,
           checked_at: seen ? seen.at : null,
           at_desks: at_desks.length,

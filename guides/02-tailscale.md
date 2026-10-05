@@ -91,7 +91,9 @@ Say "set up my WorkSpace" on each, or edit the file:
   `hostname` command on macOS and Linux. It is how each computer knows which entry it is.
 - Exactly one machine has `"hub": true`.
 - Each machine gets its own pool of session names: the first trees (Cedar, Aspen...), the second
-  stars (Vega, Rigel...), the third rivers. Set `"callsigns": "stars"` on a machine to choose.
+  stars (Vega, Rigel...), the third rivers. Set `"callsigns": "stars"` on a machine to choose. Three
+  pools ship; a fourth computer needs a pool of its own (the prompt library's "Session names from
+  your own world"), and until it has one its sessions go by their titles.
 
 Restart the office on every computer after changing the list: `node bin/office-start.js --restart`.
 

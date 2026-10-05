@@ -14,17 +14,22 @@
  * <office home>/work/progress.json - the office never writes into a project.
  *
  * Private work: a project whose folder matches `privacy.private_work` is listed
- * by step id only, and its steps' text is not served. Open it in your editor.
+ * as "Private project" under an opaque key, its steps as Step 1, Step 2 ... with
+ * ids P1, P2 ..., and its steps' text is not served: a folder, a file name or a
+ * step id can each be a client's name. Open it in your editor.
  */
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const config = require('./config');
 
 const KEY_RE = /^[A-Za-z0-9][A-Za-z0-9_-]{0,60}$/;
 const ID_RE = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,40}$/;
 const STATES = ['todo', 'doing', 'done'];
 const PEEK = 3;
+// Read as numbers; everything else (an id like 007 included) stays text.
+const NUMERIC = new Set(['minutes', 'order']);
 
 /** `---` front matter -> {meta, body}. Values are text or numbers; a trailing ` # note` is dropped. */
 function parse(text) {
@@ -37,7 +42,8 @@ function parse(text) {
       if (!kv) continue;
       let v = kv[2].replace(/\s+#\s.*$/, '').trim();
       if (/^(["']).*\1$/.test(v)) v = v.slice(1, -1);
-      meta[kv[1].toLowerCase()] = /^-?\d+(\.\d+)?$/.test(v) ? Number(v) : v;
+      const key = kv[1].toLowerCase();
+      meta[key] = NUMERIC.has(key) && /^-?\d+(\.\d+)?$/.test(v) ? Number(v) : v;
     }
   }
   return { meta, body: m ? src.slice(m[0].length) : src };
@@ -72,7 +78,9 @@ function projects() {
       if (text === null) continue;
       seen.add(name.toLowerCase());
       const { meta, body } = parse(text);
-      out.push({ key: name, dir, meta, body, private: config.isPrivate(dir) });
+      const priv = config.isPrivate(dir);
+      const key = priv ? `private-${crypto.createHash('sha1').update(dir.toLowerCase()).digest('hex').slice(0, 8)}` : name;
+      out.push({ key, dir, meta, body, private: priv });
     }
   }
   return out;
@@ -88,7 +96,8 @@ function steps(p, progress) {
     const text = readText(path.join(p.dir, 'steps', f));
     if (text === null) continue;
     const { meta, body } = parse(text);
-    const id = ID_RE.test(String(meta.id || '')) ? String(meta.id) : f.replace(/\.md$/i, '');
+    const id = p.private ? `P${out.length + 1}`
+      : ID_RE.test(String(meta.id || '')) ? String(meta.id) : f.replace(/\.md$/i, '');
     if (out.some((s) => s.id === id)) continue;
     const own = STATES.includes(String(meta.status || '').toLowerCase()) ? String(meta.status).toLowerCase() : 'todo';
     const mark = marks[id] && STATES.includes(marks[id].status) ? marks[id] : null;
@@ -106,14 +115,14 @@ function steps(p, progress) {
 }
 
 const pctOf = (done, total) => (total > 0 ? Math.round((done / total) * 100) : null);
-const label = (s) => (s.title ? s.title : `Step ${s.id}`);
+const label = (s) => (s.title ? s.title : /^P\d+$/.test(s.id) ? `Step ${s.id.slice(1)}` : `Step ${s.id}`);
 const card = (s) => ({ id: s.id, label: label(s), minutes: s.minutes, who: s.who });
 
 function head(p) {
   const kind = p.meta.kind === 'course' ? 'course' : 'project';
   return {
     key: p.key,
-    name: p.private ? p.key : String(p.meta.name || p.key),
+    name: p.private ? 'Private project' : String(p.meta.name || p.key),
     summary: p.private ? 'Private work' : (p.meta.summary ? String(p.meta.summary) : null),
     kind,
     order: typeof p.meta.order === 'number' ? p.meta.order : 100,

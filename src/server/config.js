@@ -47,6 +47,14 @@ function wallName(name) {
   return n || 'UNKNOWN';
 }
 
+/** The callsign pools that exist (config/callsigns.json), in file order. */
+function poolNames() {
+  try {
+    const names = Object.keys(JSON.parse(fs.readFileSync(path.join(ROOT, 'config', 'callsigns.json'), 'utf8')).pools || {});
+    return names.length ? names : POOLS;
+  } catch (_) { return POOLS; }
+}
+
 function thisComputer() {
   return wallName(process.env.COMPUTERNAME || os.hostname());
 }
@@ -72,11 +80,22 @@ function normalize(raw) {
   if (!machines.length) machines.push({ name: thisComputer(), computer: thisComputer(), hub: true, callsigns: null });
   if (!machines.some((m) => m.hub)) machines[0].hub = true;
   let hubSeen = false;
-  machines.forEach((m, i) => {
+  for (const m of machines) {
     if (m.hub && hubSeen) m.hub = false;
     if (m.hub) hubSeen = true;
-    if (!m.callsigns) m.callsigns = POOLS[i % POOLS.length];
-  });
+  }
+  // Each machine needs a pool of its own, or two sessions on two machines can share a name (and
+  // `--to <callsign>` in the group chat could not tell them apart). Machines that chose a pool keep
+  // it; the rest take the first pool nobody uses. A machine left with none hands out no callsigns
+  // (its sessions go by their titles) until a pool is added to config/callsigns.json.
+  const taken = new Set(machines.map((m) => m.callsigns).filter(Boolean));
+  const pools = poolNames();
+  for (const m of machines) {
+    if (m.callsigns) continue;
+    const free = pools.find((p) => !taken.has(p)) || null;
+    m.callsigns = free;
+    if (free) taken.add(free);
+  }
 
   const colors = Array.isArray(brand.colors) && brand.colors.length >= 2 && brand.colors.slice(0, 2).every((c) => HEX_RE.test(String(c)))
     ? brand.colors.slice(0, 2).map(String)
@@ -147,21 +166,25 @@ const norm = (p) => String(p || '').replace(/\//g, '\\').toLowerCase();
 
 /**
  * Private work: a session whose folder matches a `privacy.private_work` entry.
- * An entry with a slash is a folder (matched as a path prefix anywhere in the
- * path); a plain word matches as a whole folder-name word. Its titles, task
+ * A full path (C:\Users\sam\tax, \\server\share, /Users/sam/tax) matches that
+ * folder and everything under it; a relative path (clients\acme) matches those
+ * whole folder names anywhere in a path; a plain word matches as a whole word of
+ * a folder name (clients matches Clients_2025, not myclients). Its titles, task
  * descriptions and summaries never reach the wall.
  */
 function isPrivate(...cwds) {
   const rules = load().privacy.private_work;
   if (!rules.length) return false;
+  const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return cwds.some((c) => {
     if (!c) return false;
     const p = norm(c);
     return rules.some((rule) => {
       const r = norm(rule).replace(/\\+$/, '');
-      if (/[\\]/.test(r)) return p === r || p.includes(`${r}\\`) || p.endsWith(r);
-      const esc = r.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      return new RegExp(`(^|[\\\\\\s_.-])${esc}($|[\\\\\\s_.-])`, 'i').test(p);
+      if (!r) return false;
+      if (/^[a-z]:\\|^\\/.test(r)) return p === r || p.startsWith(`${r}\\`);
+      if (/[\\]/.test(r)) return new RegExp(`(^|\\\\)${esc(r)}(\\\\|$)`).test(p);
+      return new RegExp(`(^|[\\\\\\s_.-])${esc(r)}($|[\\\\\\s_.-])`, 'i').test(p);
     });
   });
 }
