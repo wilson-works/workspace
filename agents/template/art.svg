@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 112 124" width="112" height="124" role="img" aria-label="{{name}}">
+  <ellipse cx="56" cy="119" rx="28" ry="4" fill="{{bg}}" opacity="0.45"/>
+  <rect x="43" y="82" width="10" height="35" rx="5" fill="{{panel}}"/>
+  <rect x="59" y="82" width="10" height="35" rx="5" fill="{{panel}}"/>
+  <rect x="25" y="46" width="10" height="34" rx="5" fill="{{accent2}}"/>
+  <rect x="77" y="46" width="10" height="34" rx="5" fill="{{accent2}}"/>
+  <path d="M35 54 Q35 42 47 42 H65 Q77 42 77 54 V88 H35 Z" fill="{{accent}}"/>
+  <circle cx="56" cy="62" r="8" fill="{{bg}}"/>
+  <text x="56" y="66.5" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="700" fill="{{ink}}">{{initial}}</text>
+  <circle cx="56" cy="24" r="15" fill="{{ink}}"/>
+  <circle cx="51" cy="23" r="2" fill="{{bg}}"/>
+  <circle cx="61" cy="23" r="2" fill="{{bg}}"/>
+  <path d="M50 29.5 Q56 34 62 29.5" stroke="{{bg}}" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>

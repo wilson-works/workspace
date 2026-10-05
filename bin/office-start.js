@@ -18,7 +18,10 @@
  *      its service is often still starting - and without this machine's
  *      Tailscale name the phone gets 403 (the server only answers names it was
  *      told about);
- *   4. starts the server detached, logging to <office home>/office.log.
+ *   4. starts the server detached, logging to <office home>/office.log;
+ *   5. starts each specialist agent with autostart: true whose probe does not answer
+ *      (agents/lib/agents.js autostart), detached, never blocking the office. Only when the office
+ *      itself was started here: an agent someone stopped stays stopped while the office runs.
  * The Tailscale name is looked up, never hardcoded, and remembered in
  * <office home>/tailscale-name.txt, so a restart while Tailscale is still
  * starting (or belongs to another user on this computer) keeps the phone working.
@@ -155,4 +158,12 @@ async function stopRunning(note) {
   child.unref();
   note(`started pid ${child.pid}${name ? ` allowing ${name}` : ''}`);
   process.stdout.write(`The office is starting: http://127.0.0.1:${PORT}/${name ? `  (and https://${name}/ once tailscale serve is on)` : ''}\n`);
+
+  // 5. The specialist agents that asked for it (autostart: true in their agent.json) and are down get
+  //    their dashboards started too: detached, each logging to its own dashboard/dashboard.log. The
+  //    office is already on its way; a failure here is noted in office.log and never stops anything.
+  try {
+    const started = await require('../agents/lib/agents').autostart(config.agentsDirs(), note);
+    if (started.length) process.stdout.write(`Started ${started.length === 1 ? 'the agent' : 'the agents'} ${started.join(', ')}.\n`);
+  } catch (e) { note(`could not start the agents: ${e.message}`); }
 })();
