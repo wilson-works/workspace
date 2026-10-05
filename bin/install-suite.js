@@ -462,7 +462,9 @@ async function partHub(ctx) {
   const base = ['init', '--root', ctx.hub, '--machine', ctx.machine, '--role', ctx.role].concat(ctx.owner ? ['--owner', ctx.owner] : []);
   const plan = tool(rel, base.concat(['--dry-run']));
   const lines = plan.stdout.split(/\r?\n/).filter((l) => l.trim());
-  for (const l of lines) out(`  ${l.replace(/^\s+/, '')}`);
+  // The tool's own "Dry run: nothing was written" closes its plan; in a real install the next lines are
+  // the doing, so that line would only confuse.
+  for (const l of lines) if (ctx.dry || !/^\s*Dry run:/.test(l)) out(`  ${l.replace(/^\s+/, '')}`);
   if (plan.status !== 0) { out(`  The Hub tool stopped (exit ${plan.status}).`); ctx.failed.push('hub'); return; }
   const n = lines.filter(isChange).length;
   if (!n) return;

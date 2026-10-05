@@ -183,6 +183,34 @@ test('a copy that differs is kept unless forced; forcing moves yours to the _Dum
   }
 });
 
+test('--port: a free one is used as asked; a taken one is refused before anything changes, even with --force', async () => {
+  const s = setup();
+  const holder = net.createServer();
+  try {
+    const pkg = makePackage(s.base, 'quill', await spare(), s.marker);
+    const asked = await spare();
+    const first = await lib.installPackage(pkg, s.agents, { subagentsDir: s.subs, hubRoot: s.hub, start: false, port: asked });
+    assert.equal(first.ok, true, JSON.stringify(first));
+    assert.match(first.lines.join('\n'), new RegExp(`^~ .*gets port ${asked}, as asked`, 'm'));
+    const m = JSON.parse(fs.readFileSync(path.join(s.agents, 'quill', 'agent.json'), 'utf8'));
+    assert.equal(m.probe.port, asked);
+    assert.equal(m.door.local, `http://127.0.0.1:${asked}/`);
+
+    const memory = path.join(s.agents, 'quill', 'memory', 'MEMORY.md');
+    fs.appendFileSync(memory, '- 2026-10-05 something it learned (memory/x.md)\n');
+    const learned = fs.readFileSync(memory, 'utf8');
+    const taken = await new Promise((resolve) => holder.listen(0, '127.0.0.1', () => resolve(holder.address().port)));
+    const refused = await lib.installPackage(pkg, s.agents, { subagentsDir: s.subs, hubRoot: s.hub, force: true, start: false, port: taken });
+    assert.equal(refused.refused, true, JSON.stringify(refused));
+    assert.match(refused.errors.join(' '), new RegExp(`Port ${taken} is taken`));
+    assert.equal(fs.readFileSync(memory, 'utf8'), learned, 'yours is untouched');
+    assert.equal(fs.existsSync(path.join(s.hub, '90-Archive', '_DumpQueue')) ? fs.readdirSync(path.join(s.hub, '90-Archive', '_DumpQueue')).length : 0, 0, 'nothing moved to the _DumpQueue');
+  } finally {
+    holder.close();
+    fs.rmSync(s.base, { recursive: true, force: true });
+  }
+});
+
 test('a link inside a package is never copied', async (t) => {
   const s = setup();
   try {

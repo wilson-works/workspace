@@ -4,7 +4,7 @@
 /**
  * install-agent.js — install an agent package you were given, and give it an office.
  *
- *   node agents/bin/install-agent.js <package> [--hub <root>] [--yes] [--dry-run] [--force] [--no-start]
+ *   node agents/bin/install-agent.js <package> [--hub <root>] [--port <n>] [--yes] [--dry-run] [--force] [--no-start]
  *
  *   node agents/bin/install-agent.js agents/examples/quill --yes
  *   node agents/bin/install-agent.js C:\Users\alex\Downloads\quill.zip
@@ -18,7 +18,7 @@
  * It is copied to <agents folder>/<key>/. When that folder is already there and differs, it is kept
  * ("!") unless --force or you say yes; a replaced one moves to <Hub>/90-Archive/_DumpQueue/. When its
  * port is taken (another agent.json, or anything listening), it gets a free one: probe.port and
- * door.local are rewritten ("~"). Its subagent goes to <Hub>/.claude/agents/<key>.md. When its
+ * door.local are rewritten ("~"). --port asks for a port of your own (refused when it is taken). Its subagent goes to <Hub>/.claude/agents/<key>.md. When its
  * agent.json says autostart: true, its dashboard is started after a yes (or --yes).
  * --yes answers yes to starting it, never to replacing your copy; only --force replaces.
  * Exit codes: 0 done (or plan shown), 1 failed, 2 refused.
@@ -32,7 +32,7 @@ const cli = require('../lib/cli');
 const { out, refuse, fail } = cli;
 
 (async () => {
-  const { _: pos, flags } = cli.parseArgs(process.argv.slice(2), ['hub']);
+  const { _: pos, flags } = cli.parseArgs(process.argv.slice(2), ['hub', 'port']);
   const src = pos[0];
   if (!src) refuse('Name the package: node agents/bin/install-agent.js <folder, .zip file or git address>.');
   const dry = !!flags['dry-run'];
@@ -49,6 +49,7 @@ const { out, refuse, fail } = cli;
     yes: !!flags.yes,
     force: !!flags.force,
     start: !flags['no-start'],
+    port: flags.port === undefined ? undefined : Number(flags.port),
     ask: lib.ask,
   });
   r.lines.forEach((l) => out(`  ${l}`));

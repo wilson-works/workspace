@@ -604,6 +604,15 @@ async function installPackage(src, agentsDir, opts) {
     const dirs = [...new Set([agentsDir].concat(o.dirs || []).map((d) => path.resolve(d)))];
     const shown = fwd(target);
 
+    // A port asked for with --port is checked before anything changes, so a refusal never leaves a
+    // replaced agent half done.
+    if (o.port !== undefined) {
+      if (!portOk(o.port)) return { ok: false, refused: true, errors: ['--port needs a number from 1024 to 65535.'], lines };
+      if (usedPorts(dirs, key).has(o.port) || await listening(o.port)) {
+        return { ok: false, refused: true, errors: [`Port ${o.port} is taken (another agent, or something listening there). Pick another, or leave --port out.`], lines };
+      }
+    }
+
     // 1. Already there?
     if (fs.existsSync(target)) {
       if (sameAsInstalled(top, manifest, target)) {
@@ -623,10 +632,16 @@ async function installPackage(src, agentsDir, opts) {
       lines.push(`~ ${shown} replaced; the old one ${o.dryRun ? 'would move' : 'moved'} to ${fwd(queued)}${old ? ` (its dashboard, pid ${old}, ${o.dryRun ? 'would be' : 'was'} stopped first)` : ''}`);
     }
 
-    // 2. Its port: the one it asks for, unless another agent uses it or something listens there.
+    // 2. Its port: the one asked for with --port (refused when taken), else the one its agent.json asks
+    //    for, unless another agent uses it or something listens there.
     let final = manifest;
     const want = manifestPort(manifest);
-    if (want && (usedPorts(dirs, key).has(want) || await listening(want))) {
+    if (o.port !== undefined) {
+      if (o.port !== want) {
+        final = withPort(manifest, o.port);
+        lines.push(`~ ${manifest.name} gets port ${o.port}, as asked (probe.port and door.local in its agent.json)`);
+      }
+    } else if (want && (usedPorts(dirs, key).has(want) || await listening(want))) {
       const port = await freePort(dirs, o.from || PORT_FROM, { except: key });
       final = withPort(manifest, port);
       lines.push(`~ port ${want} is taken, so ${manifest.name} gets port ${port} (probe.port and door.local in its agent.json)`);
