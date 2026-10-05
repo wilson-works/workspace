@@ -84,7 +84,8 @@ function candidates(env) {
 
 /**
  * { root, how } for this computer's Hub, or null when there is none.
- * @param opts { from, env, probe (false skips the usual places) }
+ * @param opts { from, env, probe (false skips the usual places),
+ *               fromOnly (true walks up from `from` alone, not the current folder or this file's) }
  */
 function findHubRoot(opts) {
   const o = opts || {};
@@ -96,7 +97,7 @@ function findHubRoot(opts) {
     }
     return { root: path.resolve(pinned), how: 'HUB_ROOT' };
   }
-  for (const start of [o.from, process.cwd(), __dirname]) {
+  for (const start of o.fromOnly ? [o.from] : [o.from, process.cwd(), __dirname]) {
     const r = walkUp(start);
     if (r) return { root: r, how: `found above ${start}` };
   }
