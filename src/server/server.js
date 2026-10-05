@@ -781,7 +781,7 @@ if (require.main === module) {
   const live = !root;
   const home = arg('--home', homeDir());
 
-  const opts = { root: root || home, home, port: Number(arg('--port', 4316)) };
+  const opts = { root: root || home, home, port: Number(arg('--port', config.officePort())) };
   if (args.includes('--channel-hub')) opts.channelHub = true;
   const extraHost = arg('--allow-host', undefined);
   if (extraHost) opts.allowHosts = extraHost.split(',').map((s) => s.trim()).filter(Boolean);

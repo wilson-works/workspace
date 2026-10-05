@@ -106,6 +106,11 @@ function normalize(raw) {
     if (!/\.(svg|png)$/i.test(logo) || !fs.existsSync(logo)) logo = null;
   }
   const hubUrl = str(r.hub_url);
+  const office = r.office && typeof r.office === 'object' ? r.office : {};
+  const port = Number(office.port);
+  const officeHome = str(office.home);
+  const fleet = r.fleet && typeof r.fleet === 'object' ? r.fleet : {};
+  const fleetRepo = str(fleet.repo);
 
   return {
     use: str(r.use) === 'company' ? 'company' : 'personal',
@@ -117,6 +122,14 @@ function normalize(raw) {
     work_folders: list(r.work_folders).map((f) => path.resolve(ROOT, f)),
     privacy: { private_work: list(privacy.private_work), never_read: list(privacy.never_read) },
     tailscale_cli: str(r.tailscale_cli),
+    // Where this office listens and keeps its state. Two offices on one computer (a test, a
+    // second person) each get their own port and home; the hooks read both from here.
+    office: {
+      port: Number.isInteger(port) && port >= 1024 && port <= 65535 ? port : null,
+      home: officeHome ? path.resolve(ROOT, officeHome) : null,
+    },
+    agents_dirs: list(r.agents_dirs).map((f) => path.resolve(ROOT, f)),
+    fleet: { repo: fleetRepo ? path.resolve(ROOT, fleetRepo) : null },
   };
 }
 
@@ -199,8 +212,47 @@ function neverRead(slug) {
   });
 }
 
-/** Folders that hold code repos: a session inside one sits in that repo's room. */
-function codeRoots() { return load().code_roots; }
+/** The Hub this office belongs to (hub/lib/root.js), or null when it runs on its own. Never throws. */
+function hubRoot() {
+  try {
+    const r = require('../../hub/lib/root').findHubRoot({ from: ROOT });
+    return r ? r.root : null;
+  } catch (_) { return null; }
+}
+
+/** Folders that hold code repos: a session inside one sits in that repo's room. Default: the Hub's code zone. */
+function codeRoots() {
+  const own = load().code_roots;
+  if (own.length) return own;
+  const hub = hubRoot();
+  if (!hub) return [];
+  try { return [require('../../hub/lib/root').codeZone(hub)]; } catch (_) { return []; }
+}
+
+/** The port this office listens on: WORKSPACE_PORT, else office.port, else 4316. */
+function officePort() {
+  const env = Number(process.env.WORKSPACE_PORT);
+  if (Number.isInteger(env) && env >= 1024 && env <= 65535) return env;
+  return load().office.port || 4316;
+}
+
+/** Folders whose sub-folders each hold one agent's agent.json. Default: the Hub's 50-AI/agents. */
+function agentsDirs() {
+  const own = load().agents_dirs;
+  if (own.length) return own;
+  const hub = hubRoot();
+  return hub ? [path.join(hub, '50-AI', 'agents')] : [];
+}
+
+/** This computer's clone of the fleet-ops repo, or null. Default: the Hub's 50-AI/fleet-ops when it is one. */
+function fleetRepo() {
+  const own = load().fleet.repo;
+  if (own) return own;
+  const hub = hubRoot();
+  if (!hub) return null;
+  const dir = path.join(hub, '50-AI', 'fleet-ops');
+  return fs.existsSync(path.join(dir, 'fleet.json')) ? dir : null;
+}
 
 /** What the page shows about whose office this is. */
 function brand() {
@@ -219,4 +271,5 @@ function ownerName() { return load().owner.name; }
 module.exports = {
   ROOT, POOLS, file, load, normalize, unset, wallName, thisComputer, thisMachine, machines, machineNames,
   hubMachine, poolOf, isPrivate, neverRead, codeRoots, brand, ownerName,
+  hubRoot, officePort, agentsDirs, fleetRepo,
 };

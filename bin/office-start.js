@@ -30,7 +30,7 @@ const path = require('path');
 const { spawn, execFileSync } = require('child_process');
 const config = require('../src/server/config');
 
-const PORT = 4316;
+const PORT = config.officePort();
 const repo = path.resolve(__dirname, '..');
 const home = require('../src/server/home').homeDir();
 

@@ -3,7 +3,7 @@
 
 /**
  * ensure-office.js - the SessionStart hook that keeps the office up:
- *   1. probe 127.0.0.1:4316;
+ *   1. probe 127.0.0.1 on this office's port (workspace.config.json office.port, default 4316);
  *   2. return immediately if something answers;
  *   3. otherwise spawn office-start.js detached (it does the Tailscale wait and the log);
  *   4. never block, always exit 0 - a hook that cannot start the office must not stop a session.
@@ -13,7 +13,8 @@ const net = require('net');
 const path = require('path');
 const { spawn } = require('child_process');
 
-const PORT = 4316;
+let PORT = 4316;
+try { PORT = require('../src/server/config').officePort(); } catch (_) { /* the default */ }
 
 function probe() {
   return new Promise((resolve) => {
