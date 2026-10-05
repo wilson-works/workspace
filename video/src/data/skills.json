@@ -1,0 +1,17 @@
+{
+  "_": "The starter skills the videos show: the twelve in skills/starter.json (the pinned set the installer copies into a new Hub), in its order, each with a short line taken from its own description there. tests/video-sources.test.js checks the names match.",
+  "skills": [
+    { "name": "handoff", "line": "Closes a session into a note the next one picks up." },
+    { "name": "file-organizer", "line": "Sorts Downloads and the Inbox into zones. Never deletes." },
+    { "name": "claude-md-doctor", "line": "Keeps each CLAUDE.md short and checkable." },
+    { "name": "systems-map", "line": "Maps a project's parts and what depends on what." },
+    { "name": "backlog", "line": "One place for the work you have not done yet." },
+    { "name": "work-orders", "line": "Works through the backlog, one order at a time." },
+    { "name": "quick-design", "line": "A short plan before a change." },
+    { "name": "scope-check", "line": "Checks the work matched the plan." },
+    { "name": "smoke-check", "line": "A two-minute \"is it still working?\" before you merge." },
+    { "name": "notetaker", "line": "Notes every future session can find." },
+    { "name": "quick-research", "line": "Answers a question with sources, in one sitting." },
+    { "name": "prompt-coach", "line": "Teaches you to ask Claude for things well." }
+  ]
+}
