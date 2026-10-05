@@ -154,7 +154,7 @@ Run from the Workspace folder. Each prints its plan with the same marks: `+` add
 | Job | Command |
 |---|---|
 | Make a new agent | `node agents/bin/new-agent.js <key> --name <Name> --title <Title> [--line <text>] [--color <#rrggbb>] [--hub <root>] [--port <n>] [--no-start] [--dry-run]` |
-| Install a package | `node agents/bin/install-agent.js <folder, .zip or git address> [--hub <root>] [--yes] [--force] [--no-start] [--dry-run]` |
+| Install a package | `node agents/bin/install-agent.js <folder, .zip or git address> [--hub <root>] [--port <n>] [--yes] [--force] [--no-start] [--dry-run]` |
 | See them all | `node agents/bin/agent.js list` |
 | Start or stop one | `node agents/bin/agent.js start <key>` (or `start --all`), `node agents/bin/agent.js stop <key>` |
 | Take one out | `node agents/bin/agent.js remove <key> [--yes]` |
