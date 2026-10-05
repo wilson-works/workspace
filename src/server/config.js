@@ -168,10 +168,11 @@ function isPrivate(...cwds) {
 
 /** A Claude Code projects-folder name (the session's folder, slugged) the office must never open. */
 function neverRead(slug) {
-  const s = String(slug || '').toLowerCase();
+  const s = String(slug || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
   return load().privacy.never_read.some((p) => {
     const want = String(p).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-    return want && s.replace(/[^a-z0-9]+/g, '-').includes(want);
+    // Whole folder names only: C:\Users\other must not also hide C:\Users\otherwise.
+    return want && new RegExp(`(^|-)${want}(-|$)`).test(s);
   });
 }
 
