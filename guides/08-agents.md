@@ -31,7 +31,7 @@ The examples are Louise's, the first WilsonWorks agent (her colours here are onl
 | `key` | The agent's short name, the same as its folder. | `"louise"` |
 | `name` | What it is called on its door. | `"Louise"` |
 | `title` | What it does, in a few words. | `"The Research Librarian"` |
-| `line` | One sentence about its job, shown in its office. | `"Researches any topic in stages, keeps everything she finds on library shelves you can browse, and fetches any of it when you ask."` |
+| `line` | One sentence about its job, shown in its office. | `"Researches your questions with a source for every fact, and keeps what she finds on shelves you can browse."` |
 | `status` | `live` when it is ready to work. | `"live"` |
 | `door.local` | The address of its dashboard on this computer. | `"http://127.0.0.1:7540/"` |
 | `door.phone` | Its dashboard's address on your tailnet, once you publish it ([guide 2](02-tailscale.md)); empty until then. | `null` |
@@ -104,7 +104,8 @@ These are the agents of ours anyone can install, from `agents/catalog.json`:
 
 | Agent | What it does | Price | Install |
 |---|---|---|---|
-| **Louise**, The Research Librarian | Researches any topic in stages, keeps everything she finds on library shelves you can browse, and fetches any of it when you ask. | free | `install-agent louise` |
+| **Louise**, The Research Librarian | Researches your questions with a source for every fact, and keeps what she finds on shelves you can browse. | free | `install-agent louise` |
+| **Bryn**, The Trail Guide | Helps you think a decision through. Five scouts weigh it on their own, she looks for where the plan could fail, and she keeps your call so you never argue it twice. | free | `install-agent bryn` |
 
 `node 50-AI/workspace/agents/bin/agent.js catalog` lists them on your computer and says which ones
 you have. To have one built for your own work, see "Free, or done for you" in the

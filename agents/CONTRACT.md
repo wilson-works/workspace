@@ -43,7 +43,7 @@ are only an example here; her own `agent.json` has the real ones.
 ```json
 {
   "key": "louise", "name": "Louise", "title": "The Research Librarian",
-  "line": "Researches any topic in stages, keeps everything she finds on library shelves you can browse, and fetches any of it when you ask.",
+  "line": "Researches your questions with a source for every fact, and keeps what she finds on shelves you can browse.",
   "status": "live",
   "door": { "local": "http://127.0.0.1:7540/", "phone": null },
   "probe": { "port": 7540, "path": "/health" },

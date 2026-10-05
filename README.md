@@ -81,12 +81,18 @@ the [v2.0.0 release page](https://github.com/wilson-works/workspace/releases/tag
 The whole Workspace is **free and public**. Everything here is yours to set up yourself, with the
 guides and the course.
 
-**Install one of ours.** Louise, the research librarian, researches any topic in stages, keeps
-everything she finds on library shelves you can browse, and fetches any of it when you ask. She is
-free. Say yes when the installer offers her, or, from the Workspace folder:
+**Install one of ours.** Both are free.
+
+- **Louise, the research librarian**, researches your questions with a source for every fact, and
+  keeps what she finds on shelves you can browse. Say yes when the installer offers her.
+- **Bryn, the trail guide**, helps you think a decision through: five scouts weigh it on their own,
+  she looks for where the plan could fail, and she keeps your call so you never argue it twice.
+
+From the Workspace folder:
 
 ```
 node agents/bin/install-agent.js louise
+node agents/bin/install-agent.js bryn
 ```
 
 `node agents/bin/agent.js catalog` lists every agent of ours you can install.
