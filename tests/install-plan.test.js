@@ -31,7 +31,7 @@ const sha = (b) => crypto.createHash('sha256').update(b).digest('hex');
 const SEP = '[\\\\/]';
 
 function git(cwd, args) {
-  return execFileSync('git', ['-c', 'user.name=Test', '-c', 'user.email=test@example.com', '-c', 'commit.gpgsign=false'].concat(args), {
+  return execFileSync('git', ['-c', 'user.name=Alex', '-c', 'user.email=alex@example.com', '-c', 'commit.gpgsign=false'].concat(args), {
     cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true,
   }).trim();
 }

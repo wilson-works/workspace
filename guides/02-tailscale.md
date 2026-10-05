@@ -97,16 +97,26 @@ Say "set up my WorkSpace" on each, or edit the file:
 
 Restart the office on every computer after changing the list: `node bin/office-start.js --restart`.
 
+**With a fleet** ([guide 7](07-several-computers.md)), every computer that joined is already listed in
+your fleet repo, one file each in `50-AI/fleet-ops/machines/`, with the name it chose and its role.
+Use the same names here, so a computer's chip on the floor and its name on the board match. In a
+chat on the hub's Hub:
+
+```
+Read the computers in 50-AI/fleet-ops/machines/ and make the machines list in my
+workspace.config.json match their names, keeping this computer as the hub. Show me the change before
+you save it, then restart the office.
+```
+
 ## 5. Set up each spoke
 
-On each other computer: install the prerequisites and clone WorkSpace ([guide 1](01-install.md)),
-copy in the same `machines` and `hub_url`, then:
+On each other computer: install the Workspace with the one-line installer ([guide 1](01-install.md)),
+with `--startup` so its office starts at login (and `--fleet join`, if you use a fleet). Then copy in
+the same `machines` and `hub_url`, and restart its office (`node bin/office-start.js --restart`,
+from `<its Hub>/50-AI/workspace`).
 
-```
-node bin/install.js hooks --apply
-node bin/install.js startup --apply
-node bin/office-start.js
-```
+Chats opened on that computer's Hub report to its office already. For chats in other folders, add
+the hooks part there too: `node bin/install.js hooks --apply`.
 
 The office on a spoke starts a small **forwarder** next to itself. Within about 15 seconds the
 spoke's chip on the hub's office turns green and its sessions appear. If it doesn't, read
