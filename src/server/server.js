@@ -260,6 +260,7 @@ function start(opts) {
       } catch (_) { /* a nudge must never take the wall down */ }
     }
     v.brand = config.brand();
+    v.fleet = !!fleetDir();
     v.token = TOKEN;
     return v;
   }
@@ -304,6 +305,20 @@ function start(opts) {
   // A buzz on the owner's phone when a new question lands (push.js). An office
   // with no signed-up phone sends nothing; tests pass pushSend to catch it.
   const notifier = o.push === false ? null : push.createNotifier(home, { send: o.pushSend });
+
+  // This computer's fleet clone (config.fleetRepo()), looked up at most every 30 seconds: the Fleet
+  // tab shows only when there is one.
+  const fleetRead = require('./fleet');
+  let fleetSeen = { at: 0, dir: null };
+  function fleetDir() {
+    const now = Date.now();
+    if (now - fleetSeen.at > 30000) {
+      let dir = null;
+      try { dir = config.fleetRepo(); } catch (_) { /* no fleet */ }
+      fleetSeen = { at: now, dir: dir && fleetRead.isFleet(dir) ? dir : null };
+    }
+    return fleetSeen.dir;
+  }
 
   // The sessions of the last frame sent, for the Agents' wing's desk counts.
   let lastSessions = null;
@@ -371,6 +386,18 @@ function start(opts) {
       } catch (e) {
         v = { ok: false, asOf: Date.now(), error: String(e && e.message) };
       }
+      res.end(JSON.stringify(v));
+      return;
+    }
+
+    // The Fleet page (fleet.js): the computers of the fleet repo, its board, handoffs and comms.
+    if (url.pathname === '/api/fleet') {
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+      let v;
+      try {
+        const dir = fleetDir();
+        v = dir ? fleetRead.fleetView(dir, fleetRead.selfIn(dir, self, config.thisComputer())) : { configured: false };
+      } catch (e) { v = { configured: false, error: String(e && e.message) }; }
       res.end(JSON.stringify(v));
       return;
     }

@@ -1044,3 +1044,49 @@ body::after {
 .abubble-n { min-width: 24px; height: 24px; padding: 0 6px; border-radius: 12px; background: #1a1205; color: var(--tone-haiku); display: inline-flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums; }
 @keyframes bubblebob { 50% { transform: translateY(-3px); } }
 @media (prefers-reduced-motion: reduce) { .abubble { animation: none !important; } }
+
+/* ---- the Fleet (Fleet.jsx): your computers, the board, handoffs and comms from the fleet repo ---- */
+@media (min-width: 761px) { .office.on-fleet .stage-floor { display: none; } }
+.fcomps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 14px; }
+.fcomp {
+  display: flex; flex-direction: column; gap: 8px; padding: 16px 16px 14px; border-radius: 18px;
+  background: var(--room); border: 1px solid var(--line); box-shadow: var(--shadow);
+  -webkit-backdrop-filter: var(--glass); backdrop-filter: var(--glass);
+}
+.fcomp.is-self { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.fcomp.is-left { opacity: 0.55; }
+.fcomp-top { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.fcomp-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); flex: none; }
+.fcomp.is-ok .fcomp-dot { background: #2fb36d; box-shadow: 0 0 0 4px rgba(47, 179, 109, 0.15); }
+.fcomp.is-late .fcomp-dot { background: #c77a0a; box-shadow: 0 0 0 4px rgba(199, 122, 10, 0.15); }
+.fcomp-name { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+.fcomp-role {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent);
+}
+.fcomp-you { margin-left: auto; font-size: 11.5px; color: var(--muted); }
+.fcomp-what { font-size: 12.5px; color: var(--muted); }
+.fcomp-facts { list-style: none; margin: 2px 0 0; padding: 0; display: flex; flex-direction: column; gap: 3px; font-size: 13px; color: var(--ink-2); }
+.fcomp-facts strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+.fcomp-warn { color: #c77a0a; }
+.fsection { display: flex; flex-direction: column; }
+.kanban-fleet { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.fcard {
+  display: flex; flex-direction: column; gap: 3px; padding: 8px 9px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--room); color: var(--ink); font-size: 12.5px;
+}
+.fcard .run-meta { margin-top: 0; overflow-wrap: anywhere; }
+.kcol-archive .kcard-label { color: var(--ink-2); }
+.fhands { padding: 0; }
+.fhand-route { font-weight: 600; color: var(--ink-2); }
+.fcomms { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.fcomm { padding: 9px 12px; border-radius: 12px; background: var(--said); }
+.fcomm-who { display: flex; align-items: baseline; gap: 8px; font-size: 12.5px; }
+.fcomm-text { margin-top: 3px; font-size: 13.5px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.fempty { max-width: 620px; display: flex; flex-direction: column; gap: 10px; padding: 18px; border-radius: 18px; background: var(--room); border: 1px solid var(--line); color: var(--ink-2); }
+.fempty code { font-family: ui-monospace, Consolas, monospace; font-size: 12px; padding: 1px 5px; border-radius: 5px; background: var(--accent-soft); overflow-wrap: anywhere; }
+@media (max-width: 760px) {
+  .tabs-bottom.tabs-6 { grid-template-columns: repeat(6, 1fr); }
+  .tabs-bottom.tabs-6 .tab { font-size: 10px; }
+  .kanban-fleet { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 78%; overflow-x: auto; scroll-snap-type: x mandatory; }
+}
