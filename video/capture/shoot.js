@@ -26,16 +26,17 @@ const os = require('os');
 const path = require('path');
 const puppeteer = require('puppeteer-core');
 const { ensureBrowser } = require('@remotion/renderer');
-const { WORLD, baseFrom, sandboxes } = require('./sandbox');
+const { WORLD, baseFrom, idsFrom, sandboxes } = require('./sandbox');
 const { seed, uuidOf } = require('./seed');
 
 const args = process.argv.slice(2);
 const arg = (n) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : null; };
 const base = baseFrom(args);
+const ids = idsFrom(args);
 const OUT = path.join(__dirname, '..', 'public', 'shots');
 const say = (m) => process.stdout.write(`${m}\n`);
 
-const desk = sandboxes(base).find((s) => s.computer.hub);
+const desk = sandboxes(base, ids).find((s) => s.computer.hub);
 const OFFICE = `http://127.0.0.1:${desk.computer.office_port}`;
 const key = (machine, callsign) => `${machine}:${uuidOf(`${machine}:${callsign}`)}`;
 const agentUrl = (k) => `http://127.0.0.1:${WORLD.agents.find((a) => a.key === k).port}/`;
@@ -43,6 +44,8 @@ const agentUrl = (k) => `http://127.0.0.1:${WORLD.agents.find((a) => a.key === k
 // A little wider than a laptop screen, so a whole page fills the frame under the caption band.
 const WIDE = { width: 1600, height: 840, deviceScaleFactor: 1.5 };
 const PHONE = { width: 390, height: 844, deviceScaleFactor: 2, isMobile: true, hasTouch: true };
+// The Fleet page is long: a taller window shows the board and the handoffs under the computers.
+const TALL = { width: 1600, height: 1500, deviceScaleFactor: 1.5 };
 
 /** Every shot: where, at what size, what to wait for, and what to do first. */
 const SHOTS = [
@@ -59,6 +62,8 @@ const SHOTS = [
   { name: 'work', url: `${OFFICE}/#/work`, view: WIDE, wait: '.panel' },
   { name: 'work-course', url: `${OFFICE}/#/work/getting-started`, view: WIDE, wait: '.panel' },
   { name: 'agents', url: `${OFFICE}/#/agents`, view: WIDE, wait: '.ahall .aoffice' },
+  { name: 'fleet', url: `${OFFICE}/#/fleet`, view: WIDE, wait: '.fcomps .fcomp' },
+  { name: 'fleet-board', url: `${OFFICE}/#/fleet`, view: TALL, wait: '.fcomps .fcomp' },
   {
     name: 'agents-knock', url: `${OFFICE}/#/agents`, view: WIDE, wait: '.ahall .aoffice',
     act: async (page) => {
@@ -72,6 +77,7 @@ const SHOTS = [
   { name: 'phone-floor', url: `${OFFICE}/#/floor/all`, view: PHONE, wait: '.desk' },
   { name: 'phone-questions', url: `${OFFICE}/#/questions`, view: PHONE, wait: '.panel' },
   { name: 'phone-agents', url: `${OFFICE}/#/agents`, view: PHONE, wait: '.ahall .aoffice' },
+  { name: 'phone-fleet', url: `${OFFICE}/#/fleet`, view: PHONE, wait: '.fcomps .fcomp' },
 ];
 
 /** What must never be on screen: this computer's own names, and the sandbox folder. */
@@ -114,6 +120,17 @@ function boxesOf() {
   one('.panel .q-text', 'q-text');
   one('.panel .q-actions', 'q-actions');
   one('main', 'main');
+  one('.fcomps', 'fleet-computers');
+  one('.kanban-fleet', 'fleet-board');
+  one('.fhands', 'fleet-handoffs');
+  document.querySelectorAll('.fsection').forEach((el) => {
+    const h = el.querySelector('.wproj-part-head');
+    if (h) out[`section:${h.textContent.trim().toLowerCase()}`] = box(el);
+  });
+  document.querySelectorAll('.fcomps .fcomp').forEach((el) => {
+    const n = el.querySelector('.fcomp-name');
+    if (n) out[`computer:${n.textContent.trim()}`] = box(el);
+  });
   for (const el of document.querySelectorAll('.desk[data-key], .quiet[data-key]')) {
     const name = (el.querySelector('.desk-name, .quiet-name') || {}).textContent || '';
     out[`desk:${name.split(' ')[0]}`] = box(el);
@@ -143,10 +160,10 @@ function boxesOf() {
 let lastSeed = 0;
 async function freshen() {
   if (Date.now() - lastSeed < 60000) return { ok: true };
-  const r = seed(base);
+  const r = seed(base, null, ids);
   if (!r.ok) return r;
   lastSeed = r.at;
-  const spokes = sandboxes(base).filter((s) => !s.computer.hub).map((s) => s.name);
+  const spokes = sandboxes(base, ids).filter((s) => !s.computer.hub).map((s) => s.name);
   for (let waited = 0; waited < 30000; waited += 500) {
     const fresh = spokes.every((name) => {
       try { return JSON.parse(fs.readFileSync(path.join(desk.office, 'mesh', name, 'feed.json'), 'utf8')).received_at > r.at + 1500; } catch (_) { return false; }
@@ -180,7 +197,7 @@ async function main() {
     for (const shot of SHOTS) {
       if (only && !only.has(shot.name)) continue;
       const r = await freshen();
-      if (!r.ok) { say(`NOT SEEDED: ${r.error}`); return r.refused ? 2 : 1; }
+      if (!r.ok) { say(`NOT SEEDED: ${r.error}`); return 1; }
       // Its own context per shot: nothing one page remembers (the machine last picked) leaks into the next.
       const context = await browser.createBrowserContext();
       const page = await context.newPage();

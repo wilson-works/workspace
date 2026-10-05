@@ -7,7 +7,7 @@ import { Easing, interpolate, useCurrentFrame } from 'remotion';
 import { C, EASE_IN_OUT, FONT, MONO } from '../brand';
 import { Area, useHighlight, useLayout } from '../components/Area';
 import { Card, Computer, FileIcon, Folder, PathText, Rise, machineColor } from '../components/ui';
-import { COMMS, FLEET_TREE, ORDERS, WORLD } from '../data/world';
+import { COMMS, FLEET_TREE, HANDOFF_ID, ORDERS, WORLD } from '../data/world';
 
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' };
 const dim = (any, lit) => (any && !lit ? 0.35 : 1);
@@ -106,7 +106,10 @@ export const RepoTree = ({ cues, hl }) => {
   );
 };
 
-/** The board: backlog, doing, done. GP-04 moves when hl says 'doing' or 'done'; 'commit' shows the log line. */
+/**
+ * The board: backlog, doing, done. GP-04 moves when hl says 'doing' (MINI claims it) or 'done' (MINI,
+ * its builder, finishes it); under the board, its real file moving between folders.
+ */
 export const Board = ({ cues, hl, start = 'backlog' }) => {
   const L = useLayout();
   const { lit, cue } = useHighlight(cues, hl);
@@ -155,10 +158,11 @@ export const Board = ({ cues, hl, start = 'backlog' }) => {
         })}
         <OrderCard o={mover} style={{ position: 'absolute', left: moverX, top: moverY - (Math.round(pos) === 0 ? 0 : 0) }} />
       </div>
-      <div style={{ height: 70 }}>
+      <div style={{ height: L.portrait ? 110 : 90 }}>
         {cue.index >= (moveIdx >= 0 ? moveIdx : doneIdx >= 0 ? doneIdx : 99) && (
-          <Rise at={cues[moveIdx >= 0 ? moveIdx : doneIdx].from + 30}>
-            <PathText size={L.portrait ? 24 : 30} color={C.text2}>board/{start}/GP-04.md  →  board/{where}/GP-04.md   <span style={{ color: '#86EFAC' }}>saved as a commit by {where === 'done' ? 'DESK' : 'MINI'}</span></PathText>
+          <Rise at={cues[moveIdx >= 0 ? moveIdx : doneIdx].from + 30} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+            <PathText size={L.portrait ? 20 : 26} color={C.text}>{mover.file}</PathText>
+            <PathText size={L.portrait ? 22 : 28} color={C.text2}>board/{start}/  →  board/{where}/   <span style={{ color: '#86EFAC' }}>saved as a commit by MINI</span></PathText>
           </Rise>
         )}
       </div>
@@ -183,7 +187,7 @@ export const Comms = ({ cues, hl }) => {
               </div>
               {COMMS[c.name].map((line, i) => {
                 const a = interpolate(f, [10 + ci * 6 + i * 10, 22 + ci * 6 + i * 10], [0, 1], clamp);
-                return <div key={line} style={{ fontFamily: MONO, fontSize: L.portrait ? 24 : 25, color: C.text, padding: '6px 0', opacity: a, whiteSpace: 'nowrap' }}>{line}</div>;
+                return <div key={line} style={{ fontFamily: MONO, fontSize: L.portrait ? 24 : 24, lineHeight: 1.35, color: C.text, padding: '6px 0', opacity: a }}>{line}</div>;
               })}
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 14, fontSize: 24, color: C.text2 }}><Lock size={20} color={machineColor(c.name)} /> only {c.name} writes here</div>
             </Card>
@@ -235,8 +239,11 @@ export const Handoff = ({ cues, hl }) => {
       })}
       {show && (
         <div style={{ position: 'absolute', left: cardAt[0], top: cardAt[1] - (L.portrait ? 0 : 30), transform: 'translate(-50%, -50%)' }}>
-          <Card lit style={{ width: L.portrait ? 440 : 300, padding: '20px 22px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}><FileIcon size={26} color={C.accentLight} /><PathText size={28} weight={700}>H-007.md</PathText></div>
+          <Card lit style={{ width: L.portrait ? 460 : 330, padding: '20px 22px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+              <FileIcon size={26} color={C.accentLight} />
+              <span style={{ fontFamily: MONO, fontSize: 19, fontWeight: 700, lineHeight: 1.3, overflowWrap: 'anywhere' }}>{HANDOFF_ID}.md</span>
+            </div>
             <div style={{ fontSize: 27, marginTop: 8, lineHeight: 1.3 }}>Build GP-04 frost dates</div>
             <div style={{ fontSize: 23, color: C.text2, marginTop: 6 }}>to MINI · {p >= 1.5 ? 'done' : p >= 0.5 ? `taken by ${who}` : 'from DESK'}</div>
           </Card>
@@ -252,7 +259,7 @@ export const DailySync = ({ cues, hl }) => {
   const { lit } = useHighlight(cues, hl);
   const steps = [
     { k: 'Pull', line: 'catch up with the others', icon: '↓' },
-    { k: 'Heartbeat', line: 'heartbeats/MINI.json says 09:00', icon: '♥' },
+    { k: 'Heartbeat', line: 'heartbeats/MINI.json · 08:30 · ok', icon: '♥' },
     { k: 'Push', line: 'share its own files', icon: '↑' },
   ];
   const stopAt = hl ? cues[Math.max(0, hl.indexOf('stop'))].from : 0;

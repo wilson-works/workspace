@@ -2,42 +2,43 @@
 'use strict';
 
 /**
- * stage.js — bring the sandbox office up for filming, and take it down again.
+ * stage.js — bring the installed sandbox computers' offices up for filming, and take them down again.
  *
- *   node capture/stage.js up   [--sandboxes <dir>]
- *   node capture/stage.js down [--sandboxes <dir>]
- *   node capture/stage.js status [--sandboxes <dir>]
+ *   node capture/stage.js up     [--sandboxes <dir>] [--ids v4,v5,v6]
+ *   node capture/stage.js down   [--sandboxes <dir>] [--ids v4,v5,v6]
+ *   node capture/stage.js status [--sandboxes <dir>] [--ids v4,v5,v6]
  *
- * up: seeds all three computers (seed.js), starts the DESK office from this repo's server
- *     (office-server.js), starts Iris's and Quill's stand-in dashboards (demo-agent.js), and starts
- *     the MINI and LAPTOP forwarders (bin/office-forward.js), which send their floors to the DESK
- *     office every 15 seconds, the way a second computer does over the tailnet. Each program runs
- *     with its own computer's sandbox environment, and its pid is recorded.
- * down: stops exactly those pids, and nothing else (never "whatever holds the port").
+ * up: seeds the invented day (seed.js), then on MINI and LAPTOP starts the forwarder that sends that
+ *     computer's floor to the DESK office every 15 s (bin/office-forward.js --dev-identity: the name
+ *     tailscale serve would stamp on a tailnet request, for a local drill), and then starts each
+ *     computer's own office the way a person does, with its installed bin/office-start.js (which
+ *     also starts the agents' dashboards). Each computer runs with its own sandbox environment.
+ * down: stops exactly the programs those left pid files for: each office (office.alive), each
+ *     forwarder (forwarder.lock) and each agent dashboard (dashboard/.pid). Never "whatever holds
+ *     the port".
  * Exit 0 done, 1 failed, 2 refused.
  */
 
 const fs = require('fs');
 const net = require('net');
 const path = require('path');
-const { spawn } = require('child_process');
-const { WORLD, RIG, baseFrom, sandboxes } = require('./sandbox');
+const { spawn, spawnSync } = require('child_process');
+const { WORLD, baseFrom, idsFrom, sandboxes } = require('./sandbox');
 const { seed } = require('./seed');
 
-const args = process.argv.slice(2);
-const cmd = args[0];
-const base = baseFrom(args);
-const all = sandboxes(base);
-const desk = all.find((s) => s.computer.hub);
-const spokes = all.filter((s) => !s.computer.hub);
+const argv = process.argv.slice(2);
+const cmd = argv[0];
 const say = (m) => process.stdout.write(`${m}\n`);
 
 function alive(pid) {
   if (!Number.isInteger(pid) || pid <= 0) return false;
   try { process.kill(pid, 0); return true; } catch (e) { return e.code === 'EPERM'; }
 }
-function readPid(file) {
-  try { return Number(fs.readFileSync(file, 'utf8').trim()); } catch (_) { return null; }
+function pidIn(file, json) {
+  try {
+    const t = fs.readFileSync(file, 'utf8').trim();
+    return Number(json ? JSON.parse(t).pid : t);
+  } catch (_) { return null; }
 }
 function portOpen(port) {
   return new Promise((resolve) => {
@@ -52,82 +53,65 @@ async function waitPort(port, ms) {
   return false;
 }
 
-/** Every pid this stage starts, by where it is recorded. */
-function pidFiles() {
-  const out = [{ what: 'DESK office', file: path.join(desk.office, 'video-office.pid') }];
-  for (const a of WORLD.agents) out.push({ what: `${a.name} dashboard`, file: path.join(desk.run, `${a.key}.pid`) });
-  for (const s of spokes) out.push({ what: `${s.name} forwarder`, file: path.join(s.office, 'forwarder.lock') });
-  return out;
+/** Every program the stage can leave running, and where its pid is. */
+function running(all) {
+  const out = [];
+  for (const sb of all) {
+    out.push({ what: `${sb.name} office`, pid: pidIn(path.join(sb.office, 'office.alive'), true) });
+    out.push({ what: `${sb.name} forwarder`, pid: pidIn(path.join(sb.office, 'forwarder.lock')) });
+    let keys = [];
+    try { keys = fs.readdirSync(sb.agents).filter((k) => fs.existsSync(path.join(sb.agents, k, 'agent.json'))); } catch (_) { keys = []; }
+    for (const k of keys) out.push({ what: `${sb.name} agent ${k}`, pid: pidIn(path.join(sb.agents, k, 'dashboard', '.pid')) });
+  }
+  return out.filter((p) => alive(p.pid));
 }
 
-function launch(sb, script, scriptArgs, log) {
-  fs.mkdirSync(sb.run, { recursive: true });
-  const out = fs.openSync(path.join(sb.run, log), 'a');
-  const child = spawn(process.execPath, [script].concat(scriptArgs), {
-    cwd: RIG, env: sb.env, detached: true, stdio: ['ignore', out, out], windowsHide: true,
-  });
-  child.unref();
-  return child.pid;
-}
-
-async function up() {
-  for (const p of pidFiles()) {
-    const pid = readPid(p.file);
-    if (alive(pid) && p.file.endsWith('.pid')) { say(`REFUSED: the ${p.what} is already running (pid ${pid}). Run "stage.js down" first.`); return 2; }
-  }
-  const ports = [desk.computer.office_port].concat(WORLD.agents.map((a) => a.port));
-  for (const port of ports) {
-    if (await portOpen(port)) { say(`REFUSED: port ${port} is already in use by something this stage did not start.`); return 2; }
-  }
-  const r = seed(base);
-  if (!r.ok) { say(`NOT STAGED: ${r.error}`); return r.refused ? 2 : 1; }
+async function up(base, all) {
+  for (const sb of all) if (!fs.existsSync(sb.config)) { say(`REFUSED: ${sb.name} is not installed (capture/install.js).`); return 2; }
+  const r = seed(base, null, all.map((s) => s.id));
+  if (!r.ok) { say(`NOT STAGED: ${r.error}`); return 1; }
   for (const [name, c] of Object.entries(r.computers)) say(`seeded ${name}: ${c.sessions.length} session(s)`);
-
-  // The dashboards first: the office probes every agent the moment it starts.
-  for (const a of WORLD.agents) {
-    launch(desk, path.join(__dirname, 'demo-agent.js'), [a.key, '--pid-file', path.join(desk.run, `${a.key}.pid`)], `${a.key}.log`);
+  for (const sb of all.filter((s) => !s.computer.hub)) {
+    if (alive(pidIn(path.join(sb.office, 'forwarder.lock')))) continue;
+    fs.mkdirSync(sb.office, { recursive: true });
+    const out = fs.openSync(path.join(sb.office, 'forward.out'), 'a');
+    const child = spawn(process.execPath, [path.join(sb.workspace, 'bin', 'office-forward.js'), '--dev-identity', `${WORLD.person.toLowerCase()}@example.com`],
+      { cwd: sb.workspace, env: sb.env, detached: true, stdio: ['ignore', out, out], windowsHide: true });
+    child.unref();
+    say(`${sb.name} forwarder started: its floor goes to the DESK office every 15 s`);
+  }
+  await sleep(1500);
+  for (const sb of all) {
+    const s = spawnSync(process.execPath, [path.join(sb.workspace, 'bin', 'office-start.js')],
+      { cwd: sb.workspace, env: sb.env, encoding: 'utf8', timeout: 150000, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
+    say(`${sb.name}: ${String(s.stdout || s.stderr || '').trim().split('\n').pop()}`);
+  }
+  for (const sb of all) {
+    if (!(await waitPort(sb.computer.office_port, 20000))) { say(`FAILED: the ${sb.name} office did not open port ${sb.computer.office_port}`); return 1; }
   }
   for (const a of WORLD.agents) {
-    if (!(await waitPort(a.port, 10000))) { say(`FAILED: ${a.name}'s dashboard did not open port ${a.port}`); return 1; }
-    say(`${a.name}'s dashboard: http://127.0.0.1:${a.port}/`);
+    if (!(await waitPort(a.port, 20000))) { say(`FAILED: ${a.name}'s dashboard did not open port ${a.port}`); return 1; }
   }
-  const agentsFile = r.computers[desk.name].agentsFile;
-  launch(desk, path.join(__dirname, 'office-server.js'), ['--agents-file', agentsFile], 'office.log');
-  if (!(await waitPort(desk.computer.office_port, 15000))) { say(`FAILED: the DESK office did not open port ${desk.computer.office_port}; see ${path.join(desk.run, 'office.log')}`); return 1; }
-  say(`DESK office: http://127.0.0.1:${desk.computer.office_port}/`);
-  for (const s of spokes) {
-    // --dev-identity stands in for the name tailscale serve stamps on a tailnet request.
-    launch(s, path.join(RIG, 'bin', 'office-forward.js'), ['--dev-identity', `${WORLD.person.toLowerCase()}@example.com`], 'forward.out');
-    say(`${s.name} forwarder started (feeds the DESK office every 15 s)`);
-  }
+  for (const p of running(all)) say(`running: ${p.what} (pid ${p.pid})`);
   return 0;
 }
 
-async function down() {
-  let stopped = 0;
-  for (const p of pidFiles()) {
-    const pid = readPid(p.file);
-    if (!alive(pid)) continue;
-    try { process.kill(pid); stopped += 1; say(`stopped the ${p.what} (pid ${pid})`); } catch (e) { say(`could not stop the ${p.what} (pid ${pid}): ${e.message}`); }
+function down(all) {
+  const list = running(all);
+  for (const p of list) {
+    try { process.kill(p.pid); say(`stopped ${p.what} (pid ${p.pid})`); } catch (e) { say(`could not stop ${p.what} (pid ${p.pid}): ${e.message}`); }
   }
-  for (const p of pidFiles()) if (p.file.endsWith('.pid')) fs.rmSync(p.file, { force: true });
-  say(stopped ? `stopped ${stopped} program(s)` : 'nothing was running');
-  return 0;
-}
-
-function status() {
-  for (const p of pidFiles()) {
-    const pid = readPid(p.file);
-    say(`${p.what}: ${alive(pid) ? `running (pid ${pid})` : 'not running'}`);
-  }
+  say(list.length ? `stopped ${list.length} program(s)` : 'nothing was running');
   return 0;
 }
 
 (async () => {
+  const base = baseFrom(argv);
+  const all = sandboxes(base, idsFrom(argv));
   let code;
-  if (cmd === 'up') code = await up();
-  else if (cmd === 'down') code = await down();
-  else if (cmd === 'status') code = status();
-  else { say('Usage: node capture/stage.js up|down|status [--sandboxes <dir>]'); code = 2; }
+  if (cmd === 'up') code = await up(base, all);
+  else if (cmd === 'down') code = down(all);
+  else if (cmd === 'status') { const l = running(all); for (const p of l) say(`running: ${p.what} (pid ${p.pid})`); if (!l.length) say('nothing is running'); code = 0; }
+  else { say('Usage: node capture/stage.js up|down|status [--sandboxes <dir>] [--ids v4,v5,v6]'); code = 2; }
   process.exit(code);
 })().catch((e) => { say(`FAILED: ${e.message}`); process.exit(1); });

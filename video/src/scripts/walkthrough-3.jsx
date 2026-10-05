@@ -1,6 +1,7 @@
 // walkthrough-3.js — Walkthrough 3, "Fleet ops" (about 4 min): the private fleet-ops repo; the
 // board; one comms file per computer; a handoff written on DESK and picked up on MINI; a builder
-// on MINI and a gate on DESK (nobody grades their own work); the daily sync. A caption on every frame.
+// on MINI and a gate on DESK (nobody grades their own work); the daily sync, fleet status and the
+// office's Fleet tab. A caption on every frame.
 
 import { chapter, term } from './helpers';
 
@@ -92,8 +93,8 @@ export default {
       ],
     },
     {
-      scene: 'board', props: { start: 'doing' }, hl: ['done'],
-      lines: ['Only DESK merges. Then the order moves to done.'],
+      scene: 'board', props: { start: 'doing' }, hl: ['done', null],
+      lines: ['When MINI finishes, the order moves to done.', 'Only DESK merges it, after the gate.'],
     },
 
     chapter(6, 'The daily sync', 'Part six: the daily sync.'),
@@ -107,6 +108,19 @@ export default {
       ],
     },
     term('sync', "This is MINI's daily sync."),
+    term('status', 'On DESK, fleet status shows every computer and what is waiting.'),
+    {
+      scene: 'shot',
+      props: {
+        shot: 'fleet-board', size: 'wide',
+        keys: [
+          { at: 0, box: ['computer:DESK', 'computer:MINI'], pad: 24 },
+          { at: 'c1', box: { of: ['fleet-board', 'fleet-handoffs'], part: [0, 0, 0.76, 1] }, pad: 16 },
+          { at: 'c2', box: { of: 'section:latest from every computer', part: [0, 0, 0.5, 0.62] }, pad: 16 },
+        ],
+      },
+      lines: ["The office shows the same on its Fleet tab.", 'The board, and the handoff MINI took.', 'And the latest note from every computer.'],
+    },
 
     {
       scene: 'offer', chapter: 'WilsonWorks Workspace', hl: ['all', 'all', 'free', 'paid'],

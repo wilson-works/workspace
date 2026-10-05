@@ -8,6 +8,7 @@ import { interpolate, useCurrentFrame } from 'remotion';
 import { C, FONT, MONO, sec } from '../brand';
 import { Folder, FileIcon } from './ui';
 import { Orb } from './Orb';
+import { NAV } from '../data/world';
 
 const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' };
 
@@ -57,11 +58,9 @@ export const EditorWindow = ({ w, h, prompt, typeAt = sec(0.6), sendAt = sec(3.2
           ))}
         </div>
         <div style={{ flex: 1, background: '#1E1838', padding: '26px 30px', fontFamily: MONO, fontSize: 18, lineHeight: 1.7, color: '#A79FCB' }}>
-          <div style={{ color: '#EDE9FF' }}># NAV.md</div>
-          <div>| You say            | Claude opens</div>
-          <div>| the garden planner | 20-Coding/Projects/garden-planner</div>
-          <div>| the bakery website | 20-Coding/Projects/bakery-site</div>
-          <div>| anything new       | 00-Inbox</div>
+          <div style={{ color: '#EDE9FF' }}># NAV: DESK</div>
+          <div>| You say | It lives in |</div>
+          {NAV.slice(0, 3).map((n) => <div key={n.say}>| "{n.say}" | {n.path} |</div>)}
         </div>
         <div style={{ width: chat, background: '#151027', borderLeft: '1.5px solid #2B2448', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '16px 20px', fontSize: 16, letterSpacing: '0.12em', color: '#8A82AE' }}>

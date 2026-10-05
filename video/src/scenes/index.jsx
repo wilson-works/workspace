@@ -146,7 +146,7 @@ const TerminalScene = (p) => {
   return (
     <Area column style={{ gap: 24 }}>
       <div style={{ position: 'relative' }}>
-        <Terminal w={w} h={h} title={tm.title} prompt={tm.prompt} steps={tm.steps} fontSize={fontSize} at={resolveTime(p.at || 0.4, p.cues)} />
+        <Terminal w={w} h={h} title={tm.title} prompt={tm.prompt} steps={tm.steps} fontSize={fontSize} cps={tm.cps || 30} at={resolveTime(p.at || 0.4, p.cues)} />
         {tm.draft && (
           <div style={{ position: 'absolute', right: 24, bottom: 20, fontFamily: MONO, fontWeight: 700, fontSize: 30, color: '#FDA4AF', border: '3px solid #FDA4AF', borderRadius: 10, padding: '4px 14px', transform: 'rotate(-4deg)' }}>DRAFT</div>
         )}

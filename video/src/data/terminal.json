@@ -1,150 +1,311 @@
 {
-  "_": "What the terminal scenes show. Each entry is to be the real output of a sandbox run, with the sandbox folder written as the invented person's own folder (C:\\Users\\alex, /Users/alex). An entry marked draft is a placeholder written before the command existed: it renders with a DRAFT mark, and tools/render.js refuses a final render while any remain.",
+  "_": "What the terminal scenes show, written by capture/terminal.js from the sandbox computers' real runs (capture/install.js). Every line is one the command printed, in order; \"…\" marks where lines were left out. The sandbox folder is written as the invented person's own (C:\\Users\\alex).",
   "install": {
-    "draft": true,
     "title": "Terminal, on DESK",
     "prompt": "C:\\Users\\alex>",
     "steps": [
       {
-        "cmd": "node install.js",
+        "cmd": "powershell -ExecutionPolicy Bypass -File install.ps1 --yes --machine DESK --role command --owner Alex --office-port 4461 --no-start --fleet create --create-repo",
         "out": [
-          "WilsonWorks Workspace: what this will do on DESK",
-          "+ Hub        C:\\Users\\alex\\Hub, 7 zones, CLAUDE.md, NAV.md",
-          "+ skills     12 starter skills, pinned",
-          "+ office     every session on the Hub shows on the floor",
-          "+ startup    the office starts when you sign in",
-          "Go ahead? (y/n) y",
-          "Done. Open your office: http://127.0.0.1:4316/"
+          "Downloading the workspace into C:\\Users\\alex\\Hub\\50-AI\\workspace",
+          "Installing the WilsonWorks Workspace.",
+          "…",
+          "What is where:",
+          "  Your Hub              C:\\Users\\alex\\Hub",
+          "  The office            http://127.0.0.1:4461/   (not running: node bin/office-start.js in the workspace folder)",
+          "  The office's files    C:\\Users\\alex\\AppData\\Local\\WorkSpace",
+          "  Office settings       C:\\Users\\alex\\Hub\\50-AI\\workspace\\workspace.config.json",
+          "  Starter skills        C:\\Users\\alex\\Hub\\.claude\\skills",
+          "  The skills pack       C:\\Users\\alex\\Hub\\50-AI\\claude_skills",
+          "  Your agents           C:\\Users\\alex\\Hub\\50-AI\\agents",
+          "  The install record    C:\\Users\\alex\\Hub\\.hub\\installed.json",
+          "…",
+          "42 change(s) made.",
+          "…"
         ]
       }
-    ]
+    ],
+    "cps": 60,
+    "sources": [
+      "DESK install-1"
+    ],
+    "excerpt": true
+  },
+  "install2": {
+    "title": "Terminal, on DESK",
+    "prompt": "C:\\Users\\alex>",
+    "steps": [
+      {
+        "cmd": "powershell -ExecutionPolicy Bypass -File install.ps1 --yes --machine DESK --role command --owner Alex --office-port 4461 --no-start --fleet create --create-repo",
+        "out": [
+          "Updating C:\\Users\\alex\\Hub\\50-AI\\workspace",
+          "…",
+          "Installing the WilsonWorks Workspace.",
+          "…",
+          "skills - 12 starter skills from the claude_skills pack, pinned at commit 88fa015",
+          "  = 50-AI\\claude_skills at 88fa015",
+          "  = .claude\\skills\\handoff",
+          "  = .claude\\skills\\file-organizer",
+          "  = .claude\\skills\\claude-md-doctor",
+          "  = .claude\\skills\\systems-map",
+          "  = .claude\\skills\\backlog",
+          "  = .claude\\skills\\work-orders",
+          "  = .claude\\skills\\quick-design",
+          "  = .claude\\skills\\scope-check",
+          "  = .claude\\skills\\smoke-check",
+          "  = .claude\\skills\\notetaker",
+          "  = .claude\\skills\\quick-research",
+          "  = .claude\\skills\\prompt-coach",
+          "",
+          "agents - the home of your specialist agents",
+          "  = 50-AI\\agents",
+          "",
+          "fleet - your computers working together (a new fleet)",
+          "  = DESK is in the fleet (50-AI\\fleet-ops)",
+          "  = the daily sync is scheduled",
+          "…",
+          "Nothing changed."
+        ]
+      }
+    ],
+    "cps": 60,
+    "sources": [
+      "DESK install-2"
+    ],
+    "excerpt": true
   },
   "nav": {
-    "draft": true,
     "title": "Terminal, on DESK",
     "prompt": "C:\\Users\\alex\\Hub>",
     "steps": [
       {
         "cmd": "node 50-AI\\workspace\\hub\\bin\\hub.js nav",
         "out": [
-          "~ NAV.md   rebuilt from your folders",
-          "= zones    7, all there",
-          "+ project  20-Coding/Projects/bakery-site",
-          "+ agent    50-AI/agents/iris"
+          "~ NAV.md  regenerated"
         ]
       }
-    ]
+    ],
+    "sources": [
+      "DESK nav"
+    ],
+    "excerpt": false
   },
   "newAgent": {
-    "draft": true,
     "title": "Terminal, on DESK",
     "prompt": "C:\\Users\\alex\\Hub>",
     "steps": [
       {
-        "cmd": "node 50-AI\\workspace\\agents\\bin\\new-agent.js iris",
+        "cmd": "node 50-AI\\workspace\\agents\\bin\\new-agent.js iris --name Iris --title \"The Research Desk\" --line \"Reads everything on a topic and hands back one page with the sources.\" --color #38BDF8 --port 7660 --yes",
         "out": [
-          "+ 50-AI/agents/iris/agent.json    name, colours, door",
-          "+ 50-AI/agents/iris/brains/       what it knows",
-          "+ 50-AI/agents/iris/rules/        how it works",
-          "+ 50-AI/agents/iris/dashboard/    its own page",
-          "Done. Iris has an office in the Agents' wing."
+          "Making Iris, The Research Desk:",
+          "  + C:/Users/alex/Hub/50-AI/agents/iris/CLAUDE.md",
+          "  + C:/Users/alex/Hub/50-AI/agents/iris/README.md",
+          "  + C:/Users/alex/Hub/50-AI/agents/iris/agent.json",
+          "  + C:/Users/alex/Hub/50-AI/agents/iris/art.svg",
+          "  + C:/Users/alex/Hub/50-AI/agents/iris/brains/README.md",
+          "  + C:/Users/alex/Hub/50-AI/agents/iris/brains/example-topic.md",
+          "  + C:/Users/alex/Hub/50-AI/agents/iris/dashboard/package.json",
+          "  + C:/Users/alex/Hub/50-AI/agents/iris/dashboard/server.js",
+          "  + C:/Users/alex/Hub/50-AI/agents/iris/mark.svg",
+          "  + C:/Users/alex/Hub/50-AI/agents/iris/memory/MEMORY.md",
+          "  + C:/Users/alex/Hub/50-AI/agents/iris/rules/README.md",
+          "  + C:/Users/alex/Hub/50-AI/agents/iris/rules/never-send-without-a-yes.md",
+          "  + C:/Users/alex/Hub/50-AI/agents/iris/subagent.md",
+          "  + C:/Users/alex/Hub/.claude/agents/iris.md",
+          "  + started its dashboard (pid 31496)",
+          "",
+          "Iris's door: http://127.0.0.1:7660/",
+          "Iris now has an office in the Agents' wing.",
+          "Teach it in C:/Users/alex/Hub/50-AI/agents/iris/CLAUDE.md, brains/ and rules/. In a session on your Hub, ask for Iris by name."
         ]
       }
-    ]
+    ],
+    "cps": 60,
+    "sources": [
+      "DESK new-agent"
+    ],
+    "excerpt": false
   },
   "installAgent": {
-    "draft": true,
     "title": "Terminal, on DESK",
     "prompt": "C:\\Users\\alex\\Hub>",
     "steps": [
       {
-        "cmd": "node 50-AI\\workspace\\agents\\bin\\install-agent.js quill.zip",
+        "cmd": "node 50-AI\\workspace\\agents\\bin\\install-agent.js C:\\Users\\alex\\Downloads\\quill --yes",
         "out": [
-          "Quill, The Content Desk",
-          "+ 50-AI/agents/quill/",
-          "+ an office in the Agents' wing",
-          "Done. Quill's door opens its dashboard."
+          "Installing C:\\Users\\alex\\Downloads\\quill:",
+          "  + C:/Users/alex/Hub/50-AI/agents/quill/ (17 files)",
+          "  + C:/Users/alex/Hub/.claude/agents/quill.md",
+          "  + started Quill's dashboard (pid 44552)",
+          "",
+          "Quill's door: http://127.0.0.1:7661/",
+          "Quill now has an office in the Agents' wing."
         ]
       }
-    ]
+    ],
+    "sources": [
+      "DESK install-agent"
+    ],
+    "excerpt": false
   },
   "fleetInit": {
-    "draft": true,
     "title": "Terminal, on DESK",
-    "prompt": "C:\\Users\\alex\\Hub>",
+    "prompt": "C:\\Users\\alex>",
     "steps": [
       {
-        "cmd": "node 50-AI\\workspace\\fleet\\bin\\fleet.js init",
+        "cmd": "powershell -ExecutionPolicy Bypass -File install.ps1 --yes --machine DESK --role command --owner Alex --office-port 4461 --no-start --fleet create --create-repo",
         "out": [
-          "Make a private repo alex-example/fleet-ops on GitHub? (y/n) y",
-          "+ alex-example/fleet-ops   private",
-          "+ 50-AI/fleet-ops          your copy, on DESK",
-          "+ machines/DESK.json       command",
-          "+ daily sync               every day at 09:00"
+          "…",
+          "fleet - your computers working together (a new fleet)",
+          "  + node fleet/bin/fleet.js init --create-repo --hub C:\\Users\\alex\\Hub --machine DESK --role command",
+          "  + node fleet/bin/fleet.js schedule  (the daily sync)",
+          "fleet init: DESK (command), Hub C:\\Users\\alex\\Hub",
+          "  + GitHub repo alex-example/fleet-ops  (private)",
+          "  + 50-AI/fleet-ops  (the clone)",
+          "…",
+          "  + machines/DESK.json  (command, the office hub)",
+          "  + comms/DESK.md",
+          "  + heartbeats/DESK.json",
+          "Synced DESK. 1 computer in the fleet; 0 handoffs waiting for DESK.",
+          "…",
+          "fleet schedule: DESK",
+          "  + Windows Task Scheduler, \"WilsonWorks Fleet Sync\", every day at 08:30: fleet sync --quiet",
+          "…"
         ]
       }
-    ]
+    ],
+    "cps": 60,
+    "sources": [
+      "DESK install-1"
+    ],
+    "excerpt": true
   },
   "fleetJoin": {
-    "draft": true,
     "title": "Terminal, on MINI",
-    "prompt": "C:\\Users\\alex\\Hub>",
+    "prompt": "C:\\Users\\alex>",
     "steps": [
       {
-        "cmd": "node 50-AI\\workspace\\fleet\\bin\\fleet.js join --role builder",
+        "cmd": "powershell -ExecutionPolicy Bypass -File install.ps1 --yes --machine MINI --role builder --owner Alex --office-port 4462 --no-start --fleet join --fleet-repo alex-example/fleet-ops",
         "out": [
-          "+ 50-AI/fleet-ops          a copy of alex-example/fleet-ops",
-          "+ machines/MINI.json       builder, code in 20-Coding/Active",
-          "+ comms/MINI.md            MINI's own comms file",
-          "+ daily sync               every day at 09:00"
+          "…",
+          "fleet - your computers working together (joining your fleet)",
+          "  + node fleet/bin/fleet.js join alex-example/fleet-ops --hub C:\\Users\\alex\\Hub --machine MINI --role builder",
+          "  + node fleet/bin/fleet.js schedule  (the daily sync)",
+          "fleet join: MINI (builder), Hub C:\\Users\\alex\\Hub",
+          "  + 50-AI/fleet-ops  (a clone of alex-example/fleet-ops)",
+          "  + machines/MINI.json  (builder)",
+          "  + comms/MINI.md",
+          "  + heartbeats/MINI.json",
+          "Synced MINI. 2 computers in the fleet; 0 handoffs waiting for MINI.",
+          "fleet schedule: MINI",
+          "  + Windows Task Scheduler, \"WilsonWorks Fleet Sync\", every day at 08:30: fleet sync --quiet",
+          "…",
+          "21 change(s) made.",
+          "…"
         ]
       }
-    ]
+    ],
+    "cps": 60,
+    "sources": [
+      "MINI install-1"
+    ],
+    "excerpt": true
   },
   "handoff": {
-    "draft": true,
     "title": "Terminal, on DESK",
     "prompt": "C:\\Users\\alex\\Hub>",
     "steps": [
       {
-        "cmd": "node 50-AI\\workspace\\fleet\\bin\\fleet.js handoff MINI \"Build GP-04 frost dates\"",
+        "cmd": "fleet handoff --to MINI \"Build GP-04 frost dates\" --body \"The plan is in work order GP-04. Next: the frost date lookup and its tests. Check: the calendar shows the first and last frost for the garden.\" --repo garden-planner --branch gp-04-frost-dates",
         "out": [
-          "+ handoffs/open/H-007.md   to MINI",
-          "+ comms/DESK.md            Handoff H-007 to MINI.",
-          "Pushed. MINI picks it up on its next sync."
+          "  + handoffs/open/HO-20261005-1219-DESK-build-gp-04-frost-dates.md  (for MINI)",
+          "Handed to MINI: Build GP-04 frost dates",
+          "Synced DESK. 3 computers in the fleet; 0 handoffs waiting for DESK."
         ]
       }
-    ]
+    ],
+    "cps": 90,
+    "sources": [
+      "DESK handoff"
+    ],
+    "excerpt": false
   },
   "take": {
-    "draft": true,
     "title": "Terminal, on MINI",
     "prompt": "C:\\Users\\alex\\Hub>",
     "steps": [
       {
-        "cmd": "node 50-AI\\workspace\\fleet\\bin\\fleet.js sync",
+        "cmd": "fleet pickup",
         "out": [
-          "= pulled                   1 handoff for MINI",
-          "~ handoffs/taken/H-007.md  taken by MINI",
-          "+ comms/MINI.md            Took H-007. Building GP-04.",
-          "Pushed."
+          "Waiting for MINI: 1",
+          "  HO-20261005-1219-DESK-build-gp-04-frost-dates",
+          "      from DESK, 2026-10-05 12:19 CDT: Build GP-04 frost dates  (branch gp-04-frost-dates)",
+          "Take one with: fleet pickup <id>"
+        ]
+      },
+      {
+        "cmd": "fleet pickup HO-20261005-1219-DESK-build-gp-04-frost-dates",
+        "out": [
+          "  ~ handoffs/open/HO-20261005-1219-DESK-build-gp-04-frost-dates.md -> handoffs/taken/HO-20261005-1219-DESK-build-gp-04-frost-dates.md  (taken by MINI)",
+          "Synced MINI. 3 computers in the fleet; 0 handoffs waiting for MINI.",
+          "",
+          "# Build GP-04 frost dates",
+          "",
+          "The plan is in work order GP-04. Next: the frost date lookup and its tests. Check: the calendar shows the first and last frost for the garden.",
+          "",
+          "## Where the branch is",
+          "",
+          "`garden-planner`, on the branch `gp-04-frost-dates` (pushed to GitHub).",
+          "",
+          "When it is finished: fleet done HO-20261005-1219-DESK-build-gp-04-frost-dates --note \"what happened\""
         ]
       }
-    ]
+    ],
+    "sources": [
+      "MINI pickup-list",
+      "MINI pickup"
+    ],
+    "excerpt": false
   },
   "sync": {
-    "draft": true,
     "title": "Terminal, on MINI",
     "prompt": "C:\\Users\\alex\\Hub>",
     "steps": [
       {
-        "cmd": "node 50-AI\\workspace\\fleet\\bin\\fleet.js sync",
+        "cmd": "fleet sync",
         "out": [
-          "= pulled                   already current",
-          "~ heartbeats/MINI.json     09:00",
-          "Pushed. Only MINI's own files were committed."
+          "Synced MINI. 3 computers in the fleet; 0 handoffs waiting for MINI."
         ]
       }
-    ]
+    ],
+    "sources": [
+      "MINI daily-sync"
+    ],
+    "excerpt": false
+  },
+  "status": {
+    "title": "Terminal, on DESK",
+    "prompt": "C:\\Users\\alex\\Hub>",
+    "steps": [
+      {
+        "cmd": "fleet status",
+        "out": [
+          "This computer: DESK (command). Hub: C:\\Users\\alex\\Hub",
+          "Last sync: 2026-10-05 12:22 CDT (just now), ok.",
+          "Computers:",
+          "  DESK       command    synced just now   office answering   (this one)",
+          "  LAPTOP     mobile     synced just now   office answering",
+          "  MINI       builder    synced just now   office answering",
+          "Waiting for DESK: 0 handoffs.",
+          "Sent by DESK:",
+          "  HO-20261005-1219-DESK-build-gp-04-frost-dates  Build GP-04 frost dates: taken by MINI, 2026-10-05 12:19 CDT",
+          "Board: backlog 1 · doing 3 · done 1 · archive 0"
+        ]
+      }
+    ],
+    "sources": [
+      "DESK status-live"
+    ],
+    "excerpt": false
   }
 }

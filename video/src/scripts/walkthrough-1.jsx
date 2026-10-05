@@ -57,7 +57,7 @@ export default {
         'Claude follows the map. It never searches the whole Hub.',
       ],
     },
-    term('nav', 'One command rebuilds the map from your folders, so it never goes stale.'),
+    term('nav', 'After you add things, one command rebuilds the map.'),
     {
       scene: 'project',
       lines: [
@@ -76,10 +76,7 @@ export default {
       ],
     },
     term('install', 'One install command sets up the Hub, the skills and the office.'),
-    {
-      scene: 'terminal', props: { name: 'install', at: -30 },
-      lines: ['Run it again and it changes nothing. It never replaces your files without asking.'],
-    },
+    term('install2', 'Run it again and it changes nothing. It never replaces a file of yours.'),
 
     chapter(3, 'The office', 'Part three: the office.'),
     {
@@ -120,14 +117,14 @@ export default {
     {
       scene: 'shot',
       props: { shot: 'questions', keys: [{ at: 0, box: 'qcard', pad: 24 }], marks: [{ from: 'c1+0.4', to: 'c1+9', box: 'q-actions' }] },
-      lines: ['When a session needs you, it asks in plain English.', 'Answer in one tap: take its advice, let the team decide, or say your own.'],
+      lines: ['When a session needs you, it asks in plain English.', 'Answer in one tap: go with its advice, let the org decide, or answer yourself.'],
     },
 
     chapter(4, 'The course', 'Part four: the course.'),
     {
       scene: 'shot',
       props: { shot: 'work-course', keys: [{ at: 0, box: 'full' }, { at: 'c1', box: [28, 600, 1544, 240], pad: 10 }] },
-      lines: ['The Work page holds Get started, a nine-lesson course.', "Each lesson has the prompts to paste. Tick it off when it's done."],
+      lines: ['The Work page holds Get started, an eleven-lesson course.', "Each lesson has the prompts to paste. Mark it done when you're done."],
     },
 
     chapter(5, "The Agents' wing", "Part five: the Agents' wing."),

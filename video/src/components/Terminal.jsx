@@ -2,7 +2,8 @@
 //
 // The text comes from src/data/terminal.json: real output captured from a sandbox run, with the
 // sandbox folder shown as the invented person's own folder (see that file). A command types itself
-// in after the prompt; its output then appears a line at a time.
+// in after the prompt; its output then appears a line at a time. A line that is just "…" marks
+// where an excerpt leaves lines out, drawn dim.
 
 import React from 'react';
 import { interpolate, useCurrentFrame } from 'remotion';
@@ -12,6 +13,7 @@ const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' };
 
 const tone = (line) => {
   const t = line.trimStart();
+  if (t === '…') return '#6B6390';
   if (t.startsWith('+')) return '#86EFAC';
   if (t.startsWith('~')) return '#FCD34D';
   if (t.startsWith('!')) return '#FDA4AF';

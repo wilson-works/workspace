@@ -2,24 +2,22 @@
 'use strict';
 
 /**
- * seed.js — fill the three sandbox computers with an invented working day, for filming.
+ * seed.js — fill the three installed sandbox computers with an invented working day, for filming.
  *
- *   node capture/seed.js [--sandboxes <dir>] [--only DESK|MINI|LAPTOP]
+ *   node capture/seed.js [--sandboxes <dir>] [--ids v4,v5,v6] [--only DESK|MINI|LAPTOP]
  *
  * Contract:
- *   For each computer in demo-world.json it writes, inside that computer's sandbox only:
- *     - its office settings (workspace.config.json: port, office home, the three computers, Alex);
- *       the DESK's file is the repo root's workspace.config.json, written only when there is none
- *       or the one there was written by this script (anything else is the user's own: refused);
+ *   The computers are installed first (capture/install.js); their office settings are the
+ *   installer's, and this never writes them. For each computer it writes, inside its sandbox only:
  *     - invented Claude Code transcript METADATA under its fake CLAUDE_CONFIG_DIR/projects
  *       (a generated title, tool names with their one-line summaries, a model id, folders and
  *       branches) in the shapes src/server/sources.js reads;
- *     - the hook event stream, the callsign book, an owner question or two, a delivered note and
- *       course progress, in the shapes .claude/hooks/office-hook.js, callsign.js, questions.js,
- *       inbox.js and work.js write;
- *     - (DESK) the Agents' wing list for the invented agents Iris and Quill.
+ *     - in its office's files (<home>/AppData/Local/WorkSpace): the hook event stream, the callsign
+ *       book, an owner question or two, a delivered note and course progress, in the shapes
+ *       .claude/hooks/office-hook.js, callsign.js, questions.js, inbox.js and work.js write.
+ *   It replaces only what it wrote before (those files, and the Claude folder's projects/).
  *   Timestamps are "now", so run it right before a capture: a desk is "working" for two minutes.
- *   Exit 0 seeded, 1 failed, 2 refused.
+ *   Exit 0 seeded, 1 failed.
  *
  * Every name, folder, branch and line here is invented. The folders a session "works in" are
  * written as the person Alex would see them (C:\Users\alex\Hub\..., /Users/alex/Hub/...); they are
@@ -29,9 +27,8 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { WORLD, RIG, baseFrom, sandboxes } = require('./sandbox');
+const { WORLD, RIG, baseFrom, idsFrom, sandboxes } = require('./sandbox');
 
-const MARK = 'written by video/capture/seed.js for the sandbox offices; safe to delete';
 const MIN = 60 * 1000;
 
 /* ---------------------------------------------------------------- the day */
@@ -216,61 +213,13 @@ function eventsOf(s, transcript, now) {
   return out;
 }
 
-/* -------------------------------------------------------------- settings */
-
-function settingsFor(sb) {
-  const c = sb.computer;
-  const desk = WORLD.computers.find((x) => x.hub);
-  return {
-    _: MARK,
-    use: 'personal',
-    owner: { name: WORLD.person },
-    brand: { office_name: 'WorkSpace' },
-    machines: WORLD.computers.map((m) => ({ name: m.name, hub: !!m.hub, callsigns: m.callsigns })),
-    hub_url: `http://127.0.0.1:${desk.office_port}`,
-    code_roots: [where(c, c.code_zone)],
-    office: { port: c.office_port, home: sb.office },
-    // Never the real Tailscale: a sandbox office must not learn this computer's tailnet name.
-    tailscale_cli: path.join(sb.root, 'no-tailscale'),
-  };
-}
-
-/** The DESK's settings live in the repo root. Refuse to replace a file a person wrote. */
-function writeSettings(sb) {
-  const text = JSON.stringify(settingsFor(sb), null, 2) + '\n';
-  if (fs.existsSync(sb.config)) {
-    let mine = false;
-    try { mine = JSON.parse(fs.readFileSync(sb.config, 'utf8'))._ === MARK; } catch (_) { mine = false; }
-    if (!mine) return { ok: false, error: `${sb.config} is your own settings file; move it aside to film, then put it back.` };
-  }
-  fs.mkdirSync(path.dirname(sb.config), { recursive: true });
-  fs.writeFileSync(sb.config, text, 'utf8');
-  return { ok: true };
-}
-
-/** The Agents' wing list for the DESK office (phase 1: a file; the wing finds agent.json by itself later). */
-function writeAgents(sb) {
-  const agents = WORLD.agents.map((a) => ({
-    key: a.key, name: a.name, title: a.title, line: a.line, status: 'live', machine: null,
-    door: { local: `http://127.0.0.1:${a.port}/`, phone: `https://desk.${WORLD.tailnet}:${a.port - 7660 + 8443}/` },
-    probe: { port: a.port, path: '/health' },
-    match: a.match, jokes: a.jokes, brand: a.brand,
-  }));
-  const file = path.join(sb.root, 'agents.json');
-  fs.writeFileSync(file, JSON.stringify({ _: MARK, agents }, null, 2) + '\n', 'utf8');
-  return file;
-}
-
 /* ----------------------------------------------------------------- seed */
 
 function rm(p) { fs.rmSync(p, { recursive: true, force: true }); }
 
 function seedOne(sb, now) {
-  const set = writeSettings(sb);
-  if (!set.ok) return set;
-  for (const d of [sb.home, sb.claude, sb.office, sb.run, path.join(sb.home, 'AppData', 'Roaming'), path.join(sb.home, 'AppData', 'Local')]) {
-    fs.mkdirSync(d, { recursive: true });
-  }
+  if (!fs.existsSync(sb.config)) return { ok: false, error: `${sb.name} is not installed yet (no ${sb.config}). Run capture/install.js first.` };
+  for (const d of [sb.claude, sb.office]) fs.mkdirSync(d, { recursive: true });
   // What this script owns in the office home and the Claude folder; the office's own state stays.
   rm(path.join(sb.claude, 'projects'));
   for (const f of ['events.jsonl', 'callsigns.json']) rm(path.join(sb.office, f));
@@ -309,9 +258,7 @@ function seedOne(sb, now) {
   fs.writeFileSync(path.join(sb.office, 'events.jsonl'), events.map((e) => JSON.stringify(e)).join('\n') + '\n', 'utf8');
   fs.writeFileSync(path.join(sb.office, 'callsigns.json'), JSON.stringify(book, null, 2), 'utf8');
 
-  let agentsFile = null;
   if (sb.computer.hub) {
-    agentsFile = writeAgents(sb);
     // The course, part way through: three lessons done, the fourth under way.
     const progress = { 'getting-started': {} };
     ['GS-01', 'GS-02', 'GS-03'].forEach((id, i) => { progress['getting-started'][id] = { status: 'done', at: now - (3 - i) * 86400000 }; });
@@ -319,32 +266,32 @@ function seedOne(sb, now) {
     fs.mkdirSync(path.join(sb.office, 'work'), { recursive: true });
     fs.writeFileSync(path.join(sb.office, 'work', 'progress.json'), JSON.stringify(progress, null, 2), 'utf8');
   }
-  return { ok: true, sessions: sessions.map((s) => ({ id: s.id, callsign: s.callsign, title: s.title, state: s.state })), agentsFile };
+  return { ok: true, sessions: sessions.map((s) => ({ id: s.id, callsign: s.callsign, title: s.title, state: s.state })) };
 }
 
-function seed(base, only, opts) {
+function seed(base, only, ids) {
   const now = Date.now();
   const out = {};
-  for (const sb of sandboxes(base, opts)) {
+  for (const sb of sandboxes(base, ids)) {
     if (only && sb.name !== only) continue;
     const r = seedOne(sb, now);
-    if (!r.ok) return { ok: false, error: r.error, refused: true };
+    if (!r.ok) return { ok: false, error: r.error };
     out[sb.name] = r;
   }
   return { ok: true, at: now, computers: out };
 }
 
-module.exports = { seed, uuidOf, slugOf, settingsFor, MARK };
+module.exports = { seed, uuidOf, slugOf };
 
 if (require.main === module) {
   const args = process.argv.slice(2);
   const i = args.indexOf('--only');
   const only = i >= 0 ? String(args[i + 1] || '').toUpperCase() : null;
   try {
-    const r = seed(baseFrom(args), only);
+    const r = seed(baseFrom(args), only, idsFrom(args));
     if (!r.ok) {
       process.stdout.write(`NOT SEEDED: ${r.error}\n`);
-      process.exit(r.refused ? 2 : 1);
+      process.exit(1);
     }
     for (const [name, c] of Object.entries(r.computers)) {
       process.stdout.write(`seeded ${name}: ${c.sessions.length} session(s) (${c.sessions.map((s) => `${s.callsign} ${s.state}`).join(', ')})\n`);

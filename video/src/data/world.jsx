@@ -19,13 +19,13 @@ export const ZONES = [
   { dir: '90-Archive', line: 'Cold storage. Deleted only with your yes.' },
 ];
 
-/** NAV.md, as Alex's map reads: what you say, and the folder Claude opens. */
+/** NAV.md, as Alex's map reads on DESK (rows from the installed sandbox's own NAV.md). */
 export const NAV = [
-  { say: 'the garden planner', path: '20-Coding/Projects/garden-planner' },
-  { say: 'the bakery website', path: '20-Coding/Projects/bakery-site' },
-  { say: 'new photos to sort', path: '30-Media/_Ingest' },
-  { say: 'my agents', path: '50-AI/agents' },
-  { say: 'anything new', path: '00-Inbox' },
+  { say: 'the garden planner', path: '20-Coding/Projects/garden-planner/' },
+  { say: 'the bakery website', path: '20-Coding/Projects/bakery-site/' },
+  { say: 'stuff to sort', path: '00-Inbox/' },
+  { say: 'new media', path: '30-Media/_Ingest/' },
+  { say: 'Iris', path: '50-AI/agents/iris/' },
 ];
 
 /** The constitution's core rules, as the Hub's CLAUDE.md states them, in plain words. */
@@ -56,21 +56,23 @@ export const FLEET_TREE = [
   { name: 'templates/', note: 'a blank work order, handoff and comms entry', depth: 0, key: 'templates' },
 ];
 
-/** Work orders on Alex's board. */
+/** Work orders on Alex's board, as the sandbox fleet's board holds them. GP-04 moves: MINI claims it. */
 export const ORDERS = [
   { id: 'GP-03', title: 'Watering reminders', col: 'done' },
-  { id: 'GP-04', title: 'Frost dates on the calendar', col: 'backlog', moves: true },
+  { id: 'GP-04', title: 'Frost dates on the calendar', col: 'backlog', moves: true, file: 'WO-20261005-gp-04-frost-dates-on-the-calendar.md' },
   { id: 'GP-05', title: 'Seed spacing guide', col: 'backlog' },
   { id: 'BS-02', title: 'Menu photos', col: 'doing' },
   { id: 'BS-03', title: 'About page', col: 'doing' },
-  { id: 'BS-01', title: 'Opening hours', col: 'done' },
 ];
 
-/** What each computer has said in its own comms file. */
+/** What each computer wrote in its own comms file (the sandbox fleet's comms/, times in CDT). */
 export const COMMS = {
-  DESK: ['09:02 Planned GP-04 frost dates.', '09:04 Handoff H-007 to MINI.', '15:40 Gate passed GP-04. Merged.'],
-  MINI: ['09:15 Took H-007. Building GP-04.', '11:30 Tests pass on gp-04-frost-dates.', '11:31 Ready for the gate.'],
-  LAPTOP: ['08:10 Drafted the About page.', '08:12 Pushed bs-03-about-page.', '18:05 Back on DESK tomorrow.'],
+  DESK: ['12:18 Joined the fleet as command.', '12:19 Planned GP-04: frost dates on the calendar.'],
+  MINI: ['12:19 Joined the fleet as builder.', '12:20 Took the frost dates handoff. Building GP-04 on gp-04-frost-dates.', '12:20 GP-04: the calendar tests pass. Ready for the gate on DESK.'],
+  LAPTOP: ['12:19 Joined the fleet as mobile.', '12:20 Drafted the About page and pushed bs-03-about-page.'],
 };
+
+/** The handoff DESK wrote to MINI, by its real id. */
+export const HANDOFF_ID = 'HO-20261005-1219-DESK-build-gp-04-frost-dates';
 
 export const REPO_URL = WORLD.repo;
