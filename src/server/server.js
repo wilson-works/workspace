@@ -108,7 +108,7 @@ function start(opts) {
     || sessions.some((s) => s.id === (p.from && p.from.session_id) && s.client_work);
 
   // The Agents' wing (agents.js): each specialist's office, whether it runs here, its doors.
-  const agents = o.agents || require('./agents').createAgents({ self, file: o.agentsFile });
+  const agents = o.agents || require('./agents').createAgents({ self, file: o.agentsFile, dirs: o.agentsDirs });
   agents.refresh(true);
 
   const distDir = o.distDir || path.join(__dirname, '..', '..', 'dist');
@@ -380,6 +380,26 @@ function start(opts) {
       let v;
       try { v = agents.view(sessionsNow(), Date.now()); } catch (e) { v = { agents: [], error: String(e && e.message) }; }
       res.end(JSON.stringify(v));
+      return;
+    }
+
+    // An agent's own mark and figure (agents.js fileFor): an .svg or .png directly inside the folder of
+    // the agent its agent.json names, nothing else. Sandboxed, so an svg opened on its own runs no script.
+    const agentFile = /^\/agent-files\/([^/]+)\/([^/]+)$/.exec(url.pathname);
+    if (agentFile && req.method === 'GET') {
+      const f = agents.fileFor ? agents.fileFor(decode(agentFile[1]), decode(agentFile[2])) : null;
+      if (!f) {
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('not found');
+        return;
+      }
+      res.writeHead(200, {
+        'Content-Type': /\.svg$/i.test(f) ? 'image/svg+xml' : 'image/png',
+        'Cache-Control': 'no-store, max-age=0',
+        'X-Content-Type-Options': 'nosniff',
+        'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; sandbox",
+      });
+      res.end(fs.readFileSync(f));
       return;
     }
 
