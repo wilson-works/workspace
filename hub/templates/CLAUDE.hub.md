@@ -103,4 +103,5 @@ No script hardcodes either one. A script finds the root at run time (the `HUB_RO
 ## More than one computer
 
 If `50-AI/fleet-ops/CLAUDE.md` exists, this computer is part of a fleet: read that file too. Sync at the start of
-every session, and hand work to another computer with a handoff, never by leaving it half done.
+every session (`node {{workspace}}/fleet/bin/fleet.js sync`, then `fleet.js status`), and hand work to another
+computer with a handoff (`fleet.js handoff --to <NAME> "<title>"`), never by leaving it half done.

@@ -91,7 +91,17 @@ The fleet's own commands, if you ever want them by hand (from `<your Hub>/50-AI/
 node fleet/bin/fleet.js init [--create-repo]          the first computer
 node fleet/bin/fleet.js join <you>/fleet-ops          each other computer (--machine, --role)
 node fleet/bin/fleet.js schedule [--remove]           the daily sync, on or off
+node fleet/bin/fleet.js sync                          sync now: send yours, get everyone else's
+node fleet/bin/fleet.js status                        every computer, its last sync, handoffs waiting for this one
+node fleet/bin/fleet.js handoff --to MINI "<title>"   hand work to another computer
+node fleet/bin/fleet.js pickup [<id>]                 see the handoffs for this computer, or take one
+node fleet/bin/fleet.js board [--add "<title>"]       the board, or a new work order on it
+node fleet/bin/fleet.js post "<text>"                 a line in this computer's comms file
+node fleet/bin/fleet.js remove                        leave the fleet (your repo stays private and yours)
 ```
+
+Sessions do not need you to type these: "sync the fleet", "hand this to MINI" or "what is waiting for
+this computer?" is enough, because the Hub's CLAUDE.md and the fleet's own CLAUDE.md name them.
 
 ## The daily sync
 
