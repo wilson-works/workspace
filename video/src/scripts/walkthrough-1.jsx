@@ -130,15 +130,19 @@ export default {
     chapter(5, "The Agents' wing", "Part five: the Agents' wing."),
     {
       scene: 'shot',
-      props: { shot: 'agents', keys: [{ at: 0, box: ['office:iris', 'office:quill'], pad: 30, free: true }, { at: 'c1', box: 'office:iris', pad: 16, free: true }], taps: [{ at: 'c1+2.2', box: 'door:iris' }] },
+      props: { shot: 'agents', keys: [{ at: 0, box: ['office:louise', 'office:bryn'], pad: 30, free: true }, { at: 'c1', box: 'office:louise', pad: 16, free: true }], taps: [{ at: 'c1+2.2', box: 'door:louise' }] },
       lines: [
         'Specialist agents you build or install get an office here.',
         { text: 'Each in its own colours, with a door to its own dashboard.', s: 3.6 },
       ],
     },
     {
-      scene: 'shot', props: { shot: 'iris-dashboard', address: "Iris's dashboard, on DESK", title: 'Iris', keys: [{ at: 0, box: 'full' }, { at: 0.5, box: 'main', pad: 30 }] },
-      lines: [{ text: 'Each in its own colours, with a door to its own dashboard.', s: 3.4 }, 'Walkthrough 2 shows its door opening from any computer, and your phone.'],
+      scene: 'shot', props: { shot: 'louise-dashboard', address: "Louise's dashboard, on DESK", title: 'Louise', keys: [{ at: 0, box: 'full' }, { at: 0.5, box: 'main', pad: 30 }] },
+      lines: [{ text: 'Each in its own colours, with a door to its own dashboard.', s: 3.4 }, 'Louise, our research librarian, is free: install-agent louise.'],
+    },
+    {
+      scene: 'shot', props: { shot: 'bryn-dashboard', address: "Bryn's dashboard, on DESK", title: 'Bryn', keys: [{ at: 0, box: 'full' }, { at: 0.5, box: 'main', pad: 30 }] },
+      lines: ['Bryn, our trail guide for decisions, is free too: install-agent bryn.', 'Walkthrough 2 shows a door opening from any computer, and your phone.'],
     },
 
     {

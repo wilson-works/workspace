@@ -90,7 +90,7 @@ async function up(base, all) {
     if (!(await waitPort(sb.computer.office_port, 20000))) { say(`FAILED: the ${sb.name} office did not open port ${sb.computer.office_port}`); return 1; }
   }
   for (const a of WORLD.agents) {
-    if (!(await waitPort(a.port, 20000))) { say(`FAILED: ${a.name}'s dashboard did not open port ${a.port}`); return 1; }
+    if (!(await waitPort(a.port, 20000))) { say(`FAILED: the ${a.key} dashboard did not open port ${a.port}`); return 1; }
   }
   for (const p of running(all)) say(`running: ${p.what} (pid ${p.pid})`);
   return 0;

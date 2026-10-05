@@ -95,28 +95,25 @@
     "prompt": "C:\\Users\\alex\\Hub>",
     "steps": [
       {
-        "cmd": "node 50-AI\\workspace\\agents\\bin\\new-agent.js iris --name Iris --title \"The Research Desk\" --line \"Reads everything on a topic and hands back one page with the sources.\" --color #38BDF8 --port 7660 --yes",
+        "cmd": "node 50-AI\\workspace\\agents\\bin\\new-agent.js garden-helper --name \"Garden Helper\" --title \"Answers my garden questions\" --dry-run",
         "out": [
-          "Making Iris, The Research Desk:",
-          "  + C:/Users/alex/Hub/50-AI/agents/iris/CLAUDE.md",
-          "  + C:/Users/alex/Hub/50-AI/agents/iris/README.md",
-          "  + C:/Users/alex/Hub/50-AI/agents/iris/agent.json",
-          "  + C:/Users/alex/Hub/50-AI/agents/iris/art.svg",
-          "  + C:/Users/alex/Hub/50-AI/agents/iris/brains/README.md",
-          "  + C:/Users/alex/Hub/50-AI/agents/iris/brains/example-topic.md",
-          "  + C:/Users/alex/Hub/50-AI/agents/iris/dashboard/package.json",
-          "  + C:/Users/alex/Hub/50-AI/agents/iris/dashboard/server.js",
-          "  + C:/Users/alex/Hub/50-AI/agents/iris/mark.svg",
-          "  + C:/Users/alex/Hub/50-AI/agents/iris/memory/MEMORY.md",
-          "  + C:/Users/alex/Hub/50-AI/agents/iris/rules/README.md",
-          "  + C:/Users/alex/Hub/50-AI/agents/iris/rules/never-send-without-a-yes.md",
-          "  + C:/Users/alex/Hub/50-AI/agents/iris/subagent.md",
-          "  + C:/Users/alex/Hub/.claude/agents/iris.md",
-          "  + started its dashboard (pid 31496)",
-          "",
-          "Iris's door: http://127.0.0.1:7660/",
-          "Iris now has an office in the Agents' wing.",
-          "Teach it in C:/Users/alex/Hub/50-AI/agents/iris/CLAUDE.md, brains/ and rules/. In a session on your Hub, ask for Iris by name."
+          "Plan for Garden Helper (dry run: nothing is written):",
+          "  + C:/Users/alex/Hub/50-AI/agents/garden-helper/CLAUDE.md",
+          "  + C:/Users/alex/Hub/50-AI/agents/garden-helper/README.md",
+          "  + C:/Users/alex/Hub/50-AI/agents/garden-helper/agent.json",
+          "  + C:/Users/alex/Hub/50-AI/agents/garden-helper/art.svg",
+          "  + C:/Users/alex/Hub/50-AI/agents/garden-helper/brains/README.md",
+          "  + C:/Users/alex/Hub/50-AI/agents/garden-helper/brains/example-topic.md",
+          "  + C:/Users/alex/Hub/50-AI/agents/garden-helper/dashboard/package.json",
+          "  + C:/Users/alex/Hub/50-AI/agents/garden-helper/dashboard/server.js",
+          "  + C:/Users/alex/Hub/50-AI/agents/garden-helper/mark.svg",
+          "  + C:/Users/alex/Hub/50-AI/agents/garden-helper/memory/MEMORY.md",
+          "  + C:/Users/alex/Hub/50-AI/agents/garden-helper/rules/README.md",
+          "  + C:/Users/alex/Hub/50-AI/agents/garden-helper/rules/never-send-without-a-yes.md",
+          "  + C:/Users/alex/Hub/50-AI/agents/garden-helper/subagent.md",
+          "  + C:/Users/alex/Hub/.claude/agents/garden-helper.md",
+          "  + its dashboard on port 7600, started",
+          "Nothing was written. Run it again without --dry-run to make it."
         ]
       }
     ],
@@ -124,29 +121,57 @@
     "sources": [
       "DESK new-agent"
     ],
-    "excerpt": false
+    "excerpt": false,
+    "draft": true,
+    "_draft": "Written by hand from new-agent.js before the capture, to look at the scene. capture/terminal.js replaces it with what the command printed."
   },
   "installAgent": {
     "title": "Terminal, on DESK",
     "prompt": "C:\\Users\\alex\\Hub>",
     "steps": [
       {
-        "cmd": "node 50-AI\\workspace\\agents\\bin\\install-agent.js C:\\Users\\alex\\Downloads\\quill --yes",
+        "cmd": "node 50-AI\\workspace\\agents\\bin\\install-agent.js louise --port 7660 --yes",
         "out": [
-          "Installing C:\\Users\\alex\\Downloads\\quill:",
-          "  + C:/Users/alex/Hub/50-AI/agents/quill/ (17 files)",
-          "  + C:/Users/alex/Hub/.claude/agents/quill.md",
-          "  + started Quill's dashboard (pid 44552)",
+          "Installing Louise, from https://github.com/wilson-works/louise.git:",
+          "  ~ Louise gets port 7660, as asked (probe.port and door.local in its agent.json)",
+          "  + C:/Users/alex/Hub/50-AI/agents/louise/ (files)",
+          "  + C:/Users/alex/Hub/.claude/skills/marathon-research  (a skill Louise needs, from claude_skills@88fa015)",
+          "  + C:/Users/alex/Hub/.claude/skills/marathon-research-council  (a skill Louise needs, from claude_skills@88fa015)",
+          "  + C:/Users/alex/Hub/.claude/skills/distill  (a skill Louise needs, from claude_skills@88fa015)",
+          "  = C:/Users/alex/Hub/.claude/skills/quick-research",
+          "  + C:/Users/alex/Hub/.claude/agents/louise.md",
+          "  + started Louise's dashboard (pid)",
           "",
-          "Quill's door: http://127.0.0.1:7661/",
-          "Quill now has an office in the Agents' wing."
+          "Louise's door: http://127.0.0.1:7660/",
+          "Louise now has an office in the Agents' wing."
+        ]
+      },
+      {
+        "cmd": "node 50-AI\\workspace\\agents\\bin\\install-agent.js bryn --port 7661 --yes",
+        "out": [
+          "Installing Bryn, from https://github.com/wilson-works/bryn.git:",
+          "  ~ Bryn gets port 7661, as asked (probe.port and door.local in its agent.json)",
+          "  + C:/Users/alex/Hub/50-AI/agents/bryn/ (files)",
+          "  + C:/Users/alex/Hub/.claude/skills/brainstorm  (a skill Bryn needs, from claude_skills@88fa015)",
+          "  + C:/Users/alex/Hub/.claude/skills/llm-council  (a skill Bryn needs, from claude_skills@88fa015)",
+          "  + C:/Users/alex/Hub/.claude/skills/premortem  (a skill Bryn needs, from claude_skills@88fa015)",
+          "  + C:/Users/alex/Hub/.claude/skills/decision-policy  (a skill Bryn needs, from claude_skills@88fa015)",
+          "  + C:/Users/alex/Hub/.claude/agents/bryn.md",
+          "  + started Bryn's dashboard (pid)",
+          "",
+          "Bryn's door: http://127.0.0.1:7661/",
+          "Bryn now has an office in the Agents' wing."
         ]
       }
     ],
+    "cps": 90,
     "sources": [
-      "DESK install-agent"
+      "DESK install-agent-louise",
+      "DESK install-agent-bryn"
     ],
-    "excerpt": false
+    "excerpt": false,
+    "draft": true,
+    "_draft": "Written by hand from install-agent.js before the capture, to look at the scene. capture/terminal.js replaces it with what the commands printed."
   },
   "fleetInit": {
     "title": "Terminal, on DESK",

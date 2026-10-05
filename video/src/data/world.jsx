@@ -25,7 +25,7 @@ export const NAV = [
   { say: 'the bakery website', path: '20-Coding/Projects/bakery-site/' },
   { say: 'stuff to sort', path: '00-Inbox/' },
   { say: 'new media', path: '30-Media/_Ingest/' },
-  { say: 'Iris', path: '50-AI/agents/iris/' },
+  { say: 'Louise', path: '50-AI/agents/louise/' },
 ];
 
 /** The constitution's core rules, as the Hub's CLAUDE.md states them, in plain words. */

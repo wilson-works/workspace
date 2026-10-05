@@ -5,7 +5,7 @@
 //         keys={[{ at: 0, box: 'full' }, { at: 2, box: 'desk:Cedar', pad: 30 }]}
 //         swaps={[{ at: 4, shot: 'floor-mini' }]}
 //         marks={[{ from: 2.5, to: 6, box: 'desk:Cedar' }]}
-//         taps={[{ at: 3, box: 'door:iris', button: 'right' }]} />
+//         taps={[{ at: 3, box: 'door:louise', button: 'right' }]} />
 //
 // Shots and their boxes come from public/shots/manifest.json (capture/shoot.js). A box is a name
 // from that shot's manifest, 'full', or [x, y, w, h] in the page's CSS pixels. Times are seconds

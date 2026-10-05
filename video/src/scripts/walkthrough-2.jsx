@@ -70,8 +70,8 @@ export default {
       scene: 'shot',
       props: {
         shot: 'agents',
-        keys: [{ at: 0, box: ['office:iris', 'office:quill'], pad: 30, free: true }, { at: 'c2', box: 'office:iris', pad: 70, free: true }],
-        labels: [{ box: 'door:iris', text: `opens at desk.example-tailnet.ts.net`, from: 'c2+0.8', to: 'c2+20', below: true, size: 26 }],
+        keys: [{ at: 0, box: ['office:louise', 'office:bryn'], pad: 30, free: true }, { at: 'c2', box: 'office:louise', pad: 70, free: true }],
+        labels: [{ box: 'door:louise', text: `opens at desk.example-tailnet.ts.net`, from: 'c2+0.8', to: 'c2+20', below: true, size: 26 }],
       },
       lines: [
         'An agent can run on any of the computers.',
