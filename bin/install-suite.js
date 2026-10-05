@@ -900,7 +900,7 @@ async function offerAgent(ctx, dir) {
   if (have) {
     out(`  = ${show(ctx, have.dir)}: ${entry.name} is in your office`);
     if (!have.ok) return;
-    const p = skillsLib().plan(ctx.hub, skillsLib().needs(have.manifest), entry.name, { packLater: ctx.dry && !!ctx.packPending });
+    const p = skillsLib().plan(ctx.hub, skillsLib().needs(have.manifest), entry.name, { packLater: ctx.dry && !!ctx.packPending, starterInHub: o.skillsScope === 'hub' });
     if (!p.ok) { for (const e of p.errors) out(`  ! ${e}`); ctx.failed.push('agents'); return; }
     for (const l of p.lines) out(`  ${l}`);
     if (!p.changes) return;
@@ -927,7 +927,7 @@ async function offerAgent(ctx, dir) {
   try {
     r = await agentsLib().installPackage(entry.source, dir, {
       dirs, subagentsDir: path.join(ctx.hub, '.claude', 'agents'), hubRoot: ctx.hub,
-      dryRun: ctx.dry, packLater: !!ctx.packPending, yes: true, start: !o.noStart, ask: async () => false,
+      dryRun: ctx.dry, packLater: !!ctx.packPending, starterInHub: o.skillsScope === 'hub', yes: true, start: !o.noStart, ask: async () => false,
     });
   } catch (e) {
     out(`  ${entry.name} could not be installed: ${e.message}`);

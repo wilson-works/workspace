@@ -12,7 +12,9 @@
  *                           the pack either, or the install record cannot be read. Nothing is written
  *                           before apply(). opts.packLater is for the installer's dry run only, when
  *                           its skills part has the pack still to fetch: each missing skill is then a
- *                           "+" marked "checked once the pack is here", and apply does nothing.
+ *                           "+" marked "checked once the pack is here" (or "=" when opts.starterInHub
+ *                           and it is a starter skill that install copies into the Hub first), and
+ *                           apply does nothing.
  *   apply()                 writes each copy, then records it in <Hub>/.hub/installed.json
  *
  * The pack is the Hub's clone of the claude_skills pack, <Hub>/50-AI/claude_skills, read at the commit
@@ -49,8 +51,13 @@ function plan(hub, names, who, opts) {
   const packDir = path.join(hub, '50-AI', 'claude_skills');
   const short = starter.ref.slice(0, 7);
   if (opts && opts.packLater) {
-    const later = (n) => `+ ${fwd(path.join(into, n))}  (a skill ${who} needs, from claude_skills@${short}; checked once the pack is here)`;
-    return { ok: true, errors: [], lines: names.map((n) => (missing.includes(n) ? later(n) : there(n))), changes: missing.length, apply: nothing };
+    // A starter skill the same install copies into the Hub first is there by the time this agent is.
+    const coming = new Set(opts.starterInHub ? starter.skills.map((s) => s.name) : []);
+    const later = (n) => (coming.has(n)
+      ? `= ${fwd(path.join(into, n))}  (a starter skill, copied above)`
+      : `+ ${fwd(path.join(into, n))}  (a skill ${who} needs, from claude_skills@${short}; checked once the pack is here)`);
+    const lines = names.map((n) => (missing.includes(n) ? later(n) : there(n)));
+    return { ok: true, errors: [], lines, changes: missing.filter((n) => !coming.has(n)).length, apply: nothing };
   }
   const copies = new Map();
   for (const n of missing) {

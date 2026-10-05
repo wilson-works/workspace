@@ -157,6 +157,7 @@ test('a dry run plans it, names it in the summary, and writes nothing', async (t
   assert.match(r.text, /^ {4}\+ .*50-AI\/agents\/sample\/ \(\d+ files\)$/m, r.text);
   assert.match(r.text, /^ {4}\+ .*\.claude\/skills\/gamma {2}\(a skill Sample needs, from claude_skills@\w{7}; checked once the pack is here\)$/m,
     'the pack is fetched by this install, so its skills are planned, not refused');
+  assert.match(r.text, /^ {4}= .*\.claude\/skills\/alpha {2}\(a starter skill, copied above\)$/m, 'a starter skill the same run copies first');
   assert.match(r.text, /Sample \(once installed\)/);
   assert.match(r.text, /Dry run: nothing was written\./);
   assert.ok(!fs.existsSync(path.join(sb.hub, '50-AI')), 'nothing in the Hub');

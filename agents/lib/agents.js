@@ -595,7 +595,8 @@ function sameAsInstalled(pkgDir, pkgManifest, target) {
  *           <Hub>/.claude/skills and the Hub's pinned pack),
  *           dryRun, yes, force, start (false: never start), ask (async question -> true/false),
  *           from (first port to try, default 7600), packLater (a dry run only: the installer will
- *           fetch the pack first, so the skills it requires are planned unchecked) }
+ *           fetch the pack first, so the skills it requires are planned unchecked), starterInHub
+ *           (with packLater: the installer copies the starter skills into the Hub first) }
  * Never runs anything from the package. Returns { ok, refused, errors, key, target, lines, port, started,
  * startFailed, unchanged (already installed, the same), kept (yours differs and was kept) }.
  */
@@ -622,7 +623,7 @@ async function installPackage(src, agentsDir, opts) {
     const needed = require('./skills').needs(manifest);
     if (needed.length) {
       if (!o.hubRoot) return { ok: false, refused: true, errors: [`${manifest.name} needs skills (requires.skills), and installing them needs the Hub.`], lines };
-      skills = require('./skills').plan(o.hubRoot, needed, manifest.name, { packLater: !!(o.dryRun && o.packLater) });
+      skills = require('./skills').plan(o.hubRoot, needed, manifest.name, { packLater: !!(o.dryRun && o.packLater), starterInHub: !!o.starterInHub });
       if (!skills.ok) return { ok: false, refused: true, errors: skills.errors, lines };
     }
     const addSkills = () => {
