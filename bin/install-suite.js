@@ -490,6 +490,13 @@ async function partOffice(ctx) {
   // 1. workspace.config.json: written when absent, never edited when present.
   if (!exists(cfgFile)) {
     port = o.officePort || await pickPort(wantHome);
+    // A port chosen with --office-port that something else holds would be written into the settings
+    // and then kept on every later run: refuse it now, before this part writes anything.
+    if (o.officePort && !o.noStart && await portInUse(port) && !(await ourOfficeOn(wantHome, port))) {
+      out(`  ! port ${port} is in use by something else, so the office could not start there. Nothing in this part was changed: run this again with another --office-port (any free number from 1024 up).`);
+      ctx.failed.push('office');
+      return;
+    }
     officeHome = wantHome;
     const fresh = {
       _readme: 'Your WorkSpace settings, written by install.js. Say "set up my WorkSpace" in a chat on your Hub to add your brand, other computers and private folders (workspace.config.example.json lists every setting). Never commit this file: it names you and your computers.',
@@ -590,7 +597,7 @@ async function partOffice(ctx) {
   if (o.noStart) out('  The office is not started (--no-start). Start it with: node bin/office-start.js');
   else if (await ourOfficeOn(officeHome, port)) { out(`  = the office is running: http://127.0.0.1:${port}/`); ctx.officeUp = true; }
   else if (await portInUse(port)) {
-    out(`  ! port ${port} is in use by something else, so the office cannot start there. Choose another with --office-port, or change office.port in ${show(ctx, cfgFile)}.`);
+    out(`  ! port ${port} is in use by something else, so the office cannot start there. Set office.port in ${show(ctx, cfgFile)} to a free port (any number from 1024 up), then run this again.`);
     ctx.failed.push('office');
   } else {
     out(`  + start the office: http://127.0.0.1:${port}/`);

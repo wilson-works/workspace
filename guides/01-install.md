@@ -245,7 +245,8 @@ itself when you start typing in that chat, when the chat closes, or after 8 hour
 - **The page won't open.** In a terminal in `<your Hub>/50-AI/workspace`, run
   `node bin/office-start.js` and read what it prints, then `office.log`.
 - **The installer says the port is in use.** Something else uses it. Run it again with
-  `--office-port 4317` (any free number from 1024 up).
+  `--office-port 4317` (any free number from 1024 up). If your `workspace.config.json` already
+  exists, change `office.port` in it instead, then run the installer again.
 - **Your chat isn't on the floor.** Check the chat was opened on the **Hub** folder, not a folder
   inside it or somewhere else. A chat that was open before the install needs to be closed and
   reopened. For chats in other folders, add the **hooks** part above.
