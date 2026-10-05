@@ -1,0 +1,22 @@
+{
+  "key": "quill",
+  "name": "Quill",
+  "title": "The Content Desk",
+  "line": "Drafts your posts and newsletters in your own voice.",
+  "status": "live",
+  "door": { "local": "http://127.0.0.1:7612/", "phone": null },
+  "probe": { "port": 7612, "path": "/health" },
+  "start": "node dashboard/server.js",
+  "autostart": true,
+  "match": ["quill", "content desk"],
+  "brand": {
+    "bg": "#22190D", "panel": "#52370C", "ink": "#FDF1DA", "accent": "#F59E0B", "accent2": "#F9C060",
+    "font": "Georgia, 'Iowan Old Style', serif", "mark": "mark.svg"
+  },
+  "art": "art.svg",
+  "jokes": [
+    "I'd tell you a joke about first drafts, but it needs another pass.",
+    "Knock knock. Who's there? Your newsletter. Due Friday. Already outlined.",
+    "I write in your voice. Even this knock-knock joke sounds a bit like you."
+  ]
+}

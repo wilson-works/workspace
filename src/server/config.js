@@ -106,6 +106,11 @@ function normalize(raw) {
     if (!/\.(svg|png)$/i.test(logo) || !fs.existsSync(logo)) logo = null;
   }
   const hubUrl = str(r.hub_url);
+  const office = r.office && typeof r.office === 'object' ? r.office : {};
+  const port = Number(office.port);
+  const officeHome = str(office.home);
+  const fleet = r.fleet && typeof r.fleet === 'object' ? r.fleet : {};
+  const fleetRepo = str(fleet.repo);
 
   return {
     use: str(r.use) === 'company' ? 'company' : 'personal',
@@ -117,6 +122,14 @@ function normalize(raw) {
     work_folders: list(r.work_folders).map((f) => path.resolve(ROOT, f)),
     privacy: { private_work: list(privacy.private_work), never_read: list(privacy.never_read) },
     tailscale_cli: str(r.tailscale_cli),
+    // Where this office listens and keeps its state. Two offices on one computer (a test, a
+    // second person) each get their own port and home; the hooks read both from here.
+    office: {
+      port: Number.isInteger(port) && port >= 1024 && port <= 65535 ? port : null,
+      home: officeHome ? path.resolve(ROOT, officeHome) : null,
+    },
+    agents_dirs: list(r.agents_dirs).map((f) => path.resolve(ROOT, f)),
+    fleet: { repo: fleetRepo ? path.resolve(ROOT, fleetRepo) : null },
   };
 }
 
@@ -134,7 +147,48 @@ function load() {
   return cache.cfg;
 }
 
-function machines() { return load().machines; }
+// The fleet's registry (machines/<NAME>.json in the fleet repo), read at most every 15 seconds.
+const FLEET_TTL_MS = 15000;
+let fleetCache = null;
+
+/**
+ * The computers that share this office: workspace.config.json `machines`, then every computer the
+ * fleet repo has registered that the settings do not already list (by name or by computer), so the
+ * mesh knows each one without hand-editing. A fleet computer marked office_hub is the hub, unless
+ * the settings list that computer themselves: then the settings decide. A computer that left the
+ * fleet is left out.
+ */
+function machines() {
+  const c = load();
+  const own = c.machines;
+  const key = `${file()}|${c.fleet.repo || ''}`;
+  const now = Date.now();
+  if (!fleetCache || fleetCache.key !== key || now - fleetCache.at > FLEET_TTL_MS) {
+    let reg = [];
+    try {
+      const dir = fleetRepo();
+      if (dir) reg = require('./fleet').registeredMachines(dir);
+    } catch (_) { /* no fleet: the settings alone */ }
+    fleetCache = { key, at: now, reg };
+  }
+  const out = own.map((m) => Object.assign({}, m));
+  const taken = new Set(out.map((m) => m.callsigns).filter(Boolean));
+  const pools = poolNames();
+  let fleetHub = null;
+  for (const f of fleetCache.reg) {
+    if (f.status === 'left') continue;
+    const name = wallName(f.name);
+    const computer = unset(f.computer) ? null : wallName(f.computer);
+    if (!NAME_RE.test(name) || out.some((m) => m.name === name || (computer && m.computer === computer))) continue;
+    const callsigns = pools.find((p) => !taken.has(p)) || null;
+    if (callsigns) taken.add(callsigns);
+    const m = { name, computer, hub: false, callsigns };
+    if (f.office_hub === true && !fleetHub) fleetHub = m;
+    out.push(m);
+  }
+  if (fleetHub) for (const m of out) m.hub = m === fleetHub;
+  return out;
+}
 function machineNames() { return machines().map((m) => m.name); }
 function hubMachine() { return machines().find((m) => m.hub).name; }
 
@@ -199,8 +253,47 @@ function neverRead(slug) {
   });
 }
 
-/** Folders that hold code repos: a session inside one sits in that repo's room. */
-function codeRoots() { return load().code_roots; }
+/** The Hub this office belongs to (hub/lib/root.js), or null when it runs on its own. Never throws. */
+function hubRoot() {
+  try {
+    const r = require('../../hub/lib/root').findHubRoot({ from: ROOT });
+    return r ? r.root : null;
+  } catch (_) { return null; }
+}
+
+/** Folders that hold code repos: a session inside one sits in that repo's room. Default: the Hub's code zone. */
+function codeRoots() {
+  const own = load().code_roots;
+  if (own.length) return own;
+  const hub = hubRoot();
+  if (!hub) return [];
+  try { return [require('../../hub/lib/root').codeZone(hub)]; } catch (_) { return []; }
+}
+
+/** The port this office listens on: WORKSPACE_PORT, else office.port, else 4316. */
+function officePort() {
+  const env = Number(process.env.WORKSPACE_PORT);
+  if (Number.isInteger(env) && env >= 1024 && env <= 65535) return env;
+  return load().office.port || 4316;
+}
+
+/** Folders whose sub-folders each hold one agent's agent.json. Default: the Hub's 50-AI/agents. */
+function agentsDirs() {
+  const own = load().agents_dirs;
+  if (own.length) return own;
+  const hub = hubRoot();
+  return hub ? [path.join(hub, '50-AI', 'agents')] : [];
+}
+
+/** This computer's clone of the fleet-ops repo, or null. Default: the Hub's 50-AI/fleet-ops when it is one. */
+function fleetRepo() {
+  const own = load().fleet.repo;
+  if (own) return own;
+  const hub = hubRoot();
+  if (!hub) return null;
+  const dir = path.join(hub, '50-AI', 'fleet-ops');
+  return fs.existsSync(path.join(dir, 'fleet.json')) ? dir : null;
+}
 
 /** What the page shows about whose office this is. */
 function brand() {
@@ -219,4 +312,5 @@ function ownerName() { return load().owner.name; }
 module.exports = {
   ROOT, POOLS, file, load, normalize, unset, wallName, thisComputer, thisMachine, machines, machineNames,
   hubMachine, poolOf, isPrivate, neverRead, codeRoots, brand, ownerName,
+  hubRoot, officePort, agentsDirs, fleetRepo,
 };

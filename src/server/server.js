@@ -108,7 +108,7 @@ function start(opts) {
     || sessions.some((s) => s.id === (p.from && p.from.session_id) && s.client_work);
 
   // The Agents' wing (agents.js): each specialist's office, whether it runs here, its doors.
-  const agents = o.agents || require('./agents').createAgents({ self, file: o.agentsFile });
+  const agents = o.agents || require('./agents').createAgents({ self, file: o.agentsFile, dirs: o.agentsDirs });
   agents.refresh(true);
 
   const distDir = o.distDir || path.join(__dirname, '..', '..', 'dist');
@@ -260,6 +260,7 @@ function start(opts) {
       } catch (_) { /* a nudge must never take the wall down */ }
     }
     v.brand = config.brand();
+    v.fleet = !!fleetDir();
     v.token = TOKEN;
     return v;
   }
@@ -304,6 +305,20 @@ function start(opts) {
   // A buzz on the owner's phone when a new question lands (push.js). An office
   // with no signed-up phone sends nothing; tests pass pushSend to catch it.
   const notifier = o.push === false ? null : push.createNotifier(home, { send: o.pushSend });
+
+  // This computer's fleet clone (config.fleetRepo()), looked up at most every 30 seconds: the Fleet
+  // tab shows only when there is one.
+  const fleetRead = require('./fleet');
+  let fleetSeen = { at: 0, dir: null };
+  function fleetDir() {
+    const now = Date.now();
+    if (now - fleetSeen.at > 30000) {
+      let dir = null;
+      try { dir = config.fleetRepo(); } catch (_) { /* no fleet */ }
+      fleetSeen = { at: now, dir: dir && fleetRead.isFleet(dir) ? dir : null };
+    }
+    return fleetSeen.dir;
+  }
 
   // The sessions of the last frame sent, for the Agents' wing's desk counts.
   let lastSessions = null;
@@ -375,11 +390,43 @@ function start(opts) {
       return;
     }
 
+    // The Fleet page (fleet.js): the computers of the fleet repo, its board, handoffs and comms.
+    if (url.pathname === '/api/fleet') {
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+      let v;
+      try {
+        const dir = fleetDir();
+        v = dir ? fleetRead.fleetView(dir, fleetRead.selfIn(dir, self, config.thisComputer())) : { configured: false };
+      } catch (e) { v = { configured: false, error: String(e && e.message) }; }
+      res.end(JSON.stringify(v));
+      return;
+    }
+
     if (url.pathname === '/api/agents') {
       res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
       let v;
       try { v = agents.view(sessionsNow(), Date.now()); } catch (e) { v = { agents: [], error: String(e && e.message) }; }
       res.end(JSON.stringify(v));
+      return;
+    }
+
+    // An agent's own mark and figure (agents.js fileFor): an .svg or .png directly inside the folder of
+    // the agent its agent.json names, nothing else. Sandboxed, so an svg opened on its own runs no script.
+    const agentFile = /^\/agent-files\/([^/]+)\/([^/]+)$/.exec(url.pathname);
+    if (agentFile && req.method === 'GET') {
+      const f = agents.fileFor ? agents.fileFor(decode(agentFile[1]), decode(agentFile[2])) : null;
+      if (!f) {
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('not found');
+        return;
+      }
+      res.writeHead(200, {
+        'Content-Type': /\.svg$/i.test(f) ? 'image/svg+xml' : 'image/png',
+        'Cache-Control': 'no-store, max-age=0',
+        'X-Content-Type-Options': 'nosniff',
+        'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; sandbox",
+      });
+      res.end(fs.readFileSync(f));
       return;
     }
 
@@ -781,7 +828,7 @@ if (require.main === module) {
   const live = !root;
   const home = arg('--home', homeDir());
 
-  const opts = { root: root || home, home, port: Number(arg('--port', 4316)) };
+  const opts = { root: root || home, home, port: Number(arg('--port', config.officePort())) };
   if (args.includes('--channel-hub')) opts.channelHub = true;
   const extraHost = arg('--allow-host', undefined);
   if (extraHost) opts.allowHosts = extraHost.split(',').map((s) => s.trim()).filter(Boolean);

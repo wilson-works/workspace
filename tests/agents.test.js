@@ -28,7 +28,7 @@ fs.writeFileSync(file, JSON.stringify({ agents: [
 test("an agent running here has an open door; one that is down has none; another machine's loopback is never probed", async () => {
   const probed = [];
   let up = true;
-  const ag = A.createAgents({ file, self: 'DESK', probe: async (p) => { probed.push(p.port); return up; } });
+  const ag = A.createAgents({ file, dirs: [], self: 'DESK', probe: async (p) => { probed.push(p.port); return up; } });
   await ag.refresh(true);
   assert.deepEqual(probed, [7480], 'only the agent on this machine with a probe');
   const v = ag.view([], 1000);
@@ -51,7 +51,7 @@ test("an agent running here has an open door; one that is down has none; another
 });
 
 test("an agent's sessions are counted by its match words; their titles never leave", async () => {
-  const ag = A.createAgents({ file, self: 'DESK', probe: async () => false });
+  const ag = A.createAgents({ file, dirs: [], self: 'DESK', probe: async () => false });
   await ag.refresh(true);
   const sessions = [
     { id: 's-idle', machine: 'DESK', name: 'C04 receipts week 14', room: 'the-bookkeeper', state: 'idle', last_at: 900 },
@@ -77,7 +77,7 @@ test('the figure inside the door is one of the office\'s own svgs, and jokes are
     { key: 'up', name: 'Up', art: '/agents/../server.js' },
     { key: 'none', name: 'None', jokes: 'not a list' },
   ] }));
-  const v = A.createAgents({ file: f, self: 'DESK', probe: async () => false }).view([], 1000).agents;
+  const v = A.createAgents({ file: f, dirs: [], self: 'DESK', probe: async () => false }).view([], 1000).agents;
   assert.equal(v[0].art, '/agents/ok-hello.svg');
   assert.deepEqual(v[0].jokes, ['short', 'x'.repeat(160)], 'non-strings and anything over 160 characters are dropped');
   assert.equal(v[1].art, null, 'never another site');
@@ -95,7 +95,7 @@ test('a tailnet probe checks an agent on any machine; a non-tailnet url is never
   ] }));
   const seen = [];
   let up = true;
-  const ag = A.createAgents({ file: f, self: 'DESK', probe: async (p) => { seen.push(p.url); return up; } });
+  const ag = A.createAgents({ file: f, dirs: [], self: 'DESK', probe: async (p) => { seen.push(p.url); return up; } });
   await ag.refresh(true);
   assert.deepEqual(seen, ['https://laptop.example.ts.net/mark.svg'], 'only the tailnet probe is made');
   const [lap, rogue] = ag.view([], 1000).agents;
@@ -121,7 +121,7 @@ test('config/agents.json: the shipped placeholder is the planned "your-specialis
   assert.equal(a.status, 'planned');
   assert.equal(a.probe, null, 'a planned agent has nothing to probe');
   for (const c of ['bg', 'panel', 'ink', 'accent', 'accent2']) assert.match(String(a.brand[c]), /^#[0-9a-f]{6}$/i, `brand.${c}`);
-  const v = A.createAgents({ file: path.join(root, 'config', 'agents.json'), self: 'DESK', probe: async () => true }).view([], 1000);
+  const v = A.createAgents({ file: path.join(root, 'config', 'agents.json'), dirs: [], self: 'DESK', probe: async () => true }).view([], 1000);
   assert.equal(v.agents[0].state, 'planned');
   assert.ok(a.jokes.length >= 2, 'a knock can answer with a different joke');
   assert.deepEqual(v.agents[0].jokes, a.jokes, 'no joke is dropped');
@@ -132,7 +132,7 @@ test('config/agents.json: the shipped placeholder is the planned "your-specialis
 test('config/agents.json: every mark and figure exists, no probe path is a door path or /open, a phone door is https', () => {
   const root = path.join(__dirname, '..');
   const cfg = path.join(root, 'config', 'agents.json');
-  const view = A.createAgents({ file: cfg, self: 'DESK', probe: async () => false }).view([], 1000).agents;
+  const view = A.createAgents({ file: cfg, dirs: [], self: 'DESK', probe: async () => false }).view([], 1000).agents;
   for (const a of A.loadAgents(cfg)) {
     for (const img of [a.brand && a.brand.mark, a.art].filter(Boolean)) {
       const svg = fs.readFileSync(path.join(root, 'public', img.replace(/^\//, '')), 'utf8');

@@ -1,0 +1,1 @@
+{ "type": "commonjs", "private": true, "_": "This dashboard is CommonJS with no dependencies. This file keeps it so wherever the agent folder lands, even under a folder whose package.json says type: module." }

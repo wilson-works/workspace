@@ -14,3 +14,7 @@ projects/*
 
 # Your own logo and brand files (brand.logo in workspace.config.json).
 brand/
+
+# Video renders and draft stills. The masters are kept outside git; only the source and the
+# sandbox screenshots (video/public/) are committed.
+video/out/

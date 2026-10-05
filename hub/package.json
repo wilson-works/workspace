@@ -1,0 +1,1 @@
+{ "type": "commonjs", "_": "hub/ is CommonJS like src/server and bin. Without this file the root package.json (type: module, for Vite) makes Node read hub/lib/root.js as an ES module, and every require() of it fails." }

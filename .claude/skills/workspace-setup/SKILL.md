@@ -11,6 +11,14 @@ suggest a sensible answer and move on. Nothing is saved until they approve a sum
 
 ## 0. Check the ground (do it, don't ask)
 
+- **Where the WorkSpace folder is.** If this chat is open on a **Hub** (a `.hub/hub.json` in this
+  folder or one above it), the WorkSpace folder is `<Hub>/50-AI/workspace`. Run every command below
+  from there (`cd` into it first), and read and write `workspace.config.json` there. Never search the
+  whole Hub to find it; the Hub's `NAV.md` says where things are. If there is no Hub, this chat is in
+  the WorkSpace folder itself.
+- **What the Hub already knows.** Read `<Hub>/.hub/hub.json`: `machine` (this computer's short
+  name), `role` and `owner`. Treat those as answers already given: confirm them in one line, don't
+  ask again.
 - `node --version`: Node 20 or newer is needed; 22.13 or newer lets the office read the org's
   comms bus. If it is older, say so plainly and point to https://nodejs.org (the LTS download).
 - `git --version` and a Python 3 (`python`, `py -3` or `python3`): both are needed later (the CTO
@@ -18,6 +26,12 @@ suggest a sensible answer and move on. Nothing is saved until they approve a sum
 - This computer's own name: `COMPUTERNAME` on Windows, `hostname` on macOS or Linux.
 - Whether `workspace.config.json` already exists. If it does, this is a change, not a first setup:
   read it, show the current answers in plain words, and ask which ones to change. Skip the rest.
+  **Except** when the installer wrote it (its `_readme` names `install.js`, and it holds only
+  `owner`, one machine and `office`): then the basics are set, and this is still the first setup.
+  Show those answers in plain words, then go through the rest of the interview (use, office and
+  company name, colours, logo, other computers, private folders). Keep `office.port` and
+  `office.home` exactly as they are unless the person asks to change them: the Hub's hooks find the
+  office through them.
 
 ## 1. The interview
 
@@ -34,10 +48,15 @@ ask. Go in this order:
 6. **Logo** (`brand.logo`): an .svg or .png. Copy it into `brand/` in this folder (create it; it is
    kept out of git) and save the path as `brand/<file>`. No logo: leave it empty (the orb stays).
 7. **This computer's short name** (`machines[0].name`), capitals, digits and hyphens, for example
-   DESK. Fill `machines[0].computer` yourself from step 0, and `hub: true`.
+   DESK. On a Hub, use `machine` from `.hub/hub.json` (they must match). Fill
+   `machines[0].computer` yourself from step 0, and `hub: true`.
 8. **Other computers** they will connect later: one entry each (`name`, `computer` if they know
-   it). Tell them `guides/02-tailscale.md` connects them, and that `hub_url` is filled in then.
-9. **Code folders** (`code_roots`): where their code projects live. None yet is a fine answer.
+   it). Tell them `guides/02-tailscale.md` connects them, and that `hub_url` is filled in then. If
+   they use a fleet (`<Hub>/50-AI/fleet-ops/machines/` exists), use the names in it, so a computer's
+   chip and its name on the board match (`guides/07-several-computers.md`).
+9. **Code folders** (`code_roots`): where their code projects live. On a Hub, the projects live in
+   its code zone (`20-Coding/Projects`), which the office uses on its own: leave `code_roots` empty
+   unless they also keep code outside the Hub. Without a Hub, none yet is a fine answer.
 10. **Private work** (`privacy.private_work`): folders (or folder-name words) whose sessions must
     never show titles or tasks on the office or the phone, such as client or tax folders.
 11. **Never read** (`privacy.never_read`): folders no session may ever read or touch, such as another
@@ -53,9 +72,10 @@ understood (name, machines, which one is the hub).
 
 ## 3. Restart the office
 
-Run `node bin/office-start.js --restart`, then tell them to open (or reload) http://127.0.0.1:4316
-and what they should see: their office name (and company) in the bar, the orb in their colors or
-their logo, this computer's chip with its short name.
+Run `node bin/office-start.js --restart`, then tell them to open (or reload) the office at
+http://127.0.0.1:<office.port> (4316 unless `office.port` says otherwise) and what they should see:
+their office name (and company) in the bar, the orb in their colors or their logo, this computer's
+chip with its short name.
 
 ## 4. Offer the three installs, one at a time
 
@@ -63,10 +83,13 @@ For each: run it **without** `--apply`, explain the plan in plain words, ask, an
 Tell them a backup of their settings is made first and `--remove` undoes it.
 
 1. `node bin/install.js hooks`: every Claude Code chat on this computer appears on the office and can
-   get notes (until now, only chats in this folder do). After applying, new chats pick it up.
+   get notes. On a Hub, chats opened on the Hub already do (the installer put the hooks in the Hub's
+   own `.claude/settings.json`), so this is only for chats in folders outside the Hub; say so, and
+   skip it if they only work on the Hub. After applying, new chats pick it up.
 2. `node bin/install.js permissions`: the deny and ask lists and the walkaway hooks
    (`guides/03-permissions.md`). If Python was missing in step 0, say the lists still work.
-3. `node bin/install.js startup`: the office starts when they log in.
+3. `node bin/install.js startup`: the office starts when they log in. (Skip it if `install.js
+   --startup` already did: the plan then shows `=`.)
 
 ## 5. Finish
 

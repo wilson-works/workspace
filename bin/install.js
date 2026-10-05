@@ -25,6 +25,9 @@
  *                and its settings entry. Existing files are left alone unless --force.
  *
  * Exit codes: 0 done (or plan shown); 2 refused (bad arguments, unreadable settings).
+ *
+ * Also a module: the one installer (install.js at the repo root, bin/install-suite.js) reuses the
+ * hook list, the settings merge and the login-start file from here. Required, it runs nothing.
  */
 
 const fs = require('fs');
@@ -371,13 +374,19 @@ function partOrg() {
 
 const PARTS = { hooks: partHooks, permissions: partPermissions, startup: partStartup, org: partOrg };
 
-if (!part) {
-  if (apply || remove) refuse('name the part to change: hooks, permissions, startup or org.');
-  out('The WorkSpace installer. This shows what each part would change; nothing is written.\n');
-  for (const name of ['hooks', 'permissions', 'startup', 'org']) { PARTS[name](); out(); }
-  out('Make a change with: node bin/install.js <part> --apply   (undo with --remove)');
-  process.exit(0);
+function main() {
+  if (!part) {
+    if (apply || remove) refuse('name the part to change: hooks, permissions, startup or org.');
+    out('The WorkSpace installer. This shows what each part would change; nothing is written.\n');
+    for (const name of ['hooks', 'permissions', 'startup', 'org']) { PARTS[name](); out(); }
+    out('Make a change with: node bin/install.js <part> --apply   (undo with --remove)');
+    process.exit(0);
+  }
+  if (!PARTS[part]) refuse(`there is no part called "${part}". The parts are hooks, permissions, startup and org.`);
+  if (apply && remove) refuse('--apply or --remove, not both.');
+  PARTS[part]();
 }
-if (!PARTS[part]) refuse(`there is no part called "${part}". The parts are hooks, permissions, startup and org.`);
-if (apply && remove) refuse('--apply or --remove, not both.');
-PARTS[part]();
+
+if (require.main === module) main();
+
+module.exports = { officeHooks, addHooks, removeHooks, commandsIn, readJson, writeJson, backup, python, startupTarget };

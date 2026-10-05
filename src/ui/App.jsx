@@ -1,6 +1,7 @@
 // App.jsx — the WorkSpace office.
 //
-// Five places: the Floor, Work, Agents, Questions and Chat. On a desktop they are tabs
+// Five places: the Floor, Work, Agents, Questions and Chat, and a sixth, the Fleet, when this
+// computer has a fleet clone. On a desktop they are tabs
 // in the slim bar; on a phone (≤ 760 px) they are a bar along the bottom, and
 // the machine switch sits full width under the header on the Floor. Where you
 // are lives in the address (route.js), so Back walks the office and every view
@@ -19,6 +20,7 @@ import ProjectWork from './components/ProjectWork.jsx';
 import StepView from './components/StepView.jsx';
 import Pulse from './components/Pulse.jsx';
 import AgentsWing from './components/AgentsWing.jsx';
+import Fleet from './components/Fleet.jsx';
 import { keyOf } from './components/Desk.jsx';
 
 const STORE = 'workspace.machine.v1';
@@ -51,14 +53,17 @@ const TABS = [
   { key: 'floor', label: 'Floor', icon: 'M3 10.5 12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z' },
   { key: 'work', label: 'Work', icon: 'M4 5h16M4 12h16M4 19h10' },
   { key: 'agents', label: 'Agents', icon: 'M6 21V4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21M3 21h18M14.5 12.5h.01' },
+  // Shown only when this computer has a fleet clone (frame.fleet).
+  { key: 'fleet', label: 'Fleet', icon: 'M3 5h8v6H3zM13 5h8v6h-8zM8 15h8v5H8zM7 11v4M17 11v4', fleetOnly: true },
   { key: 'questions', label: 'Questions', icon: 'M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z' },
   { key: 'chat', label: 'Chat', icon: 'M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-5A8 8 0 1 1 21 12z' },
 ];
 
-function Tabs({ where, current, onPick, badges }) {
+function Tabs({ where, current, onPick, badges, fleet }) {
+  const tabs = TABS.filter((t) => !t.fleetOnly || fleet);
   return (
-    <nav className={`tabs tabs-${where}`} aria-label="places">
-      {TABS.map((t) => (
+    <nav className={`tabs tabs-${where} tabs-${tabs.length}`} aria-label="places">
+      {tabs.map((t) => (
         <button
           key={t.key}
           type="button"
@@ -219,7 +224,7 @@ export default function App() {
   const onFloor = route.tab === 'floor';
   // Chat's badge: group messages newer than the last one seen on the Chat tab, the owner's own excepted.
   const unread = (frame.channel || []).filter((m) => m.at > chatRead && m.from.kind !== 'owner').length;
-  const tabs = (where) => <Tabs where={where} current={route.tab} onPick={pickTab} badges={{ questions: questions.length, chat: unread }} />;
+  const tabs = (where) => <Tabs where={where} current={route.tab} onPick={pickTab} badges={{ questions: questions.length, chat: unread }} fleet={!!frame.fleet} />;
 
   let view = null;
   if (route.tab === 'work') {
@@ -234,6 +239,8 @@ export default function App() {
     }
   } else if (route.tab === 'agents') {
     view = <AgentsWing onClose={back} questions={questions} onQuestions={() => go({ tab: 'questions' })} />;
+  } else if (route.tab === 'fleet') {
+    view = <Fleet onClose={back} />;
   } else if (route.tab === 'questions') {
     view = <Questions questions={questions} token={frame.token} ago={ago} onClose={back} />;
   } else if (route.tab === 'chat') {

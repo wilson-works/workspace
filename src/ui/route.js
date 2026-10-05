@@ -4,11 +4,11 @@
 //   #/floor/<machine>                 the floor, one machine or all
 //   #/floor/<machine>/<session-key>   a session's panel over that floor
 //   #/work   #/work/<project>   #/step/<project>/<id>
-//   #/agents   #/questions   #/chat
+//   #/agents   #/fleet   #/questions   #/chat
 // Opening a session, project or step pushes history, so the phone's Back
 // closes it instead of leaving the office.
 
-const TABS = new Set(['floor', 'work', 'step', 'agents', 'questions', 'chat']);
+const TABS = new Set(['floor', 'work', 'step', 'agents', 'fleet', 'questions', 'chat']);
 
 export function parseRoute(hash) {
   const parts = String(hash || '').replace(/^#\/?/, '').split('/').filter(Boolean).map((p) => {

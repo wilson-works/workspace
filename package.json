@@ -1,7 +1,7 @@
 {
   "name": "workspace",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
     "start": "node bin/office-start.js",
@@ -17,7 +17,7 @@
     "vite": "^5.4.0",
     "esbuild": "^0.21.5"
   },
-  "description": "WorkSpace from WilsonWorks: a virtual office for your Claude Code sessions, with a get-started course and a CTO org.",
+  "description": "The WilsonWorks Workspace: a Hub for all your work, starter skills, an office where every Claude Code session shows up, specialist agents with an office of their own, and your computers working together.",
   "license": "MIT",
   "engines": {
     "node": ">=20"

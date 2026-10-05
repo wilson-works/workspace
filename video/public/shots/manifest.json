@@ -1,0 +1,2018 @@
+{
+  "floor-all": {
+    "file": "shots/floor-all.png",
+    "width": 2400,
+    "height": 1260,
+    "scale": 1.5,
+    "css": {
+      "width": 1600,
+      "height": 840
+    },
+    "boxes": {
+      "bar": [
+        0,
+        0,
+        1600,
+        56
+      ],
+      "tabs": [
+        499,
+        11,
+        416,
+        32
+      ],
+      "machines": [
+        147,
+        11,
+        332,
+        32
+      ],
+      "floor": [
+        0,
+        195,
+        1600,
+        628
+      ],
+      "pulse": [
+        0,
+        56,
+        1600,
+        139
+      ],
+      "main": [
+        0,
+        56,
+        1600,
+        784
+      ],
+      "desk:Cedar": [
+        41,
+        272,
+        339,
+        139
+      ],
+      "desk:John-1-Gate": [
+        41,
+        421,
+        339,
+        112
+      ],
+      "desk:Aspen": [
+        434,
+        272,
+        339,
+        112
+      ],
+      "desk:Lyra": [
+        827,
+        272,
+        339,
+        112
+      ],
+      "desk:Hudson": [
+        1220,
+        272,
+        339,
+        112
+      ],
+      "desk:Vega": [
+        41,
+        623,
+        339,
+        139
+      ],
+      "desk:Rowan": [
+        434,
+        623,
+        339,
+        159
+      ],
+      "desk:Birch": [
+        827,
+        623,
+        339,
+        132
+      ],
+      "desk:Maple": [
+        1220,
+        623,
+        80,
+        30
+      ],
+      "room:garden planner@DESK": [
+        24,
+        219,
+        373,
+        331
+      ],
+      "room:bakery site@DESK": [
+        417,
+        219,
+        373,
+        182
+      ],
+      "room:bakery site@MINI": [
+        810,
+        219,
+        373,
+        182
+      ],
+      "room:bakery site@LAPTOP": [
+        1203,
+        219,
+        373,
+        182
+      ],
+      "room:garden planner@MINI": [
+        24,
+        571,
+        373,
+        209
+      ],
+      "room:iris@DESK": [
+        417,
+        571,
+        373,
+        229
+      ],
+      "room:quill@DESK": [
+        810,
+        571,
+        373,
+        201
+      ],
+      "room:Hub@DESK": [
+        1203,
+        571,
+        373,
+        100
+      ]
+    }
+  },
+  "floor-desk": {
+    "file": "shots/floor-desk.png",
+    "width": 2400,
+    "height": 1260,
+    "scale": 1.5,
+    "css": {
+      "width": 1600,
+      "height": 840
+    },
+    "boxes": {
+      "bar": [
+        0,
+        0,
+        1600,
+        56
+      ],
+      "tabs": [
+        499,
+        11,
+        416,
+        32
+      ],
+      "machines": [
+        147,
+        11,
+        332,
+        32
+      ],
+      "floor": [
+        0,
+        195,
+        1600,
+        499
+      ],
+      "pulse": [
+        0,
+        56,
+        1600,
+        139
+      ],
+      "main": [
+        0,
+        56,
+        1600,
+        784
+      ],
+      "desk:Cedar": [
+        41,
+        272,
+        339,
+        139
+      ],
+      "desk:John-1-Gate": [
+        41,
+        421,
+        339,
+        112
+      ],
+      "desk:Aspen": [
+        434,
+        272,
+        339,
+        112
+      ],
+      "desk:Rowan": [
+        827,
+        272,
+        339,
+        159
+      ],
+      "desk:Birch": [
+        1220,
+        272,
+        339,
+        132
+      ],
+      "desk:Maple": [
+        41,
+        623,
+        80,
+        30
+      ],
+      "room:garden planner": [
+        24,
+        219,
+        373,
+        331
+      ],
+      "room:bakery site": [
+        417,
+        219,
+        373,
+        182
+      ],
+      "room:iris": [
+        810,
+        219,
+        373,
+        229
+      ],
+      "room:quill": [
+        1203,
+        219,
+        373,
+        201
+      ],
+      "room:Hub": [
+        24,
+        571,
+        373,
+        100
+      ]
+    }
+  },
+  "floor-mini": {
+    "file": "shots/floor-mini.png",
+    "width": 2400,
+    "height": 1260,
+    "scale": 1.5,
+    "css": {
+      "width": 1600,
+      "height": 840
+    },
+    "boxes": {
+      "bar": [
+        0,
+        0,
+        1600,
+        56
+      ],
+      "tabs": [
+        499,
+        11,
+        416,
+        32
+      ],
+      "machines": [
+        147,
+        11,
+        332,
+        32
+      ],
+      "floor": [
+        0,
+        195,
+        1600,
+        257
+      ],
+      "pulse": [
+        0,
+        56,
+        1600,
+        139
+      ],
+      "main": [
+        0,
+        56,
+        1600,
+        784
+      ],
+      "desk:Lyra": [
+        41,
+        272,
+        339,
+        112
+      ],
+      "desk:Vega": [
+        434,
+        272,
+        339,
+        139
+      ],
+      "room:bakery site": [
+        24,
+        219,
+        373,
+        182
+      ],
+      "room:garden planner": [
+        417,
+        219,
+        373,
+        209
+      ]
+    }
+  },
+  "floor-laptop": {
+    "file": "shots/floor-laptop.png",
+    "width": 2400,
+    "height": 1260,
+    "scale": 1.5,
+    "css": {
+      "width": 1600,
+      "height": 840
+    },
+    "boxes": {
+      "bar": [
+        0,
+        0,
+        1600,
+        56
+      ],
+      "tabs": [
+        499,
+        11,
+        416,
+        32
+      ],
+      "machines": [
+        147,
+        11,
+        332,
+        32
+      ],
+      "floor": [
+        0,
+        195,
+        1600,
+        230
+      ],
+      "pulse": [
+        0,
+        56,
+        1600,
+        139
+      ],
+      "main": [
+        0,
+        56,
+        1600,
+        784
+      ],
+      "desk:Hudson": [
+        41,
+        272,
+        339,
+        112
+      ],
+      "room:bakery site": [
+        24,
+        219,
+        373,
+        182
+      ]
+    }
+  },
+  "panel-cedar": {
+    "file": "shots/panel-cedar.png",
+    "width": 2400,
+    "height": 1260,
+    "scale": 1.5,
+    "css": {
+      "width": 1600,
+      "height": 840
+    },
+    "boxes": {
+      "bar": [
+        0,
+        0,
+        1600,
+        56
+      ],
+      "tabs": [
+        499,
+        11,
+        416,
+        32
+      ],
+      "machines": [
+        147,
+        11,
+        332,
+        32
+      ],
+      "panel": [
+        1180,
+        56,
+        420,
+        784
+      ],
+      "composer": [
+        1181,
+        724,
+        419,
+        116
+      ],
+      "thread": [
+        1199,
+        434,
+        383,
+        98
+      ],
+      "helpers": [
+        1199,
+        338,
+        383,
+        78
+      ],
+      "now": [
+        1199,
+        202,
+        383,
+        118
+      ],
+      "floor": [
+        0,
+        195,
+        1180,
+        600
+      ],
+      "pulse": [
+        0,
+        56,
+        1180,
+        139
+      ],
+      "panel-head": [
+        1181,
+        56,
+        419,
+        130
+      ],
+      "main": [
+        0,
+        56,
+        1180,
+        784
+      ],
+      "desk:Cedar": [
+        41,
+        272,
+        330,
+        139
+      ],
+      "desk:John-1-Gate": [
+        41,
+        421,
+        330,
+        112
+      ],
+      "desk:Aspen": [
+        425,
+        272,
+        330,
+        112
+      ],
+      "desk:Rowan": [
+        809,
+        272,
+        330,
+        159
+      ],
+      "desk:Birch": [
+        41,
+        623,
+        330,
+        132
+      ],
+      "desk:Maple": [
+        425,
+        623,
+        80,
+        30
+      ],
+      "room:garden planner": [
+        24,
+        219,
+        364,
+        331
+      ],
+      "room:bakery site": [
+        408,
+        219,
+        364,
+        182
+      ],
+      "room:iris": [
+        792,
+        219,
+        364,
+        229
+      ],
+      "room:quill": [
+        24,
+        571,
+        364,
+        201
+      ],
+      "room:Hub": [
+        408,
+        571,
+        364,
+        100
+      ]
+    }
+  },
+  "panel-vega-note": {
+    "file": "shots/panel-vega-note.png",
+    "width": 2400,
+    "height": 1260,
+    "scale": 1.5,
+    "css": {
+      "width": 1600,
+      "height": 840
+    },
+    "boxes": {
+      "bar": [
+        0,
+        0,
+        1600,
+        56
+      ],
+      "tabs": [
+        499,
+        11,
+        416,
+        32
+      ],
+      "machines": [
+        147,
+        11,
+        332,
+        32
+      ],
+      "panel": [
+        1180,
+        56,
+        420,
+        784
+      ],
+      "composer": [
+        1181,
+        724,
+        419,
+        116
+      ],
+      "thread": [
+        1199,
+        416,
+        383,
+        44
+      ],
+      "helpers": [
+        1199,
+        320,
+        383,
+        78
+      ],
+      "now": [
+        1199,
+        202,
+        383,
+        99
+      ],
+      "floor": [
+        0,
+        195,
+        1180,
+        257
+      ],
+      "pulse": [
+        0,
+        56,
+        1180,
+        139
+      ],
+      "panel-head": [
+        1181,
+        56,
+        419,
+        130
+      ],
+      "main": [
+        0,
+        56,
+        1180,
+        784
+      ],
+      "desk:Lyra": [
+        41,
+        272,
+        330,
+        112
+      ],
+      "desk:Vega": [
+        425,
+        272,
+        330,
+        139
+      ],
+      "room:bakery site": [
+        24,
+        219,
+        364,
+        182
+      ],
+      "room:garden planner": [
+        408,
+        219,
+        364,
+        209
+      ]
+    }
+  },
+  "questions": {
+    "file": "shots/questions.png",
+    "width": 2400,
+    "height": 1260,
+    "scale": 1.5,
+    "css": {
+      "width": 1600,
+      "height": 840
+    },
+    "boxes": {
+      "bar": [
+        0,
+        0,
+        1600,
+        56
+      ],
+      "tabs": [
+        499,
+        11,
+        416,
+        32
+      ],
+      "machines": [
+        147,
+        11,
+        332,
+        32
+      ],
+      "panel": [
+        1180,
+        56,
+        420,
+        784
+      ],
+      "floor": [
+        0,
+        195,
+        1180,
+        849
+      ],
+      "pulse": [
+        0,
+        56,
+        1180,
+        139
+      ],
+      "panel-head": [
+        1181,
+        56,
+        419,
+        74
+      ],
+      "qcard": [
+        1199,
+        146,
+        383,
+        360
+      ],
+      "q-text": [
+        1199,
+        178,
+        383,
+        77
+      ],
+      "q-actions": [
+        1199,
+        353,
+        383,
+        154
+      ],
+      "main": [
+        0,
+        56,
+        1180,
+        988
+      ],
+      "desk:Cedar": [
+        41,
+        272,
+        330,
+        139
+      ],
+      "desk:John-1-Gate": [
+        41,
+        421,
+        330,
+        112
+      ],
+      "desk:Aspen": [
+        425,
+        272,
+        330,
+        112
+      ],
+      "desk:Lyra": [
+        809,
+        272,
+        330,
+        112
+      ],
+      "desk:Hudson": [
+        41,
+        623,
+        330,
+        112
+      ],
+      "desk:Vega": [
+        425,
+        623,
+        330,
+        139
+      ],
+      "desk:Rowan": [
+        809,
+        623,
+        330,
+        159
+      ],
+      "desk:Birch": [
+        41,
+        872,
+        330,
+        132
+      ],
+      "desk:Maple": [
+        425,
+        872,
+        80,
+        30
+      ],
+      "room:garden planner@DESK": [
+        24,
+        219,
+        364,
+        331
+      ],
+      "room:bakery site@DESK": [
+        408,
+        219,
+        364,
+        182
+      ],
+      "room:bakery site@MINI": [
+        792,
+        219,
+        364,
+        182
+      ],
+      "room:bakery site@LAPTOP": [
+        24,
+        571,
+        364,
+        182
+      ],
+      "room:garden planner@MINI": [
+        408,
+        571,
+        364,
+        209
+      ],
+      "room:iris@DESK": [
+        792,
+        571,
+        364,
+        229
+      ],
+      "room:quill@DESK": [
+        24,
+        819,
+        364,
+        201
+      ],
+      "room:Hub@DESK": [
+        408,
+        819,
+        364,
+        100
+      ]
+    }
+  },
+  "work": {
+    "file": "shots/work.png",
+    "width": 2400,
+    "height": 1260,
+    "scale": 1.5,
+    "css": {
+      "width": 1600,
+      "height": 840
+    },
+    "boxes": {
+      "bar": [
+        0,
+        0,
+        1600,
+        56
+      ],
+      "tabs": [
+        499,
+        11,
+        416,
+        32
+      ],
+      "machines": [
+        147,
+        11,
+        332,
+        32
+      ],
+      "panel": [
+        0,
+        56,
+        1600,
+        784
+      ],
+      "panel-head": [
+        0,
+        56,
+        1600,
+        88
+      ]
+    }
+  },
+  "work-course": {
+    "file": "shots/work-course.png",
+    "width": 2400,
+    "height": 1260,
+    "scale": 1.5,
+    "css": {
+      "width": 1600,
+      "height": 840
+    },
+    "boxes": {
+      "bar": [
+        0,
+        0,
+        1600,
+        56
+      ],
+      "tabs": [
+        499,
+        11,
+        416,
+        32
+      ],
+      "machines": [
+        147,
+        11,
+        332,
+        32
+      ],
+      "panel": [
+        0,
+        56,
+        1600,
+        1372
+      ],
+      "lessons": [
+        28,
+        669,
+        1544,
+        719
+      ],
+      "panel-head": [
+        0,
+        56,
+        1600,
+        88
+      ]
+    }
+  },
+  "agents": {
+    "file": "shots/agents.png",
+    "width": 2400,
+    "height": 1260,
+    "scale": 1.5,
+    "css": {
+      "width": 1600,
+      "height": 840
+    },
+    "boxes": {
+      "bar": [
+        0,
+        0,
+        1600,
+        56
+      ],
+      "tabs": [
+        499,
+        11,
+        416,
+        32
+      ],
+      "machines": [
+        147,
+        11,
+        332,
+        32
+      ],
+      "panel": [
+        0,
+        56,
+        1600,
+        784
+      ],
+      "hall": [
+        28,
+        148,
+        1544,
+        459
+      ],
+      "panel-head": [
+        0,
+        56,
+        1600,
+        88
+      ],
+      "office:iris": [
+        28,
+        148,
+        373,
+        459
+      ],
+      "door:iris": [
+        148,
+        171,
+        132,
+        176
+      ],
+      "office:quill": [
+        419,
+        148,
+        373,
+        459
+      ],
+      "door:quill": [
+        539,
+        171,
+        132,
+        176
+      ]
+    }
+  },
+  "fleet": {
+    "file": "shots/fleet.png",
+    "width": 2400,
+    "height": 1260,
+    "scale": 1.5,
+    "css": {
+      "width": 1600,
+      "height": 840
+    },
+    "boxes": {
+      "bar": [
+        0,
+        0,
+        1600,
+        56
+      ],
+      "tabs": [
+        499,
+        11,
+        416,
+        32
+      ],
+      "machines": [
+        147,
+        11,
+        332,
+        32
+      ],
+      "panel": [
+        0,
+        56,
+        1600,
+        1223
+      ],
+      "panel-head": [
+        0,
+        56,
+        1600,
+        88
+      ],
+      "fleet-computers": [
+        28,
+        148,
+        1544,
+        173
+      ],
+      "fleet-board": [
+        28,
+        370,
+        1544,
+        230
+      ],
+      "fleet-handoffs": [
+        28,
+        648,
+        1544,
+        83
+      ],
+      "section:the board": [
+        28,
+        339,
+        1544,
+        260
+      ],
+      "section:handoffs": [
+        28,
+        618,
+        1544,
+        113
+      ],
+      "section:latest from every computer": [
+        28,
+        749,
+        1544,
+        489
+      ],
+      "computer:DESK": [
+        28,
+        148,
+        298,
+        173
+      ],
+      "computer:LAPTOP": [
+        340,
+        148,
+        298,
+        173
+      ],
+      "computer:MINI": [
+        651,
+        148,
+        298,
+        173
+      ]
+    }
+  },
+  "fleet-board": {
+    "file": "shots/fleet-board.png",
+    "width": 2400,
+    "height": 2250,
+    "scale": 1.5,
+    "css": {
+      "width": 1600,
+      "height": 1500
+    },
+    "boxes": {
+      "bar": [
+        0,
+        0,
+        1600,
+        56
+      ],
+      "tabs": [
+        499,
+        11,
+        416,
+        32
+      ],
+      "machines": [
+        147,
+        11,
+        332,
+        32
+      ],
+      "panel": [
+        0,
+        56,
+        1600,
+        1444
+      ],
+      "panel-head": [
+        0,
+        56,
+        1600,
+        88
+      ],
+      "fleet-computers": [
+        28,
+        148,
+        1544,
+        173
+      ],
+      "fleet-board": [
+        28,
+        370,
+        1544,
+        230
+      ],
+      "fleet-handoffs": [
+        28,
+        648,
+        1544,
+        83
+      ],
+      "section:the board": [
+        28,
+        339,
+        1544,
+        260
+      ],
+      "section:handoffs": [
+        28,
+        618,
+        1544,
+        113
+      ],
+      "section:latest from every computer": [
+        28,
+        749,
+        1544,
+        489
+      ],
+      "computer:DESK": [
+        28,
+        148,
+        298,
+        173
+      ],
+      "computer:LAPTOP": [
+        340,
+        148,
+        298,
+        173
+      ],
+      "computer:MINI": [
+        651,
+        148,
+        298,
+        173
+      ]
+    }
+  },
+  "agents-knock": {
+    "file": "shots/agents-knock.png",
+    "width": 2400,
+    "height": 1260,
+    "scale": 1.5,
+    "css": {
+      "width": 1600,
+      "height": 840
+    },
+    "boxes": {
+      "bar": [
+        0,
+        0,
+        1600,
+        56
+      ],
+      "tabs": [
+        499,
+        11,
+        416,
+        32
+      ],
+      "machines": [
+        147,
+        11,
+        332,
+        32
+      ],
+      "panel": [
+        0,
+        56,
+        1600,
+        784
+      ],
+      "hall": [
+        28,
+        148,
+        1544,
+        546
+      ],
+      "panel-head": [
+        0,
+        56,
+        1600,
+        88
+      ],
+      "office:iris": [
+        28,
+        148,
+        373,
+        546
+      ],
+      "door:iris": [
+        148,
+        171,
+        132,
+        176
+      ],
+      "office:quill": [
+        419,
+        148,
+        373,
+        546
+      ],
+      "door:quill": [
+        539,
+        171,
+        132,
+        176
+      ]
+    }
+  },
+  "iris-dashboard": {
+    "file": "shots/iris-dashboard.png",
+    "width": 2400,
+    "height": 1260,
+    "scale": 1.5,
+    "css": {
+      "width": 1600,
+      "height": 840
+    },
+    "boxes": {
+      "main": [
+        420,
+        0,
+        760,
+        594
+      ]
+    }
+  },
+  "quill-dashboard": {
+    "file": "shots/quill-dashboard.png",
+    "width": 2400,
+    "height": 1260,
+    "scale": 1.5,
+    "css": {
+      "width": 1600,
+      "height": 840
+    },
+    "boxes": {
+      "main": [
+        420,
+        0,
+        760,
+        603
+      ]
+    }
+  },
+  "phone-floor": {
+    "file": "shots/phone-floor.png",
+    "width": 780,
+    "height": 1688,
+    "scale": 2,
+    "css": {
+      "width": 390,
+      "height": 844
+    },
+    "boxes": {
+      "bar": [
+        0,
+        0,
+        390,
+        56
+      ],
+      "tabs-bottom": [
+        0,
+        788,
+        390,
+        56
+      ],
+      "machines-segment": [
+        0,
+        56,
+        390,
+        57
+      ],
+      "floor": [
+        0,
+        279,
+        390,
+        1745
+      ],
+      "pulse": [
+        0,
+        113,
+        390,
+        166
+      ],
+      "main": [
+        0,
+        113,
+        390,
+        1911
+      ],
+      "desk:Cedar": [
+        33,
+        348,
+        324,
+        139
+      ],
+      "desk:John-1-Gate": [
+        33,
+        497,
+        324,
+        112
+      ],
+      "desk:Aspen": [
+        33,
+        693,
+        324,
+        112
+      ],
+      "desk:Lyra": [
+        33,
+        889,
+        324,
+        112
+      ],
+      "desk:Hudson": [
+        33,
+        1084,
+        324,
+        112
+      ],
+      "desk:Vega": [
+        33,
+        1280,
+        324,
+        139
+      ],
+      "desk:Rowan": [
+        33,
+        1503,
+        324,
+        159
+      ],
+      "desk:Birch": [
+        33,
+        1746,
+        324,
+        132
+      ],
+      "desk:Maple": [
+        33,
+        1961,
+        80,
+        30
+      ],
+      "room:garden planner@DESK": [
+        16,
+        295,
+        358,
+        331
+      ],
+      "room:bakery site@DESK": [
+        16,
+        640,
+        358,
+        182
+      ],
+      "room:bakery site@MINI": [
+        16,
+        836,
+        358,
+        182
+      ],
+      "room:bakery site@LAPTOP": [
+        16,
+        1032,
+        358,
+        182
+      ],
+      "room:garden planner@MINI": [
+        16,
+        1228,
+        358,
+        209
+      ],
+      "room:iris@DESK": [
+        16,
+        1451,
+        358,
+        229
+      ],
+      "room:quill@DESK": [
+        16,
+        1693,
+        358,
+        201
+      ],
+      "room:Hub@DESK": [
+        16,
+        1908,
+        358,
+        100
+      ]
+    }
+  },
+  "phone-questions": {
+    "file": "shots/phone-questions.png",
+    "width": 780,
+    "height": 1688,
+    "scale": 2,
+    "css": {
+      "width": 390,
+      "height": 844
+    },
+    "boxes": {
+      "bar": [
+        0,
+        0,
+        390,
+        56
+      ],
+      "tabs-bottom": [
+        0,
+        788,
+        390,
+        56
+      ],
+      "panel": [
+        0,
+        56,
+        390,
+        732
+      ],
+      "floor": [
+        0,
+        222,
+        390,
+        1745
+      ],
+      "pulse": [
+        0,
+        56,
+        390,
+        166
+      ],
+      "panel-head": [
+        0,
+        56,
+        390,
+        74
+      ],
+      "qcard": [
+        18,
+        146,
+        354,
+        360
+      ],
+      "q-text": [
+        18,
+        178,
+        354,
+        77
+      ],
+      "q-actions": [
+        18,
+        353,
+        354,
+        154
+      ],
+      "main": [
+        0,
+        56,
+        390,
+        1911
+      ],
+      "desk:Cedar": [
+        33,
+        291,
+        324,
+        139
+      ],
+      "desk:John-1-Gate": [
+        33,
+        440,
+        324,
+        112
+      ],
+      "desk:Aspen": [
+        33,
+        636,
+        324,
+        112
+      ],
+      "desk:Lyra": [
+        33,
+        832,
+        324,
+        112
+      ],
+      "desk:Hudson": [
+        33,
+        1027,
+        324,
+        112
+      ],
+      "desk:Vega": [
+        33,
+        1223,
+        324,
+        139
+      ],
+      "desk:Rowan": [
+        33,
+        1446,
+        324,
+        159
+      ],
+      "desk:Birch": [
+        33,
+        1689,
+        324,
+        132
+      ],
+      "desk:Maple": [
+        33,
+        1904,
+        80,
+        30
+      ],
+      "room:garden planner@DESK": [
+        16,
+        238,
+        358,
+        331
+      ],
+      "room:bakery site@DESK": [
+        16,
+        583,
+        358,
+        182
+      ],
+      "room:bakery site@MINI": [
+        16,
+        779,
+        358,
+        182
+      ],
+      "room:bakery site@LAPTOP": [
+        16,
+        975,
+        358,
+        182
+      ],
+      "room:garden planner@MINI": [
+        16,
+        1171,
+        358,
+        209
+      ],
+      "room:iris@DESK": [
+        16,
+        1394,
+        358,
+        229
+      ],
+      "room:quill@DESK": [
+        16,
+        1636,
+        358,
+        201
+      ],
+      "room:Hub@DESK": [
+        16,
+        1851,
+        358,
+        100
+      ]
+    }
+  },
+  "phone-agents": {
+    "file": "shots/phone-agents.png",
+    "width": 780,
+    "height": 1688,
+    "scale": 2,
+    "css": {
+      "width": 390,
+      "height": 844
+    },
+    "boxes": {
+      "bar": [
+        0,
+        0,
+        390,
+        56
+      ],
+      "tabs-bottom": [
+        0,
+        788,
+        390,
+        56
+      ],
+      "panel": [
+        0,
+        56,
+        390,
+        732
+      ],
+      "floor": [
+        0,
+        222,
+        390,
+        1745
+      ],
+      "pulse": [
+        0,
+        56,
+        390,
+        166
+      ],
+      "hall": [
+        18,
+        146,
+        354,
+        937
+      ],
+      "panel-head": [
+        0,
+        56,
+        390,
+        74
+      ],
+      "main": [
+        0,
+        56,
+        390,
+        1911
+      ],
+      "desk:Cedar": [
+        33,
+        291,
+        324,
+        139
+      ],
+      "desk:John-1-Gate": [
+        33,
+        440,
+        324,
+        112
+      ],
+      "desk:Aspen": [
+        33,
+        636,
+        324,
+        112
+      ],
+      "desk:Lyra": [
+        33,
+        832,
+        324,
+        112
+      ],
+      "desk:Hudson": [
+        33,
+        1027,
+        324,
+        112
+      ],
+      "desk:Vega": [
+        33,
+        1223,
+        324,
+        139
+      ],
+      "desk:Rowan": [
+        33,
+        1446,
+        324,
+        159
+      ],
+      "desk:Birch": [
+        33,
+        1689,
+        324,
+        132
+      ],
+      "desk:Maple": [
+        33,
+        1904,
+        80,
+        30
+      ],
+      "room:garden planner@DESK": [
+        16,
+        238,
+        358,
+        331
+      ],
+      "room:bakery site@DESK": [
+        16,
+        583,
+        358,
+        182
+      ],
+      "room:bakery site@MINI": [
+        16,
+        779,
+        358,
+        182
+      ],
+      "room:bakery site@LAPTOP": [
+        16,
+        975,
+        358,
+        182
+      ],
+      "room:garden planner@MINI": [
+        16,
+        1171,
+        358,
+        209
+      ],
+      "room:iris@DESK": [
+        16,
+        1394,
+        358,
+        229
+      ],
+      "room:quill@DESK": [
+        16,
+        1636,
+        358,
+        201
+      ],
+      "room:Hub@DESK": [
+        16,
+        1851,
+        358,
+        100
+      ],
+      "office:iris": [
+        18,
+        146,
+        354,
+        459
+      ],
+      "door:iris": [
+        129,
+        169,
+        132,
+        176
+      ],
+      "office:quill": [
+        18,
+        624,
+        354,
+        459
+      ],
+      "door:quill": [
+        129,
+        647,
+        132,
+        176
+      ]
+    }
+  },
+  "phone-fleet": {
+    "file": "shots/phone-fleet.png",
+    "width": 780,
+    "height": 1688,
+    "scale": 2,
+    "css": {
+      "width": 390,
+      "height": 844
+    },
+    "boxes": {
+      "bar": [
+        0,
+        0,
+        390,
+        56
+      ],
+      "tabs-bottom": [
+        0,
+        788,
+        390,
+        56
+      ],
+      "panel": [
+        0,
+        56,
+        390,
+        732
+      ],
+      "floor": [
+        0,
+        222,
+        390,
+        1745
+      ],
+      "pulse": [
+        0,
+        56,
+        390,
+        166
+      ],
+      "panel-head": [
+        0,
+        56,
+        390,
+        74
+      ],
+      "main": [
+        0,
+        56,
+        390,
+        1911
+      ],
+      "fleet-computers": [
+        18,
+        146,
+        354,
+        512
+      ],
+      "fleet-board": [
+        18,
+        707,
+        354,
+        230
+      ],
+      "fleet-handoffs": [
+        18,
+        985,
+        354,
+        100
+      ],
+      "section:the board": [
+        18,
+        676,
+        354,
+        260
+      ],
+      "section:handoffs": [
+        18,
+        955,
+        354,
+        131
+      ],
+      "section:latest from every computer": [
+        18,
+        1103,
+        354,
+        548
+      ],
+      "computer:DESK": [
+        18,
+        146,
+        354,
+        173
+      ],
+      "computer:LAPTOP": [
+        18,
+        334,
+        354,
+        155
+      ],
+      "computer:MINI": [
+        18,
+        503,
+        354,
+        155
+      ],
+      "desk:Cedar": [
+        33,
+        291,
+        324,
+        139
+      ],
+      "desk:John-1-Gate": [
+        33,
+        440,
+        324,
+        112
+      ],
+      "desk:Aspen": [
+        33,
+        636,
+        324,
+        112
+      ],
+      "desk:Lyra": [
+        33,
+        832,
+        324,
+        112
+      ],
+      "desk:Hudson": [
+        33,
+        1027,
+        324,
+        112
+      ],
+      "desk:Vega": [
+        33,
+        1223,
+        324,
+        139
+      ],
+      "desk:Rowan": [
+        33,
+        1446,
+        324,
+        159
+      ],
+      "desk:Birch": [
+        33,
+        1689,
+        324,
+        132
+      ],
+      "desk:Maple": [
+        33,
+        1904,
+        80,
+        30
+      ],
+      "room:garden planner@DESK": [
+        16,
+        238,
+        358,
+        331
+      ],
+      "room:bakery site@DESK": [
+        16,
+        583,
+        358,
+        182
+      ],
+      "room:bakery site@MINI": [
+        16,
+        779,
+        358,
+        182
+      ],
+      "room:bakery site@LAPTOP": [
+        16,
+        975,
+        358,
+        182
+      ],
+      "room:garden planner@MINI": [
+        16,
+        1171,
+        358,
+        209
+      ],
+      "room:iris@DESK": [
+        16,
+        1394,
+        358,
+        229
+      ],
+      "room:quill@DESK": [
+        16,
+        1636,
+        358,
+        201
+      ],
+      "room:Hub@DESK": [
+        16,
+        1851,
+        358,
+        100
+      ]
+    }
+  }
+}
