@@ -1,0 +1,19 @@
+{
+  "_": "Plain English to path. Each row: the words you might say, and where that lives (inside the Hub). Edit these rows, then run hub nav to rebuild NAV.md. Projects, companies and agents are added to NAV.md by themselves.",
+  "rows": [
+    { "say": ["downloads", "stuff to sort", "unsorted"], "path": "00-Inbox/" },
+    { "say": ["business documents", "company files", "invoices", "contracts"], "path": "10-Business/<Company>/" },
+    { "say": ["my code", "projects", "repos"], "path": "{{code_zone}}/<repo>/" },
+    { "say": ["package caches", "build caches"], "path": "20-Coding/_Caches/" },
+    { "say": ["photos", "videos", "media", "brand files"], "path": "30-Media/<Company>/" },
+    { "say": ["new media", "camera import"], "path": "30-Media/_Ingest/" },
+    { "say": ["personal", "my documents"], "path": "40-Personal/" },
+    { "say": ["the office", "the workspace", "the course"], "path": "{{workspace}}/" },
+    { "say": ["skills", "the skills pack"], "path": "50-AI/claude_skills/" },
+    { "say": ["agents", "specialist agents"], "path": "50-AI/agents/<key>/" },
+    { "say": ["fleet", "other computers", "handoffs", "the board"], "path": "50-AI/fleet-ops/" },
+    { "say": ["old stuff", "archive", "cold storage"], "path": "90-Archive/" },
+    { "say": ["waiting to be deleted", "dump queue"], "path": "90-Archive/_DumpQueue/" },
+    { "say": ["the rules", "the constitution"], "path": "CLAUDE.md" }
+  ]
+}
