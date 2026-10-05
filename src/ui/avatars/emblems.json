@@ -1,0 +1,704 @@
+{
+ "emblem-anchor": {
+  "bg": "radial-gradient(circle at 50% 50%, #071422, #0D1117 70%)",
+  "color": "#60A5FA",
+  "icon": "Anchor"
+ },
+ "emblem-anniversary-star": {
+  "animation": "emblemGlow",
+  "bg": "radial-gradient(circle at 40% 35%, #1A1400, #0D1117 70%), radial-gradient(circle at 60% 65%, rgba(245,158,11,0.15) 0%, transparent 50%)",
+  "color": "#FBBF24",
+  "icon": "Star"
+ },
+ "emblem-antimatter": {
+  "animation": "emblemRotate",
+  "bg": "radial-gradient(circle at 50% 50%, rgba(240,171,252,0.55) 0%, transparent 25%), conic-gradient(from 180deg at 50% 50%, #4C1D95, #1E1B4B, #DB2777, #1E1B4B, #4C1D95), radial-gradient(circle at 50% 50%, #050208 70%, #000000 100%)",
+  "color": "#F0ABFC",
+  "icon": "Sparkle",
+  "pattern": "repeating-linear-gradient(45deg,  transparent 0px, transparent 5px, rgba(240,171,252,0.07) 5px, rgba(240,171,252,0.07) 6px), repeating-linear-gradient(-45deg, transparent 0px, transparent 5px, rgba(240,171,252,0.06) 5px, rgba(240,171,252,0.06) 6px)",
+  "underlay": "Sparkle",
+  "underlayColor": "#4C1D95"
+ },
+ "emblem-bear": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 40%, #1A1005, #0D1117 70%)",
+  "color": "#D97706",
+  "icon": "Paw"
+ },
+ "emblem-biohazard-glow": {
+  "animation": "emblemGlow",
+  "bg": "radial-gradient(circle at 50% 50%, rgba(74,222,128,0.30) 0%, transparent 45%), radial-gradient(circle at 50% 50%, #04140C, #06120A 70%)",
+  "color": "#4ADE80",
+  "icon": "Bug",
+  "pattern": "repeating-radial-gradient(circle at 50% 50%, transparent 0px, transparent 10px, rgba(74,222,128,0.06) 10px, rgba(74,222,128,0.06) 11px)",
+  "underlay": "Sparkle",
+  "underlayColor": "#14532D"
+ },
+ "emblem-bismuth-crystal": {
+  "animation": "emblemShimmer",
+  "bg": "conic-gradient(from 135deg at 50% 50%, #1E1B4B, #4C1D95, #0E7490, #065F46, #4C1D95, #1E1B4B), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 60%, transparent 100%)",
+  "color": "#F0ABFC",
+  "icon": "Diamond",
+  "pattern": "repeating-linear-gradient(45deg,  transparent 0px, transparent 6px, rgba(240,171,252,0.08) 6px, rgba(240,171,252,0.08) 7px), repeating-linear-gradient(-45deg, transparent 0px, transparent 6px, rgba(240,171,252,0.06) 6px, rgba(240,171,252,0.06) 7px)",
+  "underlay": "Diamond",
+  "underlayColor": "#4C1D95"
+ },
+ "emblem-blackhole": {
+  "animation": "emblemRotate",
+  "bg": "radial-gradient(circle at 50% 50%, #000000 18%, transparent 32%), radial-gradient(circle at 50% 50%, rgba(255,255,255,0.85) 33%, rgba(255,255,255,0.85) 35%, transparent 38%), conic-gradient(from 0deg at 50% 50%, #1E1B4B, #4C1D95, #DB2777, #4C1D95, #1E1B4B), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.15) 70%, transparent 100%)",
+  "color": "#F0ABFC",
+  "icon": "Spiral",
+  "pattern": "radial-gradient(1px 1px at 18% 28%, rgba(255,255,255,0.65) 0%, transparent 100%), radial-gradient(1px 1px at 70% 22%, rgba(255,255,255,0.5) 0%, transparent 100%), radial-gradient(1px 1px at 78% 70%, rgba(255,255,255,0.5) 0%, transparent 100%), radial-gradient(1px 1px at 28% 80%, rgba(255,255,255,0.45) 0%, transparent 100%)"
+ },
+ "emblem-cassette": {
+  "bg": "linear-gradient(180deg, #1F1408 0%, #0D0A06 70%)",
+  "color": "#FCD34D",
+  "icon": "Cube",
+  "pattern": "radial-gradient(circle at 32% 55%, rgba(252,211,77,0.18) 0%, transparent 14%), radial-gradient(circle at 68% 55%, rgba(252,211,77,0.18) 0%, transparent 14%), repeating-linear-gradient(90deg, transparent 0px, transparent 7px, rgba(252,211,77,0.05) 7px, rgba(252,211,77,0.05) 8px)",
+  "underlay": "Circle",
+  "underlayColor": "#78350F"
+ },
+ "emblem-celestial-orb": {
+  "animation": "emblemGlow",
+  "bg": "radial-gradient(circle at 50% 35%, #1A0830, #0D1117 70%)",
+  "color": "#F0ABFC",
+  "icon": "Sparkle"
+ },
+ "emblem-chromatic-ring": {
+  "animation": "emblemRotate",
+  "bg": "conic-gradient(from 0deg at 50% 50%, #F87171, #FCD34D, #4ADE80, #22D3EE, #A78BFA, #F472B6, #F87171), radial-gradient(circle at 50% 50%, #0D1117 30%, transparent 32%), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.1) 70%, transparent 100%)",
+  "color": "#FFFFFF",
+  "icon": "Circle"
+ },
+ "emblem-chromatic-shift": {
+  "animation": "emblemShimmer",
+  "bg": "radial-gradient(circle at 45% 50%, rgba(239,68,68,0.35) 0%, transparent 30%), radial-gradient(circle at 55% 50%, rgba(34,211,238,0.35) 0%, transparent 30%), radial-gradient(circle at 50% 45%, rgba(74,222,128,0.30) 0%, transparent 30%), radial-gradient(circle at 50% 50%, #0D0818, #0D1117 70%)",
+  "color": "#F0ABFC",
+  "icon": "Crosshair",
+  "underlay": "Crosshair",
+  "underlayColor": "#1E293B"
+ },
+ "emblem-compass-rose": {
+  "bg": "radial-gradient(circle at 50% 50%, #071A22, #0D1117 70%)",
+  "color": "#22D3EE",
+  "icon": "Crosshair"
+ },
+ "emblem-crosshair": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 50%, #1A0808, #0D1117 70%)",
+  "color": "#EF4444",
+  "icon": "Crosshair"
+ },
+ "emblem-crown": {
+  "animation": "emblemGlow",
+  "bg": "radial-gradient(circle at 50% 40%, #1A1508, #0A0A0A 70%)",
+  "color": "#FBBF24",
+  "icon": "Crown"
+ },
+ "emblem-crown-shop": {
+  "animation": "emblemGlow",
+  "bg": "radial-gradient(circle at 50% 35%, #1A1400, #0A0800 70%)",
+  "color": "#FFD700",
+  "icon": "Crown"
+ },
+ "emblem-cube-tower": {
+  "bg": "linear-gradient(180deg, #04141C 0%, #06121C 70%)",
+  "color": "#67E8F9",
+  "icon": "Cube",
+  "pattern": "repeating-linear-gradient(30deg,  transparent 0px, transparent 10px, rgba(103,232,249,0.08) 10px, rgba(103,232,249,0.08) 11px), repeating-linear-gradient(150deg, transparent 0px, transparent 10px, rgba(103,232,249,0.07) 10px, rgba(103,232,249,0.07) 11px), repeating-linear-gradient(90deg,  transparent 0px, transparent 10px, rgba(103,232,249,0.05) 10px, rgba(103,232,249,0.05) 11px)",
+  "underlay": "Cube",
+  "underlayColor": "#1E3A8A"
+ },
+ "emblem-cymatics-ripple": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 50%, #04141C, #060A12 70%)",
+  "color": "#67E8F9",
+  "icon": "Circle",
+  "pattern": "repeating-radial-gradient(circle at 50% 50%, transparent 0px, transparent 6px, rgba(103,232,249,0.10) 6px, rgba(103,232,249,0.10) 7px), repeating-radial-gradient(circle at 50% 50%, transparent 0px, transparent 14px, rgba(103,232,249,0.05) 14px, rgba(103,232,249,0.05) 15px)",
+  "underlay": "Heartbeat",
+  "underlayColor": "#164E63"
+ },
+ "emblem-cymatics-water": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 50%, #062836, #04141C 70%)",
+  "color": "#67E8F9",
+  "icon": "Drop",
+  "pattern": "repeating-radial-gradient(circle at 50% 50%, transparent 0px, transparent 5px, rgba(103,232,249,0.12) 5px, rgba(103,232,249,0.12) 6px), repeating-radial-gradient(circle at 50% 50%, transparent 0px, transparent 11px, rgba(103,232,249,0.07) 11px, rgba(103,232,249,0.07) 12px), repeating-radial-gradient(circle at 50% 50%, transparent 0px, transparent 19px, rgba(103,232,249,0.04) 19px, rgba(103,232,249,0.04) 20px)"
+ },
+ "emblem-diamond": {
+  "animation": "emblemShimmer",
+  "bg": "radial-gradient(circle at 40% 35%, #0A1628, #0D1117 70%)",
+  "color": "#60A5FA",
+  "icon": "Diamond"
+ },
+ "emblem-dragon": {
+  "animation": "emblemGlow",
+  "bg": "radial-gradient(circle at 50% 30%, #1A0533, #0D1117 70%)",
+  "color": "#A855F7",
+  "icon": "Sword"
+ },
+ "emblem-eagle": {
+  "animation": "emblemGlow",
+  "bg": "radial-gradient(circle at 50% 30%, #1A1805, #0D1117 70%)",
+  "color": "#FBBF24",
+  "icon": "Bird"
+ },
+ "emblem-eclipse": {
+  "animation": "emblemShimmer",
+  "bg": "radial-gradient(circle at 50% 40%, #160B2A, #0D1117 70%)",
+  "color": "#C084FC",
+  "icon": "Moon"
+ },
+ "emblem-escher-stairs": {
+  "animation": "emblemRotate",
+  "bg": "radial-gradient(circle at 50% 50%, #141826, #0D1117 70%)",
+  "color": "#E5E7EB",
+  "icon": "Stairs",
+  "pattern": "repeating-linear-gradient(30deg,  transparent 0px, transparent 9px, rgba(229,231,235,0.07) 9px, rgba(229,231,235,0.07) 10px), repeating-linear-gradient(150deg, transparent 0px, transparent 9px, rgba(229,231,235,0.05) 9px, rgba(229,231,235,0.05) 10px), repeating-linear-gradient(270deg, transparent 0px, transparent 9px, rgba(229,231,235,0.04) 9px, rgba(229,231,235,0.04) 10px)",
+  "underlay": "Stairs",
+  "underlayColor": "#334155"
+ },
+ "emblem-eternal-flame": {
+  "animation": "emblemGlow",
+  "bg": "radial-gradient(circle at 50% 50%, #1A0A00, #0D0505 70%)",
+  "color": "#F97316",
+  "icon": "Fire"
+ },
+ "emblem-ferrofluid-spike": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 50%, #0A0A12 35%, transparent 55%), radial-gradient(circle at 50% 50%, rgba(99,102,241,0.25) 0%, transparent 50%), radial-gradient(circle at 50% 50%, #020208, #000000 70%)",
+  "color": "#E0E7FF",
+  "icon": "Sparkle",
+  "pattern": "repeating-linear-gradient(0deg,   transparent 0px, transparent 14px, rgba(224,231,255,0.05) 14px, rgba(224,231,255,0.05) 15px), repeating-linear-gradient(45deg,  transparent 0px, transparent 14px, rgba(224,231,255,0.05) 14px, rgba(224,231,255,0.05) 15px), repeating-linear-gradient(90deg,  transparent 0px, transparent 14px, rgba(224,231,255,0.05) 14px, rgba(224,231,255,0.05) 15px), repeating-linear-gradient(135deg, transparent 0px, transparent 14px, rgba(224,231,255,0.05) 14px, rgba(224,231,255,0.05) 15px)"
+ },
+ "emblem-fibonacci-spiral": {
+  "animation": "emblemRotate",
+  "bg": "radial-gradient(circle at 50% 50%, #1F1408, #0D0A06 70%)",
+  "color": "#FCD34D",
+  "icon": "Spiral",
+  "pattern": "repeating-linear-gradient(45deg,  transparent 0px, transparent 8px, rgba(252,211,77,0.06) 8px, rgba(252,211,77,0.06) 9px), repeating-linear-gradient(-45deg, transparent 0px, transparent 13px, rgba(252,211,77,0.05) 13px, rgba(252,211,77,0.05) 14px)",
+  "underlay": "Spiral",
+  "underlayColor": "#78350F"
+ },
+ "emblem-flame": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 50%, #1A0808, #0D1117 70%)",
+  "color": "#EF4444",
+  "icon": "Fire"
+ },
+ "emblem-fractal-bloom": {
+  "animation": "emblemGlow",
+  "bg": "radial-gradient(circle at 50% 50%, rgba(244,114,182,0.25) 0%, transparent 40%), radial-gradient(circle at 30% 30%, rgba(167,139,250,0.18) 0%, transparent 35%), radial-gradient(circle at 70% 70%, rgba(34,211,238,0.18) 0%, transparent 35%), radial-gradient(circle at 50% 50%, #1A0820, #0D1117 70%)",
+  "color": "#F472B6",
+  "icon": "Sparkle",
+  "underlay": "Sparkle",
+  "underlayColor": "#7C3AED"
+ },
+ "emblem-gear": {
+  "bg": "radial-gradient(circle at 50% 50%, #141418, #0D1117 70%)",
+  "color": "#9CA3AF",
+  "icon": "Gear"
+ },
+ "emblem-ghost": {
+  "animation": "emblemShimmer",
+  "bg": "radial-gradient(ellipse at 50% 60%, rgba(99,102,241,0.15) 0%, transparent 55%), radial-gradient(circle at 50% 40%, #151A30, #0D1117 70%)",
+  "color": "#E0E7FF",
+  "icon": "Ghost",
+  "pattern": "radial-gradient(1px 1px at 20% 30%, rgba(224,231,255,0.3) 0%, transparent 100%), radial-gradient(1px 1px at 70% 20%, rgba(224,231,255,0.2) 0%, transparent 100%), radial-gradient(1px 1px at 55% 75%, rgba(224,231,255,0.25) 0%, transparent 100%)"
+ },
+ "emblem-glass-shatter": {
+  "animation": "emblemShimmer",
+  "bg": "radial-gradient(circle at 50% 50%, #0F1428, #0D1117 70%)",
+  "color": "#E0E7FF",
+  "icon": "Diamond",
+  "pattern": "repeating-linear-gradient(17deg,  transparent 0px, transparent 9px, rgba(224,231,255,0.10) 9px, rgba(224,231,255,0.10) 10px), repeating-linear-gradient(-43deg, transparent 0px, transparent 11px, rgba(224,231,255,0.07) 11px, rgba(224,231,255,0.07) 12px), repeating-linear-gradient(83deg,  transparent 0px, transparent 14px, rgba(224,231,255,0.05) 14px, rgba(224,231,255,0.05) 15px)",
+  "underlay": "Diamond",
+  "underlayColor": "#1E293B"
+ },
+ "emblem-glitch-core": {
+  "animation": "emblemPulse",
+  "bg": "linear-gradient(90deg, rgba(239,68,68,0.18) 0%, transparent 30%, transparent 70%, rgba(34,211,238,0.18) 100%), radial-gradient(circle at 50% 50%, #1A0820, #0D1117 70%)",
+  "color": "#F0ABFC",
+  "icon": "Bug",
+  "pattern": "repeating-linear-gradient(0deg, transparent 0px, transparent 3px, rgba(240,171,252,0.07) 3px, rgba(240,171,252,0.07) 4px)",
+  "underlay": "Sparkle",
+  "underlayColor": "#4C1D95"
+ },
+ "emblem-gravity-well": {
+  "animation": "emblemRotate",
+  "bg": "radial-gradient(circle at 50% 50%, #000000 15%, transparent 35%), conic-gradient(from 0deg at 50% 50%, #4C1D95, #6D28D9, #DB2777, #4C1D95), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.1) 70%, transparent 100%)",
+  "color": "#F0ABFC",
+  "icon": "Spiral",
+  "pattern": "radial-gradient(1px 1px at 18% 26%, rgba(255,255,255,0.6) 0%, transparent 100%), radial-gradient(1px 1px at 72% 22%, rgba(255,255,255,0.5) 0%, transparent 100%), radial-gradient(1px 1px at 80% 70%, rgba(255,255,255,0.5) 0%, transparent 100%), radial-gradient(1px 1px at 28% 82%, rgba(255,255,255,0.45) 0%, transparent 100%)"
+ },
+ "emblem-griffin": {
+  "animation": "emblemGlow",
+  "bg": "radial-gradient(circle at 50% 40%, #1A0D04, #0D1117 70%)",
+  "color": "#FB923C",
+  "icon": "Bird"
+ },
+ "emblem-hammer": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 40%, #1A1005, #0D1117 70%)",
+  "color": "#D97706",
+  "icon": "Hammer"
+ },
+ "emblem-holo-sigil": {
+  "animation": "emblemShimmer",
+  "bg": "conic-gradient(from 220deg at 50% 50%, #67E8F9, #A78BFA, #F0ABFC, #FCD34D, #67E8F9), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 60%, transparent 100%)",
+  "color": "#FFFFFF",
+  "icon": "Seal"
+ },
+ "emblem-hourglass": {
+  "bg": "radial-gradient(circle at 50% 40%, #0F1520, #0D1117 70%)",
+  "color": "#94A3B8",
+  "icon": "Hourglass"
+ },
+ "emblem-hourglass-shop": {
+  "animation": "emblemShimmer",
+  "bg": "radial-gradient(circle at 50% 50%, #1A1508, #0D1117 70%)",
+  "color": "#FBBF24",
+  "icon": "Hourglass"
+ },
+ "emblem-iron-key": {
+  "bg": "radial-gradient(circle at 50% 40%, #121212, #0D1117 70%)",
+  "color": "#A8A29E",
+  "icon": "Gear"
+ },
+ "emblem-iron-rune": {
+  "bg": "radial-gradient(circle at 50% 40%, #111110, #0D1117 70%)",
+  "color": "#78716C",
+  "icon": "Shield"
+ },
+ "emblem-kaleidoscope": {
+  "animation": "emblemRotate",
+  "bg": "conic-gradient(from 0deg at 50% 50%, #F472B6 0deg, #FCD34D 60deg, #4ADE80 120deg, #22D3EE 180deg, #A78BFA 240deg, #F472B6 300deg, #F472B6 360deg), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.1) 65%, transparent 100%)",
+  "color": "#FFFFFF",
+  "icon": "Diamond"
+ },
+ "emblem-king-star": {
+  "animation": "emblemGlow",
+  "bg": "radial-gradient(ellipse at 50% 30%, #1F1A00, #0D1117 70%)",
+  "color": "#FDE68A",
+  "icon": "Crown",
+  "pattern": "repeating-linear-gradient(45deg, transparent 0px, transparent 8px, rgba(253,230,138,0.05) 8px, rgba(253,230,138,0.05) 9px), repeating-linear-gradient(-45deg, transparent 0px, transparent 8px, rgba(253,230,138,0.04) 8px, rgba(253,230,138,0.04) 9px)",
+  "underlay": "Star",
+  "underlayColor": "#78350F"
+ },
+ "emblem-lightning-bolt": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 40% 30%, #1A1400, #0D1117 70%)",
+  "color": "#FBBF24",
+  "icon": "Lightning"
+ },
+ "emblem-lightning-storm": {
+  "animation": "emblemPulse",
+  "bg": "linear-gradient(180deg, #1E1B4B 0%, #0D0820 60%, #050208 100%), radial-gradient(circle at 50% 30%, rgba(252,211,77,0.20) 0%, transparent 40%)",
+  "color": "#FCD34D",
+  "icon": "Lightning",
+  "pattern": "repeating-linear-gradient(75deg,  transparent 0px, transparent 7px, rgba(252,211,77,0.06) 7px, rgba(252,211,77,0.06) 8px), repeating-linear-gradient(105deg, transparent 0px, transparent 9px, rgba(252,211,77,0.05) 9px, rgba(252,211,77,0.05) 10px)",
+  "underlay": "Lightning",
+  "underlayColor": "#78350F"
+ },
+ "emblem-liquid-metal": {
+  "animation": "emblemRotate",
+  "bg": "conic-gradient(from 90deg at 50% 50%, #475569, #CBD5E1, #94A3B8, #1E293B, #CBD5E1, #475569), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 65%, transparent 100%)",
+  "color": "#F1F5F9",
+  "icon": "Spiral"
+ },
+ "emblem-lissajous-curve": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 50%, #04140C, #06120A 70%)",
+  "color": "#4ADE80",
+  "icon": "Infinity",
+  "pattern": "repeating-linear-gradient(23deg,  transparent 0px, transparent 8px, rgba(74,222,128,0.07) 8px, rgba(74,222,128,0.07) 9px), repeating-linear-gradient(-47deg, transparent 0px, transparent 11px, rgba(74,222,128,0.06) 11px, rgba(74,222,128,0.06) 12px)"
+ },
+ "emblem-mandelbrot-zoom": {
+  "animation": "emblemRotate",
+  "bg": "conic-gradient(from 0deg at 50% 50%, #1E1B4B, #4C1D95, #0E7490, #4C1D95, #1E1B4B), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 60%, transparent 100%)",
+  "color": "#A78BFA",
+  "icon": "Spiral",
+  "pattern": "repeating-radial-gradient(circle at 50% 50%, transparent 0px, transparent 4px, rgba(167,139,250,0.10) 4px, rgba(167,139,250,0.10) 5px), repeating-radial-gradient(circle at 50% 50%, transparent 0px, transparent 9px, rgba(167,139,250,0.06) 9px, rgba(167,139,250,0.06) 10px)"
+ },
+ "emblem-megaphone": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 40%, #071A22, #0D1117 70%)",
+  "color": "#22D3EE",
+  "icon": "Megaphone"
+ },
+ "emblem-mobius-ii": {
+  "animation": "emblemRotate",
+  "bg": "conic-gradient(from 90deg at 50% 50%, #1E1B4B, #6D28D9, #DB2777, #6D28D9, #1E1B4B), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 65%, transparent 100%)",
+  "color": "#F0ABFC",
+  "icon": "Infinity",
+  "pattern": "repeating-linear-gradient(60deg, transparent 0px, transparent 7px, rgba(240,171,252,0.06) 7px, rgba(240,171,252,0.06) 8px)"
+ },
+ "emblem-mobius-strip": {
+  "animation": "emblemRotate",
+  "bg": "conic-gradient(from 180deg at 50% 50%, #1E1B4B, #4C1D95, #1E1B4B, #4C1D95, #1E1B4B), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 65%, transparent 100%)",
+  "color": "#C4B5FD",
+  "icon": "Infinity"
+ },
+ "emblem-moon": {
+  "bg": "radial-gradient(circle at 60% 30%, #14161A, #0D1117 70%)",
+  "color": "#E5E7EB",
+  "icon": "Moon"
+ },
+ "emblem-morse-pulse": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 50%, #1A0808, #0D0608 70%)",
+  "color": "#F87171",
+  "icon": "Circle",
+  "pattern": "repeating-linear-gradient(90deg, transparent 0px, transparent 8px, rgba(248,113,113,0.10) 8px, rgba(248,113,113,0.10) 12px, transparent 12px, transparent 20px, rgba(248,113,113,0.10) 20px, rgba(248,113,113,0.10) 32px)"
+ },
+ "emblem-mountain": {
+  "bg": "radial-gradient(circle at 50% 60%, #101418, #0D1117 70%)",
+  "color": "#6B7280",
+  "icon": "Mountains"
+ },
+ "emblem-nebula-vortex": {
+  "animation": "emblemRotate",
+  "bg": "conic-gradient(from 45deg at 50% 50%, #1E1B4B, #6D28D9, #DB2777, #F97316, #6D28D9, #1E1B4B), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 55%, transparent 100%)",
+  "color": "#FBCFE8",
+  "icon": "Spiral",
+  "pattern": "radial-gradient(1px 1px at 22% 28%, rgba(255,255,255,0.7) 0%, transparent 100%), radial-gradient(1px 1px at 68% 18%, rgba(255,255,255,0.5) 0%, transparent 100%), radial-gradient(1px 1px at 78% 72%, rgba(255,255,255,0.6) 0%, transparent 100%), radial-gradient(1px 1px at 30% 80%, rgba(255,255,255,0.5) 0%, transparent 100%)",
+  "underlay": "Sparkle",
+  "underlayColor": "#FFFFFF"
+ },
+ "emblem-network-star": {
+  "animation": "emblemGlow",
+  "bg": "radial-gradient(circle at 50% 40%, #1A1508, #0A0A0A 70%)",
+  "color": "#FBBF24",
+  "icon": "Star"
+ },
+ "emblem-ninja": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 40%, #1A0808, #060608 70%)",
+  "color": "#F87171",
+  "icon": "Eye",
+  "pattern": "repeating-linear-gradient(45deg,  transparent 0px, transparent 5px, rgba(248,113,113,0.05) 5px, rgba(248,113,113,0.05) 6px), repeating-linear-gradient(-45deg, transparent 0px, transparent 5px, rgba(248,113,113,0.05) 5px, rgba(248,113,113,0.05) 6px)",
+  "underlay": "Skull",
+  "underlayColor": "#1F0A0A"
+ },
+ "emblem-north-star": {
+  "animation": "emblemShimmer",
+  "bg": "radial-gradient(circle at 50% 35%, #071828, #0D1117 70%)",
+  "color": "#E0F2FE",
+  "icon": "Star"
+ },
+ "emblem-oak-leaf": {
+  "bg": "radial-gradient(circle at 50% 40%, #061A0D, #0D1117 70%)",
+  "color": "#4ADE80",
+  "icon": "Spiral"
+ },
+ "emblem-obsidian-mask": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 40%, #0E0018, #0D1117 70%)",
+  "color": "#6B21A8",
+  "icon": "Skull"
+ },
+ "emblem-oil-rainbow": {
+  "animation": "emblemShimmer",
+  "bg": "conic-gradient(from 20deg at 50% 50%, #0EA5E9, #22D3EE, #4ADE80, #FDE68A, #F472B6, #A78BFA, #0EA5E9), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 65%, transparent 100%)",
+  "color": "#FFFFFF",
+  "icon": "Drop",
+  "pattern": "repeating-linear-gradient(110deg, transparent 0px, transparent 6px, rgba(255,255,255,0.05) 6px, rgba(255,255,255,0.05) 7px)"
+ },
+ "emblem-oscillating-wave": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 50%, #04141C, #06120A 70%)",
+  "color": "#22D3EE",
+  "icon": "Heartbeat",
+  "pattern": "repeating-linear-gradient(0deg,  transparent 0px, transparent 10px, rgba(34,211,238,0.07) 10px, rgba(34,211,238,0.07) 11px), repeating-linear-gradient(90deg, transparent 0px, transparent 18px, rgba(34,211,238,0.05) 18px, rgba(34,211,238,0.05) 19px)"
+ },
+ "emblem-oscilloscope": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 50%, #041A0C, #06120A 70%)",
+  "color": "#4ADE80",
+  "icon": "Heartbeat",
+  "pattern": "repeating-linear-gradient(0deg,  transparent 0px, transparent 9px, rgba(74,222,128,0.08) 9px, rgba(74,222,128,0.08) 10px), repeating-linear-gradient(90deg, transparent 0px, transparent 9px, rgba(74,222,128,0.08) 9px, rgba(74,222,128,0.08) 10px)"
+ },
+ "emblem-owl": {
+  "bg": "radial-gradient(circle at 50% 40%, #140D22, #0D1117 70%)",
+  "color": "#A78BFA",
+  "icon": "Eye"
+ },
+ "emblem-paper-fold": {
+  "bg": "linear-gradient(135deg, #1C1A14 0%, #0D1117 70%)",
+  "color": "#FEF3C7",
+  "icon": "Flag",
+  "pattern": "repeating-linear-gradient(45deg,  transparent 0px, transparent 14px, rgba(254,243,199,0.05) 14px, rgba(254,243,199,0.05) 15px), repeating-linear-gradient(-45deg, transparent 0px, transparent 22px, rgba(254,243,199,0.04) 22px, rgba(254,243,199,0.04) 23px)"
+ },
+ "emblem-phoenix": {
+  "animation": "emblemGlow",
+  "bg": "radial-gradient(circle at 50% 40%, #2A0E00, #0D1117 70%)",
+  "color": "#F97316",
+  "icon": "Fire"
+ },
+ "emblem-plasma-orb": {
+  "animation": "emblemGlow",
+  "bg": "radial-gradient(circle at 50% 50%, rgba(240,171,252,0.45) 0%, transparent 35%), radial-gradient(circle at 35% 40%, rgba(34,211,238,0.30) 0%, transparent 28%), radial-gradient(circle at 65% 60%, rgba(167,139,250,0.30) 0%, transparent 28%), radial-gradient(circle at 50% 50%, #14082A, #0D0820 70%)",
+  "color": "#F0ABFC",
+  "icon": "Circle",
+  "underlay": "Sparkle",
+  "underlayColor": "#7C3AED"
+ },
+ "emblem-platinum-star": {
+  "animation": "emblemShimmer",
+  "bg": "radial-gradient(circle at 50% 40%, #141418, #0A0A0A 70%)",
+  "color": "#E5E7EB",
+  "icon": "Star"
+ },
+ "emblem-prism-beam": {
+  "animation": "emblemShimmer",
+  "bg": "linear-gradient(100deg, transparent 30%, rgba(248,113,113,0.18) 40%, rgba(252,211,77,0.18) 50%, rgba(74,222,128,0.18) 60%, rgba(34,211,238,0.18) 70%, rgba(167,139,250,0.18) 80%, transparent 90%), radial-gradient(circle at 50% 50%, #0D0818, #0D1117 70%)",
+  "color": "#FFFFFF",
+  "icon": "Sparkle"
+ },
+ "emblem-prism-core": {
+  "animation": "emblemRotate",
+  "bg": "conic-gradient(from 0deg at 50% 50%, #FF6B6B, #FFD93D, #6BCFFF, #A29BFE, #FD79A8, #FF6B6B), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)",
+  "color": "#FFFFFF",
+  "icon": "Sparkle"
+ },
+ "emblem-quantum-dice": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 50%, #14082A, #0D0820 70%)",
+  "color": "#A78BFA",
+  "icon": "Infinity",
+  "pattern": "radial-gradient(circle at 25% 25%, rgba(167,139,250,0.25) 0%, transparent 12%), radial-gradient(circle at 75% 25%, rgba(167,139,250,0.20) 0%, transparent 12%), radial-gradient(circle at 25% 75%, rgba(167,139,250,0.20) 0%, transparent 12%), radial-gradient(circle at 75% 75%, rgba(167,139,250,0.25) 0%, transparent 12%), radial-gradient(circle at 50% 50%, rgba(167,139,250,0.30) 0%, transparent 10%)"
+ },
+ "emblem-reactor-core": {
+  "animation": "emblemRotate",
+  "bg": "radial-gradient(circle at 50% 50%, rgba(74,222,128,0.35) 0%, transparent 30%), conic-gradient(from 0deg at 50% 50%, #064E3B, #14532D, #064E3B, #14532D, #064E3B), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 65%, transparent 100%)",
+  "color": "#4ADE80",
+  "icon": "Gear",
+  "pattern": "repeating-radial-gradient(circle at 50% 50%, transparent 0px, transparent 8px, rgba(74,222,128,0.08) 8px, rgba(74,222,128,0.08) 9px)",
+  "underlay": "Gear",
+  "underlayColor": "#022C22"
+ },
+ "emblem-retrowave-sun": {
+  "animation": "emblemGlow",
+  "bg": "linear-gradient(180deg, #1B0B3A 0%, #4C1D6B 45%, #DB2777 65%, #F97316 85%, #FDE68A 100%), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.25) 0%, transparent 70%)",
+  "color": "#FDE68A",
+  "icon": "Sun",
+  "pattern": "repeating-linear-gradient(0deg, transparent 0px, transparent 6px, rgba(27,11,58,0.8) 6px, rgba(27,11,58,0.8) 7px)"
+ },
+ "emblem-robot": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 50%, #061820, #0D1117 70%)",
+  "color": "#67E8F9",
+  "icon": "Gear",
+  "pattern": "repeating-linear-gradient(0deg,  transparent 0px, transparent 7px, rgba(103,232,249,0.04) 7px, rgba(103,232,249,0.04) 8px), repeating-linear-gradient(90deg, transparent 0px, transparent 7px, rgba(103,232,249,0.04) 7px, rgba(103,232,249,0.04) 8px)",
+  "underlay": "Crosshair",
+  "underlayColor": "#164E63"
+ },
+ "emblem-rocket": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 60%, #1A0E05, #0D1117 70%)",
+  "color": "#F97316",
+  "icon": "Rocket"
+ },
+ "emblem-s2-crest": {
+  "animation": "emblemShimmer",
+  "bg": "radial-gradient(circle at 50% 35%, #140D22, #0D1117 60%), linear-gradient(135deg, #100A1A, #0D1117)",
+  "color": "#A855F7",
+  "icon": "Trophy"
+ },
+ "emblem-season-crest": {
+  "animation": "emblemShimmer",
+  "bg": "radial-gradient(circle at 50% 35%, #071A22, #0D1117 60%), linear-gradient(135deg, #0D1520, #0D1117)",
+  "color": "#22D3EE",
+  "icon": "Trophy"
+ },
+ "emblem-shield": {
+  "bg": "radial-gradient(circle at 50% 40%, #1A0D2E, #0D1117 70%)",
+  "color": "#A855F7",
+  "icon": "ShieldCheck"
+ },
+ "emblem-silver-stag": {
+  "bg": "radial-gradient(circle at 50% 40%, #101520, #0D1117 70%)",
+  "color": "#CBD5E1",
+  "icon": "Bird"
+ },
+ "emblem-skull": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 40%, #141414, #0A0A0A 70%)",
+  "color": "#E5E7EB",
+  "icon": "Skull"
+ },
+ "emblem-snake": {
+  "bg": "radial-gradient(circle at 50% 50%, #071A0C, #0D1117 70%)",
+  "color": "#22C55E",
+  "icon": "Spiral"
+ },
+ "emblem-soap-bubble": {
+  "animation": "emblemShimmer",
+  "bg": "conic-gradient(from 300deg at 50% 50%, #FDBA74, #FDE68A, #BBF7D0, #A5F3FC, #C4B5FD, #FBCFE8, #FDBA74), radial-gradient(circle at 40% 35%, rgba(255,255,255,0.35) 0%, transparent 25%), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.05) 65%, transparent 100%)",
+  "color": "#FFFFFF",
+  "icon": "Circle"
+ },
+ "emblem-star": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 40%, #1A1508, #0D1117 70%)",
+  "color": "#FBBF24",
+  "icon": "Star"
+ },
+ "emblem-stat-assigned": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 40%, rgba(74,222,128,0.30) 0%, transparent 35%), linear-gradient(180deg, #04120A 0%, #081C10 60%, #040E08 100%)",
+  "color": "#4ADE80",
+  "icon": "Flag",
+  "pattern": "repeating-radial-gradient(circle at 50% 50%, transparent 0px, transparent 10px, rgba(74,222,128,0.06) 10px, rgba(74,222,128,0.06) 11px)",
+  "underlay": "Flag",
+  "underlayColor": "#14532D"
+ },
+ "emblem-stat-dropzone": {
+  "animation": "emblemGlow",
+  "bg": "radial-gradient(circle at 50% 50%, rgba(236,72,153,0.35) 0%, transparent 35%), linear-gradient(180deg, #1A0414 0%, #240820 60%, #120410 100%)",
+  "color": "#EC4899",
+  "icon": "Target",
+  "pattern": "repeating-radial-gradient(circle at 50% 50%, transparent 0px, transparent 6px, rgba(236,72,153,0.08) 6px, rgba(236,72,153,0.08) 7px), repeating-radial-gradient(circle at 50% 50%, transparent 0px, transparent 12px, rgba(236,72,153,0.05) 12px, rgba(236,72,153,0.05) 13px)",
+  "underlay": "Target",
+  "underlayColor": "#831843"
+ },
+ "emblem-stat-focus-time": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 40%, rgba(34,211,238,0.35) 0%, transparent 35%), linear-gradient(180deg, #04141A 0%, #071E26 60%, #030E12 100%)",
+  "color": "#22D3EE",
+  "icon": "Hourglass",
+  "pattern": "repeating-radial-gradient(circle at 50% 50%, transparent 0px, transparent 8px, rgba(34,211,238,0.07) 8px, rgba(34,211,238,0.07) 9px)",
+  "underlay": "Hourglass",
+  "underlayColor": "#0E4A5A"
+ },
+ "emblem-stat-sos": {
+  "animation": "emblemGlow",
+  "bg": "radial-gradient(circle at 50% 40%, rgba(251,191,36,0.40) 0%, transparent 35%), linear-gradient(180deg, #1A1200 0%, #261A00 60%, #120E00 100%)",
+  "color": "#FBBF24",
+  "icon": "Megaphone",
+  "pattern": "repeating-linear-gradient(45deg,  transparent 0px, transparent 7px, rgba(251,191,36,0.07) 7px, rgba(251,191,36,0.07) 8px), repeating-linear-gradient(-45deg, transparent 0px, transparent 7px, rgba(251,191,36,0.05) 7px, rgba(251,191,36,0.05) 8px)",
+  "underlay": "Megaphone",
+  "underlayColor": "#78350F"
+ },
+ "emblem-stat-sprint-time": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 40%, rgba(249,115,22,0.35) 0%, transparent 35%), linear-gradient(180deg, #1A0A02 0%, #261008 60%, #100A04 100%)",
+  "color": "#F97316",
+  "icon": "Lightning",
+  "pattern": "repeating-linear-gradient(70deg,  transparent 0px, transparent 8px, rgba(249,115,22,0.07) 8px, rgba(249,115,22,0.07) 9px), repeating-linear-gradient(-70deg, transparent 0px, transparent 8px, rgba(249,115,22,0.05) 8px, rgba(249,115,22,0.05) 9px)",
+  "underlay": "Lightning",
+  "underlayColor": "#7C2D12"
+ },
+ "emblem-stone-pillar": {
+  "bg": "radial-gradient(circle at 50% 40%, #111318, #0D1117 70%)",
+  "color": "#9CA3AF",
+  "icon": "Mountains"
+ },
+ "emblem-supernova": {
+  "animation": "emblemGlow",
+  "bg": "radial-gradient(circle at 50% 50%, #FFFFFF 0%, #FCD34D 8%, #F97316 18%, #DB2777 32%, #6D28D9 50%, #1E1B4B 70%, #050208 100%)",
+  "color": "#FFFFFF",
+  "icon": "Sun",
+  "pattern": "radial-gradient(1px 1px at 18% 22%, rgba(255,255,255,0.7) 0%, transparent 100%), radial-gradient(1px 1px at 72% 18%, rgba(255,255,255,0.6) 0%, transparent 100%), radial-gradient(1px 1px at 78% 74%, rgba(255,255,255,0.6) 0%, transparent 100%), radial-gradient(1px 1px at 24% 78%, rgba(255,255,255,0.55) 0%, transparent 100%)",
+  "underlay": "Sparkle",
+  "underlayColor": "#FFFFFF"
+ },
+ "emblem-sword": {
+  "bg": "radial-gradient(circle at 50% 40%, #1A0F05, #0D1117 70%)",
+  "color": "#F97316",
+  "icon": "Sword"
+ },
+ "emblem-tesseract-unfold": {
+  "animation": "emblemRotate",
+  "bg": "conic-gradient(from 45deg at 50% 50%, #0E7490, #1E40AF, #4C1D95, #1E40AF, #0E7490), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.15) 65%, transparent 100%)",
+  "color": "#67E8F9",
+  "icon": "Cube",
+  "pattern": "repeating-linear-gradient(0deg,  transparent 0px, transparent 11px, rgba(103,232,249,0.08) 11px, rgba(103,232,249,0.08) 12px), repeating-linear-gradient(90deg, transparent 0px, transparent 11px, rgba(103,232,249,0.08) 11px, rgba(103,232,249,0.08) 12px), repeating-linear-gradient(45deg, transparent 0px, transparent 16px, rgba(103,232,249,0.05) 16px, rgba(103,232,249,0.05) 17px)",
+  "underlay": "Cube",
+  "underlayColor": "#1E3A8A"
+ },
+ "emblem-time-crystal": {
+  "animation": "emblemShimmer",
+  "bg": "conic-gradient(from 30deg at 50% 50%, #0E7490, #0891B2, #1E40AF, #0891B2, #0E7490), radial-gradient(circle at 50% 50%, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.15) 65%, transparent 100%)",
+  "color": "#67E8F9",
+  "icon": "Hourglass",
+  "pattern": "repeating-linear-gradient(60deg,  transparent 0px, transparent 7px, rgba(103,232,249,0.08) 7px, rgba(103,232,249,0.08) 8px), repeating-linear-gradient(-60deg, transparent 0px, transparent 7px, rgba(103,232,249,0.07) 7px, rgba(103,232,249,0.07) 8px)",
+  "underlay": "Diamond",
+  "underlayColor": "#164E63"
+ },
+ "emblem-trident": {
+  "bg": "radial-gradient(circle at 50% 40%, #041820, #0D1117 70%)",
+  "color": "#22D3EE",
+  "icon": "Crosshair"
+ },
+ "emblem-trophy-gold": {
+  "animation": "emblemGlow",
+  "bg": "radial-gradient(circle at 50% 40%, #1A1200, #0D1117 70%)",
+  "color": "#FBBF24",
+  "icon": "Trophy"
+ },
+ "emblem-twin-axes": {
+  "bg": "radial-gradient(circle at 50% 40%, #1A0808, #0D1117 70%)",
+  "color": "#F87171",
+  "icon": "Sword"
+ },
+ "emblem-vector-field": {
+  "bg": "radial-gradient(circle at 50% 50%, #14082A, #0D0820 70%)",
+  "color": "#A78BFA",
+  "icon": "Target",
+  "pattern": "repeating-linear-gradient(20deg,  transparent 0px, transparent 9px, rgba(167,139,250,0.07) 9px, rgba(167,139,250,0.07) 10px), repeating-linear-gradient(110deg, transparent 0px, transparent 9px, rgba(167,139,250,0.06) 9px, rgba(167,139,250,0.06) 10px), repeating-linear-gradient(65deg,  transparent 0px, transparent 14px, rgba(167,139,250,0.05) 14px, rgba(167,139,250,0.05) 15px)",
+  "underlay": "Target",
+  "underlayColor": "#4C1D95"
+ },
+ "emblem-viking": {
+  "animation": "emblemGlow",
+  "bg": "radial-gradient(ellipse at 50% 35%, #1E1400, #0D1117 70%)",
+  "color": "#FCD34D",
+  "icon": "Hammer",
+  "pattern": "repeating-radial-gradient(circle at 50% 50%, transparent 8px, transparent 9px, rgba(252,211,77,0.04) 9px, rgba(252,211,77,0.04) 10px), repeating-linear-gradient(30deg, transparent 0px, transparent 12px, rgba(252,211,77,0.03) 12px, rgba(252,211,77,0.03) 13px)",
+  "underlay": "Shield",
+  "underlayColor": "#451A03"
+ },
+ "emblem-void-sigil": {
+  "animation": "emblemGlow",
+  "bg": "radial-gradient(circle at 50% 50%, #0A0A0A 38%, transparent 40%), radial-gradient(circle at 50% 50%, rgba(255,255,255,0.85) 41%, rgba(255,255,255,0.85) 43%, transparent 45%), radial-gradient(circle at 50% 50%, #050505, #000000 70%)",
+  "color": "#0A0A0A",
+  "icon": "Moon"
+ },
+ "emblem-voronoi-cells": {
+  "bg": "radial-gradient(circle at 50% 50%, #0F141C, #0D1117 70%)",
+  "color": "#94A3B8",
+  "icon": "Diamond",
+  "pattern": "repeating-linear-gradient(17deg,  transparent 0px, transparent 13px, rgba(148,163,184,0.06) 13px, rgba(148,163,184,0.06) 14px), repeating-linear-gradient(73deg,  transparent 0px, transparent 17px, rgba(148,163,184,0.05) 17px, rgba(148,163,184,0.05) 18px), repeating-linear-gradient(131deg, transparent 0px, transparent 21px, rgba(148,163,184,0.04) 21px, rgba(148,163,184,0.04) 22px)"
+ },
+ "emblem-walkthrough-parachute": {
+  "animation": "emblemGlow",
+  "bg": "radial-gradient(circle at 50% 35%, rgba(167,139,250,0.4) 0%, transparent 40%), linear-gradient(180deg, #1A0D33 0%, #110828 60%, #0D0620 100%)",
+  "color": "#A78BFA",
+  "icon": "Parachute"
+ },
+ "emblem-war-crest": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 40%, #2A0A0A, #0D1117 70%)",
+  "color": "#FCA5A5",
+  "icon": "Sword",
+  "pattern": "repeating-linear-gradient(60deg,  transparent 0px, transparent 10px, rgba(252,165,165,0.06) 10px, rgba(252,165,165,0.06) 11px), repeating-linear-gradient(-60deg, transparent 0px, transparent 10px, rgba(252,165,165,0.06) 10px, rgba(252,165,165,0.06) 11px), repeating-linear-gradient(0deg,   transparent 0px, transparent 10px, rgba(252,165,165,0.04) 10px, rgba(252,165,165,0.04) 11px)",
+  "underlay": "Shield",
+  "underlayColor": "#7F1D1D"
+ },
+ "emblem-wireframe-poly": {
+  "animation": "emblemRotate",
+  "bg": "radial-gradient(circle at 50% 50%, #04141C, #060A12 70%)",
+  "color": "#22D3EE",
+  "icon": "Diamond",
+  "pattern": "repeating-linear-gradient(30deg,  transparent 0px, transparent 11px, rgba(34,211,238,0.06) 11px, rgba(34,211,238,0.06) 12px), repeating-linear-gradient(-30deg, transparent 0px, transparent 11px, rgba(34,211,238,0.06) 11px, rgba(34,211,238,0.06) 12px)",
+  "underlay": "Diamond",
+  "underlayColor": "#0E7490"
+ },
+ "emblem-wolf": {
+  "animation": "emblemPulse",
+  "bg": "radial-gradient(circle at 50% 35%, #0F1420, #0D1117 70%)",
+  "color": "#94A3B8",
+  "icon": "Dog"
+ }
+}

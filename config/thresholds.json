@@ -1,0 +1,49 @@
+{
+  "_": "Every threshold the office uses, in one file. The reader reads THIS file; a threshold that lives anywhere else is a defect. Your own settings (names, machines, privacy) are in workspace.config.json, not here.",
+  "poll": {
+    "files_ms": 2000,
+    "heartbeat_ms": 5000,
+    "_heartbeat": "The server emits a frame every heartbeat_ms even when nothing changed. Silence is how the client knows it has gone blind."
+  },
+  "blind": {
+    "client_no_frame_ms": 15000,
+    "_": "No frame for this long and the whole page greys out and says it is reconnecting. 3x the heartbeat."
+  },
+  "liveness": {
+    "desk_floor_ms": 120000,
+    "waiting_max_ms": 3900000,
+    "_waiting": "A session past the floor that is waiting on a background command or a ScheduleWakeup timer IT started renders WAITING, not idle - it will wake itself. Only for this long (65 min: ScheduleWakeup's 60-min cap plus slack); past it the normal floor applies, because a session that died mid-wait never writes the finish.",
+    "_": "A desk with no event of ANY kind for this long renders STALE regardless of what the event stream last implied. It is the only defence against a session that exits on max_turns and never emits Stop. Not to be optimised away."
+  },
+  "staleness": {
+    "default_max_age_ms": 30000,
+    "demote_to_not_read_multiple": 3,
+    "_": "Past default_max_age_ms a fact is STALE with its explicit age. Past 3x it is demoted to NOT READ with the value REMOVED, never greyed-but-present."
+  },
+  "alarms": {
+    "lane_idle_wall_ms": 480000,
+    "lane_idle_page_ms": 1200000,
+    "stall_after_turn_end_ms": 300000,
+    "permission_undecided_ms": 45000,
+    "blocked_post_ms": 0,
+    "pages_per_run_per_night": 5,
+    "_": "Conditions the office watches for. They are not shown on the page; the idle nudge and the stall logic read them."
+  },
+  "wake": {
+    "wake_wait_max_ms": 28800000,
+    "_wait": "bin/office-wake-hook.js waits this long after a Stop for a note, then exits 0 (8 h). Its own Stop hook registration needs a timeout at least this long, in seconds.",
+    "nudge_text": "The office sees you idle with nothing armed. Check your next step, or reply IDLE-OK.",
+    "nudge_max_per_hour": 3,
+    "_nudge": "Opt-in idle nudge (src/server/nudge.js): a desk with Keep awake on (default on for run seats), its waiter live, idle past alarms.lane_idle_wall_ms with no wakeup, background job or helper, and not waiting on the owner or a permission prompt, gets nudge_text once per idle window, at most nudge_max_per_hour in any hour."
+  },
+  "mesh": {
+    "default_interval_ms": 15000,
+    "stale_multiple": 4,
+    "drop_multiple": 240,
+    "_": "One office for every machine (mesh.js). Spokes POST their floor to the hub over the tailnet every interval and declare that interval in the feed. Past stale_multiple x it, that machine's desks are demoted to stale and notes to them stop being offered; past drop_multiple x they leave the floor. Which machine is the hub, and its address, are in workspace.config.json (machines, hub_url)."
+  },
+  "ui": {
+    "collapse_metaphor_above_desks": 12,
+    "_": "Over this many desks the office stops drawing rooms and shows a table."
+  }
+}

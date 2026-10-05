@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- The WorkSpace orb, from WilsonWorks. Dot radial-gradient(circle at 30% 30%, #A855F7, #6D28D9);
+       a ring of rgba(124,58,237,0.14) around it (ring radius = dot radius x 5/3); a glow of
+       rgba(124,58,237,0.35). Replace this file (or set brand.logo) to use your own mark. -->
+  <defs>
+    <radialGradient id="orb" cx="30%" cy="30%" r="99%" fx="30%" fy="30%">
+      <stop offset="0" stop-color="#A855F7"/>
+      <stop offset="1" stop-color="#6D28D9"/>
+    </radialGradient>
+    <filter id="glow" x="-1" y="-1" width="3" height="3">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+  </defs>
+  <circle cx="32" cy="32" r="30" fill="#7C3AED" fill-opacity="0.14"/>
+  <circle cx="32" cy="32" r="18" fill="#7C3AED" fill-opacity="0.35" filter="url(#glow)"/>
+  <circle cx="32" cy="32" r="18" fill="url(#orb)"/>
+</svg>

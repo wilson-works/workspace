@@ -1,0 +1,224 @@
+{
+ "frame-ace": {
+  "border": "2px solid #F97316",
+  "pulse": "0 0 21px rgba(249,115,22,0.83)",
+  "shadow": "0 0 21px rgba(249,115,22,0.55)"
+ },
+ "frame-amber": {
+  "border": "2px solid #D97706",
+  "pulse": "0 0 8px rgba(217,119,6,0.45), 0 0 4px rgba(245,158,11,0.22)",
+  "shadow": "0 0 8px rgba(217,119,6,0.3), 0 0 4px rgba(245,158,11,0.15)"
+ },
+ "frame-anniversary": {
+  "animation": "frameGlow 3s ease-in-out infinite",
+  "border": "2px solid #FBBF24",
+  "pulse": "0 0 12px rgba(251,191,36,0.68), 0 0 24px rgba(245,158,11,0.30), 0 0 4px rgba(253,230,138,0.45)",
+  "shadow": "0 0 12px rgba(251,191,36,0.45), 0 0 24px rgba(245,158,11,0.2), 0 0 4px rgba(253,230,138,0.3)"
+ },
+ "frame-aurora": {
+  "animation": "frameShimmer 3s ease-in-out infinite",
+  "border": "2px solid #22C55E",
+  "pulse": "0 0 8px rgba(34,197,94,0.45), 0 0 16px rgba(6,182,212,0.22), 0 0 24px rgba(168,85,247,0.15)",
+  "shadow": "0 0 8px rgba(34,197,94,0.3), 0 0 16px rgba(6,182,212,0.15), 0 0 24px rgba(168,85,247,0.1)"
+ },
+ "frame-beta": {
+  "border": "2px solid #22C55E",
+  "pulse": "0 0 8px rgba(34,197,94,0.45), 0 0 16px rgba(34,197,94,0.15)",
+  "shadow": "0 0 8px rgba(34,197,94,0.3), 0 0 16px rgba(34,197,94,0.1)"
+ },
+ "frame-blood-moon": {
+  "animation": "framePulse 3s ease-in-out infinite",
+  "border": "2px solid #DC2626",
+  "pulse": "0 0 10px rgba(220,38,38,0.60), 0 0 22px rgba(185,28,28,0.30)",
+  "shadow": "0 0 10px rgba(220,38,38,0.4), 0 0 22px rgba(185,28,28,0.2)"
+ },
+ "frame-campaign-gold": {
+  "animation": "frameGlow 3s ease-in-out infinite",
+  "border": "2px solid #FBBF24",
+  "pulse": "0 0 12px rgba(251,191,36,0.60), 0 0 24px rgba(245,158,11,0.22)",
+  "shadow": "0 0 12px rgba(251,191,36,0.4), 0 0 24px rgba(245,158,11,0.15)"
+ },
+ "frame-clutch": {
+  "border": "2px solid #EF4444",
+  "pulse": "0 0 24px rgba(239,68,68,0.95)",
+  "shadow": "0 0 24px rgba(239,68,68,0.63)"
+ },
+ "frame-copper": {
+  "border": "2px solid #C2682A",
+  "pulse": "0 0 6px rgba(194,104,42,0.30), 0 0 2px rgba(217,119,6,0.15)",
+  "shadow": "0 0 6px rgba(194,104,42,0.2), 0 0 2px rgba(217,119,6,0.1)"
+ },
+ "frame-dashed-orbit": {
+  "animation": "frameRotateConic 8s linear infinite",
+  "border": "2px dashed #22D3EE",
+  "pulse": "0 0 8px rgba(34,211,238,0.52), 0 0 16px rgba(34,211,238,0.22)",
+  "shadow": "0 0 8px rgba(34,211,238,0.35), 0 0 16px rgba(34,211,238,0.15)"
+ },
+ "frame-double-prestige": {
+  "animation": "frameGlow 2.5s ease-in-out infinite",
+  "border": "2px solid #A855F7",
+  "pulse": "0 0 10px rgba(168,85,247,0.68), 0 0 22px rgba(139,92,246,0.30), 0 0 36px rgba(109,40,217,0.15)",
+  "shadow": "0 0 10px rgba(168,85,247,0.45), 0 0 22px rgba(139,92,246,0.2), 0 0 36px rgba(109,40,217,0.1)"
+ },
+ "frame-eater": {
+  "border": "2px solid #3B82F6",
+  "pulse": "0 0 15px rgba(59,130,246,0.58)",
+  "shadow": "0 0 15px rgba(59,130,246,0.39)"
+ },
+ "frame-electric-blue": {
+  "animation": "framePulse 2.5s ease-in-out infinite",
+  "border": "2px solid #2563EB",
+  "pulse": "0 0 8px rgba(37,99,235,0.68), 0 0 18px rgba(59,130,246,0.30)",
+  "shadow": "0 0 8px rgba(37,99,235,0.45), 0 0 18px rgba(59,130,246,0.2)"
+ },
+ "frame-emerald-cut": {
+  "border": "2px solid #059669",
+  "pulse": "0 0 8px rgba(5,150,105,0.45), 0 0 4px rgba(16,185,129,0.22)",
+  "shadow": "0 0 8px rgba(5,150,105,0.3), 0 0 4px rgba(16,185,129,0.15)"
+ },
+ "frame-frost-bite": {
+  "border": "2px solid #7DD3FC",
+  "pulse": "0 0 8px rgba(125,211,252,0.45), 0 0 16px rgba(186,230,253,0.22), 0 0 2px rgba(255,255,255,0.30)",
+  "shadow": "0 0 8px rgba(125,211,252,0.3), 0 0 16px rgba(186,230,253,0.15), 0 0 2px rgba(255,255,255,0.2)"
+ },
+ "frame-glitch": {
+  "border": "2px solid #22D3EE",
+  "pulse": "2px 0 0 rgba(239,68,68,0.45), -2px 0 0 rgba(59,130,246,0.45), 0 0 8px rgba(34,211,238,0.38)",
+  "shadow": "2px 0 0 rgba(239,68,68,0.3), -2px 0 0 rgba(59,130,246,0.3), 0 0 8px rgba(34,211,238,0.25)"
+ },
+ "frame-goat": {
+  "border": "2px solid #A855F7",
+  "pulse": "0 0 18px rgba(168,85,247,0.70)",
+  "shadow": "0 0 18px rgba(168,85,247,0.47)"
+ },
+ "frame-gold-leaf": {
+  "animation": "frameGlow 3s ease-in-out infinite",
+  "border": "2px solid #D4A017",
+  "pulse": "0 0 10px rgba(212,160,23,0.60), 0 0 22px rgba(251,191,36,0.30), 0 0 4px rgba(253,230,138,0.22)",
+  "shadow": "0 0 10px rgba(212,160,23,0.4), 0 0 22px rgba(251,191,36,0.2), 0 0 4px rgba(253,230,138,0.15)"
+ },
+ "frame-halloween": {
+  "animation": "framePulse 3s ease-in-out infinite",
+  "border": "2px solid #F97316",
+  "pulse": "0 0 10px rgba(249,115,22,0.60), 0 0 20px rgba(249,115,22,0.15), 0 0 4px rgba(0,0,0,1.20)",
+  "shadow": "0 0 10px rgba(249,115,22,0.4), 0 0 20px rgba(249,115,22,0.1), 0 0 4px rgba(0,0,0,0.8)"
+ },
+ "frame-icon": {
+  "border": "2px solid #EC4899",
+  "pulse": "0 0 27px rgba(236,72,153,1.06)",
+  "shadow": "0 0 27px rgba(236,72,153,0.71)"
+ },
+ "frame-legend": {
+  "border": "2px solid #2A2A2A",
+  "pulse": "0 0 8px rgba(251,191,36,0.15), inset 0 0 6px rgba(251,191,36,0.08)",
+  "shadow": "0 0 8px rgba(251,191,36,0.1), inset 0 0 6px rgba(251,191,36,0.05)"
+ },
+ "frame-magma": {
+  "animation": "framePulse 3s ease-in-out infinite",
+  "border": "2px solid #EF4444",
+  "pulse": "0 0 10px rgba(239,68,68,0.52), 0 0 20px rgba(249,115,22,0.30), 0 0 4px rgba(251,146,60,0.22)",
+  "shadow": "0 0 10px rgba(239,68,68,0.35), 0 0 20px rgba(249,115,22,0.2), 0 0 4px rgba(251,146,60,0.15)"
+ },
+ "frame-midnight-edge": {
+  "border": "2px solid #1E3A5F",
+  "pulse": "0 0 12px rgba(30,58,95,0.60), 0 0 24px rgba(13,27,48,0.45)",
+  "shadow": "0 0 12px rgba(30,58,95,0.4), 0 0 24px rgba(13,27,48,0.3)"
+ },
+ "frame-mythic": {
+  "animation": "frameGlow 3s ease-in-out infinite",
+  "border": "2px solid #FBBF24",
+  "pulse": "0 0 12px rgba(251,191,36,0.60), 0 0 24px rgba(251,191,36,0.22)",
+  "shadow": "0 0 12px rgba(251,191,36,0.4), 0 0 24px rgba(251,191,36,0.15)"
+ },
+ "frame-nebula": {
+  "animation": "frameGlow 3s ease-in-out infinite",
+  "border": "2px solid #7C3AED",
+  "pulse": "0 0 10px rgba(124,58,237,0.52), 0 0 22px rgba(59,130,246,0.22), 0 0 34px rgba(168,85,247,0.12)",
+  "shadow": "0 0 10px rgba(124,58,237,0.35), 0 0 22px rgba(59,130,246,0.15), 0 0 34px rgba(168,85,247,0.08)"
+ },
+ "frame-neon-pulse": {
+  "animation": "framePulse 2s ease-in-out infinite",
+  "border": "2px solid #22D3EE",
+  "pulse": "0 0 8px rgba(34,211,238,0.60), 0 0 16px rgba(34,211,238,0.30)",
+  "shadow": "0 0 8px rgba(34,211,238,0.4), 0 0 16px rgba(34,211,238,0.2)"
+ },
+ "frame-operator": {
+  "border": "2px solid #22C55E",
+  "pulse": "0 0 9px rgba(34,197,94,0.35)",
+  "shadow": "0 0 9px rgba(34,197,94,0.23)"
+ },
+ "frame-pinstripe": {
+  "border": "1px solid rgba(255,255,255,0.18)",
+  "pulse": "0 0 2px rgba(255,255,255,0.09)",
+  "shadow": "0 0 2px rgba(255,255,255,0.06)"
+ },
+ "frame-plasma": {
+  "animation": "framePulse 2.5s ease-in-out infinite",
+  "border": "2px solid #8B5CF6",
+  "pulse": "0 0 10px rgba(139,92,246,0.60), 0 0 22px rgba(59,130,246,0.30)",
+  "shadow": "0 0 10px rgba(139,92,246,0.4), 0 0 22px rgba(59,130,246,0.2)"
+ },
+ "frame-recruit": {
+  "border": "2px solid #6B7280",
+  "pulse": "0 0 6px rgba(107,114,128,0.22)",
+  "shadow": "0 0 6px rgba(107,114,128,0.15)"
+ },
+ "frame-referral": {
+  "border": "2px solid #22D3EE",
+  "pulse": "0 0 8px rgba(34,211,238,0.38)",
+  "shadow": "0 0 8px rgba(34,211,238,0.25)"
+ },
+ "frame-rust": {
+  "border": "2px solid #C2682A",
+  "pulse": "0 0 6px rgba(194,104,42,0.38), 0 0 12px rgba(162,80,20,0.15)",
+  "shadow": "0 0 6px rgba(194,104,42,0.25), 0 0 12px rgba(162,80,20,0.1)"
+ },
+ "frame-scout": {
+  "border": "2px solid #FBBF24",
+  "pulse": "0 0 10px rgba(251,191,36,0.45), 0 0 4px rgba(251,191,36,0.22)",
+  "shadow": "0 0 10px rgba(251,191,36,0.3), 0 0 4px rgba(251,191,36,0.15)"
+ },
+ "frame-season": {
+  "border": "2px solid #22D3EE",
+  "pulse": "0 0 10px rgba(34,211,238,0.45), 0 0 20px rgba(168,85,247,0.22)",
+  "shadow": "0 0 10px rgba(34,211,238,0.3), 0 0 20px rgba(168,85,247,0.15)"
+ },
+ "frame-season-2": {
+  "animation": "framePulse 3s ease-in-out infinite",
+  "border": "2px solid #A855F7",
+  "pulse": "0 0 10px rgba(168,85,247,0.52), 0 0 20px rgba(34,211,238,0.30)",
+  "shadow": "0 0 10px rgba(168,85,247,0.35), 0 0 20px rgba(34,211,238,0.2)"
+ },
+ "frame-shadow-realm": {
+  "border": "2px solid #7C3AED",
+  "pulse": "0 0 12px rgba(124,58,237,0.38), 0 0 24px rgba(91,33,182,0.22), 0 0 36px rgba(55,48,163,0.08)",
+  "shadow": "0 0 12px rgba(124,58,237,0.25), 0 0 24px rgba(91,33,182,0.15), 0 0 36px rgba(55,48,163,0.05)"
+ },
+ "frame-shoutout-halo": {
+  "border": "2px solid #EC4899",
+  "pulse": "0 0 10px rgba(236,72,153,0.60), 0 0 20px rgba(236,72,153,0.22)",
+  "shadow": "0 0 10px rgba(236,72,153,0.4), 0 0 20px rgba(236,72,153,0.15)"
+ },
+ "frame-solar-flare": {
+  "animation": "framePulse 3s ease-in-out infinite",
+  "border": "2px solid #FBBF24",
+  "pulse": "0 0 10px rgba(251,191,36,0.52), 0 0 20px rgba(249,115,22,0.30)",
+  "shadow": "0 0 10px rgba(251,191,36,0.35), 0 0 20px rgba(249,115,22,0.2)"
+ },
+ "frame-specialist": {
+  "border": "2px solid #06B6D4",
+  "pulse": "0 0 12px rgba(6,182,212,0.46)",
+  "shadow": "0 0 12px rgba(6,182,212,0.31)"
+ },
+ "frame-toxic-green": {
+  "animation": "framePulse 2.5s ease-in-out infinite",
+  "border": "2px solid #22C55E",
+  "pulse": "0 0 10px rgba(34,197,94,0.60), 0 0 20px rgba(74,222,128,0.22)",
+  "shadow": "0 0 10px rgba(34,197,94,0.4), 0 0 20px rgba(74,222,128,0.15)"
+ },
+ "frame-winter": {
+  "border": "2px solid #7DD3FC",
+  "pulse": "0 0 8px rgba(125,211,252,0.52), 0 0 18px rgba(186,230,253,0.22), 0 0 2px rgba(255,255,255,0.38)",
+  "shadow": "0 0 8px rgba(125,211,252,0.35), 0 0 18px rgba(186,230,253,0.15), 0 0 2px rgba(255,255,255,0.25)"
+ }
+}

@@ -1,0 +1,11 @@
+{
+ "set": "The WorkSpace avatar set: emblems (emblems.json), frames (frames.json) and their animations (keyframes.css)",
+ "icons": "Phosphor duotone and fill icons (icons.json), MIT licence: LICENSE-phosphor.txt",
+ "phosphor": "@phosphor-icons/core@2.1.1",
+ "counts": {
+  "emblems": 103,
+  "frames_all": 101,
+  "frames_circle": 41,
+  "icons": 38
+ }
+}

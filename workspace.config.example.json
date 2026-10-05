@@ -1,0 +1,43 @@
+{
+  "_readme": "Your WorkSpace settings. The easy way: open this folder in Claude Code and say \"set up my WorkSpace\" - Claude asks you each question below and writes workspace.config.json for you (never commit that file: it names you and your computers). Every key is optional; a value still holding a {{CLAUDE: ...}} marker counts as not set, and the office uses its default. Restart the office after changing machines (node bin/office-start.js).",
+
+  "use": "{{CLAUDE: ask whether this office is for personal use or for a company. Write \"personal\" or \"company\". Company use asks about the company name, brand and private client folders below; personal use can skip them.}}",
+
+  "owner": {
+    "name": "{{CLAUDE: what should the sessions call the person running this office? Usually a first name. Shown on notes and answers: \"Alex answered your question\".}}"
+  },
+
+  "brand": {
+    "office_name": "WorkSpace",
+    "company": "{{CLAUDE: for company use, the company name shown next to the office name. Leave empty for personal use.}}",
+    "colors": ["#A855F7", "#6D28D9"],
+    "logo": "{{CLAUDE: optional. A path to their own logo, an .svg or .png file, relative to this folder (for example brand/logo.svg). Leave empty for the WorkSpace orb. prompts/README.md has the full logo prompt, including the Home Screen icons.}}",
+    "_colors": "The two colours of the orb in the bar, light then dark, as #rrggbb. Ask for their brand colours if they have them."
+  },
+
+  "machines": [
+    {
+      "name": "{{CLAUDE: a short name for THIS computer, shown on its chip, for example DESK, LAPTOP or STUDIO. Capitals, digits and hyphens.}}",
+      "computer": "{{CLAUDE: this computer's own name. Find it yourself: the COMPUTERNAME variable on Windows, the hostname command on Mac or Linux.}}",
+      "hub": true,
+      "_hub": "The hub is the computer that is on the most. It keeps the group chat and is the one the phone and the other computers talk to. Exactly one machine is the hub."
+    }
+  ],
+  "_machines": "Using more than one computer? Add one entry per computer (name, computer), then follow guides/02-tailscale.md. The first machine gets the trees callsign pool, the second stars, the third rivers; set \"callsigns\" on a machine to choose.",
+
+  "hub_url": "{{CLAUDE: only after guides/02-tailscale.md: the hub's Tailscale address, https://<hub-name>.<tailnet>.ts.net. Leave empty while there is one computer.}}",
+
+  "code_roots": [
+    "{{CLAUDE: the folders that hold their code projects, for example C:\\Users\\alex\\code or /Users/alex/code. Each repo in one gets its own room on the floor, and the office reads the org's comms bus from it. Ask; they may have none yet.}}"
+  ],
+
+  "work_folders": [],
+  "_work_folders": "Extra folders whose project folders show on the Work page, beside projects/ in this repo. Good for private work you never want inside this repo.",
+
+  "privacy": {
+    "private_work": [],
+    "_private_work": "{{CLAUDE: ask whether any work is private, such as client folders, tax or health records. List those folders (full paths) or words that appear in their folder names. A session working there never has its title, tasks or summaries shown on the office or the phone.}}",
+    "never_read": [],
+    "_never_read": "{{CLAUDE: ask whether there are folders no session should ever read or touch, such as another person's user folder on a shared computer. Listed folders are never read by the office, and node bin/install.js permissions turns them into deny rules.}}"
+  }
+}

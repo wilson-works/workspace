@@ -1,0 +1,1 @@
+{ "type": "commonjs", "_": "The hooks are CommonJS. Without this file the root package.json (type:module, for the React UI) makes Node load them as ES modules, and they crash at require() before a single line runs - silently, on every tool call of every session in this repo. That happened for ~2 hours on 2026-09-17 before a live test caught it." }

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tip splitter</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>Tip splitter</h1>
+    <p class="hint">Enter the bill, the tip and how many people are paying.</p>
+    <form id="split-form">
+      <label for="bill">Bill amount ($)</label>
+      <input id="bill" name="bill" type="number" min="0" step="0.01" value="100">
+      <label for="tip">Tip (%)</label>
+      <input id="tip" name="tip" type="number" min="0" step="1" value="20">
+      <label for="people">Number of people</label>
+      <input id="people" name="people" type="number" min="1" step="1" value="1">
+    </form>
+    <p id="result" class="result"></p>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

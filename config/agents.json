@@ -1,0 +1,18 @@
+{
+  "_": "The Agents' wing: one office per specialist agent, in its own colours, with a door into its dashboard. Add your own here (lesson GS-09 and prompts/README.md, 'Put it in the office'). key: lower-case id. machine: the machine (workspace.config.json machines) it runs on. status: live, building or planned. door.local: its dashboard on that machine (opens only while it is running); door.phone: its tailnet address once tailscale serve publishes it (the office never proxies a dashboard). probe: a loopback port and path the office checks every 20 s to see whether it is running (any HTTP answer counts; never a path that hands out a login token). match: words that find its sessions on the floor by title or folder; only their count is shown. brand: its colours (bg, panel, ink, accent, accent2), a font, and an optional mark (an image under public/agents/); with no mark its first letter is drawn.",
+  "agents": [
+    {
+      "key": "your-specialist",
+      "name": "Your specialist",
+      "title": "Lesson GS-09",
+      "line": "The agent you build for your own work gets this office: its colours, its mark, and a door to its dashboard.",
+      "machine": null,
+      "status": "planned",
+      "repo": null,
+      "door": { "local": null, "phone": null },
+      "probe": null,
+      "match": [],
+      "brand": { "bg": "#0D0524", "panel": "#2E1065", "ink": "#E0E7FF", "accent": "#A855F7", "accent2": "#6D28D9", "font": "Inter, system-ui, sans-serif" }
+    }
+  ]
+}

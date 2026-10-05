@@ -1,0 +1,21 @@
+{
+  "_": "Brand and product names that look like code names (a small letter followed by a capital, like iPhone) but are plain English to a business owner. Add a name per line, exactly as it is written. Anything here never counts as technical on the owner-question gate.",
+  "names": [
+    "iPhone",
+    "iPad",
+    "iOS",
+    "iMessage",
+    "iCloud",
+    "macOS",
+    "eBay",
+    "PayPal",
+    "YouTube",
+    "LinkedIn",
+    "TikTok",
+    "WhatsApp",
+    "QuickBooks",
+    "GoDaddy",
+    "OpenAI",
+    "HubSpot"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "_comment": "What node bin/install.js permissions adds to your user settings (<claude home>/settings.json), next to the walkaway hooks. deny binds in every mode, bypass included. ask prompts even in bypass mode, so it is kept to the few acts a person should always see happen; it must stay a subset of what walkaway/walkaway_permission_hook.py refuses (walkaway/selftest_hooks.py checks the hook side). Off-limits folders from workspace.config.json privacy.never_read become Read/Edit/Write deny rules too.",
+  "permissions": {
+    "deny": [
+      "Bash(rm -rf .git*)",
+      "Bash(rm -rf /)",
+      "Bash(rm -rf ~*)",
+      "Bash(git gc*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f *)",
+      "Bash(gh repo delete*)",
+      "Bash(gh repo archive*)"
+    ],
+    "ask": [
+      "Bash(railway up*)",
+      "Bash(railway deploy*)",
+      "Bash(firebase deploy*)",
+      "Bash(gh workflow enable*)",
+      "Bash(gh workflow run*)"
+    ]
+  }
+}

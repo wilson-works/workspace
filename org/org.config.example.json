@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "_comment": "Project-specific path ownership for the agent-org. Edit globs to match YOUR repo. The roster (Cindy, Gavin, Diana, Rachel, Josh + their juniors) is fixed; only the paths each department owns change per project.",
+  "departments": {
+    "backend": {
+      "head": "cindy",
+      "juniors": ["marcus", "priya"],
+      "owns": [
+        "src/server/**",
+        "src/services/**",
+        "src/lib/**",
+        "internal/**"
+      ]
+    },
+    "frontend": {
+      "head": "gavin",
+      "juniors": ["ava", "kai"],
+      "owns": [
+        "src/client/**",
+        "src/pages/**",
+        "src/components/**",
+        "public/**",
+        "*.css",
+        "*.scss"
+      ]
+    },
+    "database": {
+      "head": "diana",
+      "juniors": ["leo", "nora"],
+      "owns": [
+        "migrations/**",
+        "db/**",
+        "**/schema.sql",
+        "**/schema.prisma",
+        "**/alembic/**"
+      ]
+    },
+    "qa": {
+      "head": "rachel",
+      "juniors": ["owen", "maya"],
+      "owns": [
+        "tests/**",
+        "**/*.test.*",
+        "**/*.spec.*",
+        "**/test_*.py",
+        "e2e/**",
+        "playwright/**",
+        "cypress/**"
+      ]
+    },
+    "api": {
+      "head": "josh",
+      "juniors": ["felix", "zara"],
+      "owns": [
+        "src/api/**",
+        "src/routes/**",
+        "openapi.yaml",
+        "openapi.json",
+        "**/schemas/**"
+      ]
+    }
+  },
+  "shared": [
+    "README.md",
+    "CLAUDE.md",
+    ".claude/**",
+    "docs/**",
+    "research/**",
+    "backlog/**",
+    "package.json",
+    "pyproject.toml",
+    "requirements*.txt",
+    ".gitignore"
+  ]
+}
