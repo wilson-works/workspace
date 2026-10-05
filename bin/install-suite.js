@@ -474,6 +474,25 @@ async function partHub(ctx) {
   ctx.changes += n;
 }
 
+/**
+ * NAV.md once more, last: the skills pack, the agents' home and the fleet clone land in 50-AI/ after the
+ * hub part wrote it, so without this a second install would find NAV.md out of date and change it.
+ */
+function navLast(ctx) {
+  if (ctx.dry || ctx.o.skip.has('hub') || !readMarker(ctx.hub)) return;
+  const rel = 'hub/bin/hub.js';
+  if (!exists(path.join(ROOT, ...rel.split('/')))) return;
+  const r = tool(rel, ['nav', '--root', ctx.hub]);
+  const changed = r.stdout.split(/\r?\n/).filter(isChange);
+  if (r.status !== 0) { out(`  NAV.md could not be regenerated (exit ${r.status}); run node hub/bin/hub.js nav later.`); return; }
+  if (changed.length) {
+    out('nav - the map of your Hub, now that everything is in place');
+    for (const l of changed) out(`  ${l.replace(/^\s+/, '')}`);
+    out();
+    ctx.changes += changed.length;
+  }
+}
+
 /* ------------------------------------------------------------------- office */
 
 async function partOffice(ctx) {
@@ -1046,6 +1065,7 @@ async function run(o, asker) {
     out();
     if (o.skip.has('fleet')) out('fleet - skipped (--skip fleet)'); else await partFleet(ctx);
     out();
+    navLast(ctx);
     summary(ctx);
   }
 
