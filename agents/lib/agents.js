@@ -35,7 +35,8 @@ const net = require('net');
 const http = require('http');
 const path = require('path');
 const crypto = require('crypto');
-const { spawn, execFileSync } = require('child_process');
+const { execFileSync } = require('child_process');
+const { startDetached, readPid } = require('../../bin/detach');
 
 const MANIFEST = 'agent.json';
 const KEY_RE = /^[a-z][a-z0-9-]{0,30}$/;
@@ -411,27 +412,21 @@ async function waitUp(probe, ms) {
 }
 
 /**
- * Start an agent's dashboard: its `start` command, without a shell, in its folder, detached,
- * logging to dashboard/dashboard.log. Returns the pid, also written to dashboard/.pid.
+ * Start an agent's dashboard: its `start` command, without a shell, in its folder, detached through
+ * bin/detach.js (so it never holds the output of the command that started it), logging to
+ * dashboard/dashboard.log. Resolves to the pid, also written to dashboard/.pid.
  */
-function startAgent(dir) {
+async function startAgent(dir) {
   const m = readJson(path.join(dir, MANIFEST));
   if (!isStr(m.start)) throw new Error(`${m.name || path.basename(dir)} has no start command in agent.json.`);
   const argv = splitCommand(m.start);
   const cmd = argv[0] === 'node' ? process.execPath : argv[0];
   fs.mkdirSync(path.join(dir, 'dashboard'), { recursive: true });
-  const out = fs.openSync(path.join(dir, 'dashboard', 'dashboard.log'), 'a');
-  let child;
-  try {
-    child = spawn(cmd, argv.slice(1), { cwd: dir, detached: true, stdio: ['ignore', out, out], windowsHide: true });
-  } finally {
-    fs.closeSync(out);
-  }
-  child.on('error', () => { /* reported below through the missing pid */ });
-  if (!child.pid) throw new Error(`Could not start "${m.start}": is ${argv[0]} installed?`);
-  child.unref();
-  fs.writeFileSync(pidFile(dir), `${child.pid}\n`, 'utf8');
-  return child.pid;
+  const pf = pidFile(dir);
+  const started = startDetached(cmd, argv.slice(1), { cwd: dir, log: path.join(dir, 'dashboard', 'dashboard.log'), pidFile: pf });
+  const pid = started.pid || await readPid(pf, 8000);
+  if (!pid) throw new Error(`Could not start "${m.start}": is ${argv[0]} installed? See dashboard/dashboard.log.`);
+  return pid;
 }
 
 /** Stop the dashboard by the pid in dashboard/.pid, and only that pid. { stopped } or { none }. */
@@ -457,14 +452,14 @@ async function autostart(dirs, note) {
   const want = listAgents(dirs).filter((a) => a.ok && a.manifest.autostart === true);
   const up = await Promise.all(want.map((a) => probeLocal(a.manifest.probe)));
   const started = [];
-  want.forEach((a, i) => {
-    if (up[i]) return;
+  for (const [i, a] of want.entries()) {
+    if (up[i]) continue;
     try {
-      const pid = startAgent(a.dir);
+      const pid = await startAgent(a.dir);
       started.push(a.key);
       say(`started agent ${a.key} (pid ${pid}), logging to ${path.join(a.dir, 'dashboard', 'dashboard.log')}`);
     } catch (e) { say(`could not start agent ${a.key}: ${e.message}`); }
-  });
+  }
   return started;
 }
 
@@ -654,7 +649,7 @@ async function installPackage(src, agentsDir, opts) {
     let started = false;
     let startFailed = false;
     if (final.autostart === true && o.start !== false && !o.dryRun && (o.yes || await ask(`Start ${final.name}'s dashboard now?`))) {
-      const pid = startAgent(target);
+      const pid = await startAgent(target);
       started = await waitUp(final.probe, 15000);
       startFailed = !started;
       lines.push(started

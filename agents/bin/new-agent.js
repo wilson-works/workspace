@@ -82,7 +82,7 @@ const { out, fwd, refuse, fail } = cli;
 
   if (!flags['no-start']) {
     let pid;
-    try { pid = lib.startAgent(target); } catch (e) { fail(`${name} was made, but its dashboard did not start: ${e.message}`); }
+    try { pid = await lib.startAgent(target); } catch (e) { fail(`${name} was made, but its dashboard did not start: ${e.message}`); }
     if (!(await lib.waitUp(made.manifest.probe, 15000))) {
       fail(`${name} was made and started (pid ${pid}), but its dashboard did not answer within 15 seconds. See ${fwd(path.join(target, 'dashboard', 'dashboard.log'))}.`);
     }

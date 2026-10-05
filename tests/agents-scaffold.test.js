@@ -163,7 +163,7 @@ test('the dashboard: 127.0.0.1 only, its page in its own name, /health without a
   try {
     const port = await spare();
     lib.scaffold(dir, { key: 'iris', name: 'Iris', title: 'The Research Desk', line: 'Reads everything.', port });
-    const pid = lib.startAgent(dir);
+    const pid = await lib.startAgent(dir);
     assert.equal(Number(fs.readFileSync(path.join(dir, 'dashboard', '.pid'), 'utf8').trim()), pid, 'the pid is recorded');
     assert.equal(await lib.waitUp({ port, path: '/health' }, 15000), true, 'it answers within 15 s');
 

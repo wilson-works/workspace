@@ -30,7 +30,8 @@
 const net = require('net');
 const fs = require('fs');
 const path = require('path');
-const { spawn, execFileSync } = require('child_process');
+const { execFileSync } = require('child_process');
+const { startDetached, readPid } = require('./detach');
 const config = require('../src/server/config');
 
 const PORT = config.officePort();
@@ -106,11 +107,9 @@ async function stopRunning(note) {
   // Started before the port check on purpose: an office that is already up
   // must not mean a forwarder that is not. It holds a pid lock, so a second
   // copy exits at once, and on the hub machine it exits by itself.
+  // Both long-running starts go through detach.js, so neither can hold the output of whoever ran this.
   try {
-    const fwd = spawn(process.execPath, [path.join(repo, 'bin', 'office-forward.js')], {
-      cwd: repo, detached: true, stdio: 'ignore', windowsHide: true,
-    });
-    fwd.unref();
+    startDetached(process.execPath, [path.join(repo, 'bin', 'office-forward.js')], { cwd: repo, log: path.join(home, 'forward.log') });
   } catch (e) { note(`could not start the forwarder: ${e.message}`); }
 
   if (await portInUse()) {
@@ -153,10 +152,10 @@ async function stopRunning(note) {
 
   const args = [path.join(repo, 'src', 'server', 'server.js'), '--port', String(PORT)];
   if (name) args.push('--allow-host', name);
-  const out = fs.openSync(log, 'a');
-  const child = spawn(process.execPath, args, { cwd: repo, detached: true, stdio: ['ignore', out, out], windowsHide: true });
-  child.unref();
-  note(`started pid ${child.pid}${name ? ` allowing ${name}` : ''}`);
+  const pidFile = path.join(home, 'office.pid');
+  const started = startDetached(process.execPath, args, { cwd: repo, log, pidFile });
+  const pid = started.pid || await readPid(pidFile, 5000);
+  note(`started pid ${pid || '(not seen yet)'}${name ? ` allowing ${name}` : ''}`);
   process.stdout.write(`The office is starting: http://127.0.0.1:${PORT}/${name ? `  (and https://${name}/ once tailscale serve is on)` : ''}\n`);
 
   // 5. The specialist agents that asked for it (autostart: true in their agent.json) and are down get

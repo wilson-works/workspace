@@ -50,7 +50,7 @@ async function start(a) {
   if (m.probe && m.probe.port && await lib.probeLocal(m.probe)) {
     return { ok: true, line: `= ${m.name} already answers on port ${m.probe.port} (started some other way).` };
   }
-  const started = lib.startAgent(a.dir);
+  const started = await lib.startAgent(a.dir);
   if (m.probe && m.probe.port && !(await lib.waitUp(m.probe, 15000))) {
     return { ok: false, line: `! started ${m.name} (pid ${started}), but it did not answer within 15 seconds. See ${fwd(path.join(a.dir, 'dashboard', 'dashboard.log'))}.` };
   }
