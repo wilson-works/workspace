@@ -1,0 +1,18 @@
+{
+  "_": "The starter skills the videos show, one plain line each. A draft until it is rewritten from the pinned starter set (skills/starter.json in the repo root); tools/render.js refuses a final render while it is a draft.",
+  "draft": true,
+  "skills": [
+    { "name": "brainstorm", "line": "Think an idea through before building it." },
+    { "name": "scope-check", "line": "Find the smallest version worth doing." },
+    { "name": "premortem", "line": "Ask what could go wrong, before it does." },
+    { "name": "quick-research", "line": "A short answer, with sources." },
+    { "name": "handoff", "line": "Write up a session so another can pick it up." },
+    { "name": "backlog", "line": "Keep a list of work to do, and close it out." },
+    { "name": "claude-md-doctor", "line": "Check and tidy a project's CLAUDE.md." },
+    { "name": "systems-map", "line": "Draw how a project's parts connect." },
+    { "name": "sop-writer", "line": "Turn a task you repeat into steps." },
+    { "name": "copywriting", "line": "Write pages and posts that read well." },
+    { "name": "weekly-review", "line": "Look back at the week, plan the next." },
+    { "name": "retro", "line": "What went well, and what to change." }
+  ]
+}

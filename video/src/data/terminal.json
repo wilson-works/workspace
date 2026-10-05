@@ -1,0 +1,150 @@
+{
+  "_": "What the terminal scenes show. Each entry is to be the real output of a sandbox run, with the sandbox folder written as the invented person's own folder (C:\\Users\\alex, /Users/alex). An entry marked draft is a placeholder written before the command existed: it renders with a DRAFT mark, and tools/render.js refuses a final render while any remain.",
+  "install": {
+    "draft": true,
+    "title": "Terminal, on DESK",
+    "prompt": "C:\\Users\\alex>",
+    "steps": [
+      {
+        "cmd": "node install.js",
+        "out": [
+          "WilsonWorks Workspace: what this will do on DESK",
+          "+ Hub        C:\\Users\\alex\\Hub, 7 zones, CLAUDE.md, NAV.md",
+          "+ skills     12 starter skills, pinned",
+          "+ office     every session on the Hub shows on the floor",
+          "+ startup    the office starts when you sign in",
+          "Go ahead? (y/n) y",
+          "Done. Open your office: http://127.0.0.1:4316/"
+        ]
+      }
+    ]
+  },
+  "nav": {
+    "draft": true,
+    "title": "Terminal, on DESK",
+    "prompt": "C:\\Users\\alex\\Hub>",
+    "steps": [
+      {
+        "cmd": "node 50-AI\\workspace\\hub\\bin\\hub.js nav",
+        "out": [
+          "~ NAV.md   rebuilt from your folders",
+          "= zones    7, all there",
+          "+ project  20-Coding/Projects/bakery-site",
+          "+ agent    50-AI/agents/iris"
+        ]
+      }
+    ]
+  },
+  "newAgent": {
+    "draft": true,
+    "title": "Terminal, on DESK",
+    "prompt": "C:\\Users\\alex\\Hub>",
+    "steps": [
+      {
+        "cmd": "node 50-AI\\workspace\\agents\\bin\\new-agent.js iris",
+        "out": [
+          "+ 50-AI/agents/iris/agent.json    name, colours, door",
+          "+ 50-AI/agents/iris/brains/       what it knows",
+          "+ 50-AI/agents/iris/rules/        how it works",
+          "+ 50-AI/agents/iris/dashboard/    its own page",
+          "Done. Iris has an office in the Agents' wing."
+        ]
+      }
+    ]
+  },
+  "installAgent": {
+    "draft": true,
+    "title": "Terminal, on DESK",
+    "prompt": "C:\\Users\\alex\\Hub>",
+    "steps": [
+      {
+        "cmd": "node 50-AI\\workspace\\agents\\bin\\install-agent.js quill.zip",
+        "out": [
+          "Quill, The Content Desk",
+          "+ 50-AI/agents/quill/",
+          "+ an office in the Agents' wing",
+          "Done. Quill's door opens its dashboard."
+        ]
+      }
+    ]
+  },
+  "fleetInit": {
+    "draft": true,
+    "title": "Terminal, on DESK",
+    "prompt": "C:\\Users\\alex\\Hub>",
+    "steps": [
+      {
+        "cmd": "node 50-AI\\workspace\\fleet\\bin\\fleet.js init",
+        "out": [
+          "Make a private repo alex-example/fleet-ops on GitHub? (y/n) y",
+          "+ alex-example/fleet-ops   private",
+          "+ 50-AI/fleet-ops          your copy, on DESK",
+          "+ machines/DESK.json       command",
+          "+ daily sync               every day at 09:00"
+        ]
+      }
+    ]
+  },
+  "fleetJoin": {
+    "draft": true,
+    "title": "Terminal, on MINI",
+    "prompt": "C:\\Users\\alex\\Hub>",
+    "steps": [
+      {
+        "cmd": "node 50-AI\\workspace\\fleet\\bin\\fleet.js join --role builder",
+        "out": [
+          "+ 50-AI/fleet-ops          a copy of alex-example/fleet-ops",
+          "+ machines/MINI.json       builder, code in 20-Coding/Active",
+          "+ comms/MINI.md            MINI's own comms file",
+          "+ daily sync               every day at 09:00"
+        ]
+      }
+    ]
+  },
+  "handoff": {
+    "draft": true,
+    "title": "Terminal, on DESK",
+    "prompt": "C:\\Users\\alex\\Hub>",
+    "steps": [
+      {
+        "cmd": "node 50-AI\\workspace\\fleet\\bin\\fleet.js handoff MINI \"Build GP-04 frost dates\"",
+        "out": [
+          "+ handoffs/open/H-007.md   to MINI",
+          "+ comms/DESK.md            Handoff H-007 to MINI.",
+          "Pushed. MINI picks it up on its next sync."
+        ]
+      }
+    ]
+  },
+  "take": {
+    "draft": true,
+    "title": "Terminal, on MINI",
+    "prompt": "C:\\Users\\alex\\Hub>",
+    "steps": [
+      {
+        "cmd": "node 50-AI\\workspace\\fleet\\bin\\fleet.js sync",
+        "out": [
+          "= pulled                   1 handoff for MINI",
+          "~ handoffs/taken/H-007.md  taken by MINI",
+          "+ comms/MINI.md            Took H-007. Building GP-04.",
+          "Pushed."
+        ]
+      }
+    ]
+  },
+  "sync": {
+    "draft": true,
+    "title": "Terminal, on MINI",
+    "prompt": "C:\\Users\\alex\\Hub>",
+    "steps": [
+      {
+        "cmd": "node 50-AI\\workspace\\fleet\\bin\\fleet.js sync",
+        "out": [
+          "= pulled                   already current",
+          "~ heartbeats/MINI.json     09:00",
+          "Pushed. Only MINI's own files were committed."
+        ]
+      }
+    ]
+  }
+}

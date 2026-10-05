@@ -1,0 +1,58 @@
+{
+  "_": "The invented world every frame of the promos and walkthroughs is filmed in. Nothing here is a real person, computer, path, business or agent. The seeder (capture/seed.js) builds the sandbox offices from it; the videos (src/) draw the diagrams from it.",
+  "person": "Alex",
+  "github_user": "alex-example",
+  "tailnet": "example-tailnet.ts.net",
+  "repo": "github.com/wilson-works/workspace",
+  "fleet_repo": "alex-example/fleet-ops",
+  "computers": [
+    {
+      "name": "DESK", "sandbox": "v1", "role": "command", "kind": "desktop", "os": "Windows",
+      "duty": "Plans, reviews and merges. Runs the office.",
+      "hub_root": "C:\\Users\\alex\\Hub", "code_zone": "20-Coding/Projects", "callsigns": "trees",
+      "office_port": 4461, "hub": true
+    },
+    {
+      "name": "MINI", "sandbox": "v2", "role": "builder", "kind": "mini PC", "os": "Windows",
+      "duty": "Works on branches while you are away. Never merges.",
+      "hub_root": "C:\\Users\\alex\\Hub", "code_zone": "20-Coding/Active", "callsigns": "stars",
+      "office_port": 4462, "hub": false
+    },
+    {
+      "name": "LAPTOP", "sandbox": "v3", "role": "mobile", "kind": "laptop", "os": "macOS",
+      "duty": "On the go: drafts and pushes branches.",
+      "hub_root": "/Users/alex/Hub", "code_zone": "20-Coding/Projects", "callsigns": "rivers",
+      "office_port": 4463, "hub": false
+    }
+  ],
+  "projects": [
+    { "key": "garden-planner", "line": "A web app that plans a vegetable garden." },
+    { "key": "bakery-site", "line": "The website for a neighbourhood bakery." }
+  ],
+  "agents": [
+    {
+      "key": "iris", "name": "Iris", "title": "The Research Desk",
+      "line": "Reads everything on a topic and hands back one page with the sources.",
+      "port": 7660,
+      "brand": { "bg": "#0B1020", "panel": "#16213E", "ink": "#E6EDF7", "accent": "#38BDF8", "accent2": "#818CF8", "font": "Inter, system-ui, sans-serif" },
+      "match": ["iris", "research desk"],
+      "jokes": [
+        "I read the footnotes so you do not have to.",
+        "Knock knock. Who's there? Sources. Sources who? Sources, plural. Always plural.",
+        "I'd tell you a joke about citations, but I would need three of them."
+      ]
+    },
+    {
+      "key": "quill", "name": "Quill", "title": "The Content Desk",
+      "line": "Turns your notes into posts, newsletters and pages, in your voice.",
+      "port": 7661,
+      "brand": { "bg": "#1C1410", "panel": "#2B1E16", "ink": "#FBEFE3", "accent": "#F59E0B", "accent2": "#F472B6", "font": "Georgia, 'Times New Roman', serif" },
+      "match": ["quill", "content desk"],
+      "jokes": [
+        "I'd write you a joke, but the first draft is always too long.",
+        "Knock knock. Who's there? Comma. Comma who? Comma back later, I'm editing.",
+        "I don't have writer's block. I have editor's opinions."
+      ]
+    }
+  ]
+}
