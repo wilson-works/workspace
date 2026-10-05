@@ -7,7 +7,7 @@
  *   node agents/bin/new-agent.js <key> --name <Name> --title <Title> [--line <text>] [--color <#rrggbb>]
  *                                [--hub <root>] [--port <n>] [--no-start] [--dry-run] [--yes]
  *
- *   node agents/bin/new-agent.js iris --name Iris --title "The Research Desk" --line "Reads everything on a topic."
+ *   node agents/bin/new-agent.js <key> --name "<Name>" --title "<what it does>" --line "<its job, in one line>"
  *
  * It finds the Hub (--hub, else hub/lib/root.js), and writes the agent from agents/template/ into
  * <Hub>/50-AI/agents/<key>/ (or the office's first agents folder): agent.json, CLAUDE.md, brains/,

@@ -1,0 +1,14 @@
+{
+  "_readme": "The WilsonWorks agents anyone can install, with: node agents/bin/install-agent.js <key>. node agents/bin/agent.js catalog lists them and says which are installed. The installer (install.js) offers the first one that has an offer line, and installs any of them without asking with --agent <key>. Each source is the agent's package: a git address, a folder or a .zip file. agents/lib/catalog.js reads this file; WW_AGENT_CATALOG points at another one (for tests and drills), where a relative source is read from that file's own folder.",
+  "agents": [
+    {
+      "key": "louise",
+      "name": "Louise",
+      "title": "The Research Librarian",
+      "line": "Researches any topic in stages, keeps everything she finds on library shelves you can browse, and fetches any of it when you ask.",
+      "source": "https://github.com/wilson-works/louise.git",
+      "price": "free",
+      "offer": "Louise, the research librarian, can move into your office now. Install her?"
+    }
+  ]
+}

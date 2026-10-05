@@ -30,7 +30,7 @@ The `key` is a short lowercase name with dashes, like `client-onboarding`. It is
 **1. Make the agent.** Open a new chat on your Hub (VS Code or the desktop app) and paste this, with your own key, name and title:
 
 ```
-Make me a specialist agent with node 50-AI/workspace/agents/bin/new-agent.js <key> --name <Name> --title "<what it does, in a few words>". Show me what it will make before it makes it, and wait for my yes. When it's made, list its folder, and tell me in plain words what each file is for.
+Make me a specialist agent with node 50-AI/workspace/agents/bin/new-agent.js <key> --name "<Name>" --title "<what it does, in a few words>". Show me what it will make before it makes it, and wait for my yes. When it's made, list its folder, and tell me in plain words what each file is for.
 ```
 
 Then open the office and go to the **Agents** tab. Your agent's office is there already, with its name on the door.
@@ -101,7 +101,7 @@ Your new project stays on your computer. The Workspace's git setup leaves your o
 ## What next
 
 - **Keep improving your specialist.** Each time it gets something wrong, make one fix: a fence, a step in a skill, or a fact. A few weeks of small fixes teach it your work.
-- **Give it a teammate.** Make a second specialist for the next job on your list, or a reviewer that checks the first one's work before it reaches you. `guides/08-agents.md` also shows how to install an agent someone gave you.
+- **Give it a teammate.** Make a second specialist for the next job on your list, or a reviewer that checks the first one's work before it reaches you. Or install one of ours: `node 50-AI/workspace/agents/bin/install-agent.js louise` gives you Louise, the research librarian. `guides/08-agents.md` also shows how to install an agent someone gave you.
 - **Let it run longer.** Turn on walkaway mode (GS-04) in the folder where it works, hand it a few orders from its project, and let it work while you're away. When you're back, check the Work page and the Questions tab.
 - **Get to know your Hub.** GS-10 shows you its zones and its map, and starts your first project in the right place.
 

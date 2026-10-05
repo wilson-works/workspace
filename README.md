@@ -48,7 +48,7 @@ VS Code or the desktop app's Code tab and start a chat: you're on the floor.
 | **The Hub** | One folder on each computer for all your work, in numbered zones (`00-Inbox` to `90-Archive`), with a constitution `CLAUDE.md` every session reads, a plain-English map (`NAV.md`) rebuilt from what is on disk, and a `CLAUDE.md` per project. Claude always knows where things go, on any drive, on Windows or macOS. [Guide 6](guides/06-the-hub.md). |
 | **The starter skills** | Twelve skills from the free [claude_skills](https://github.com/wilson-works/claude_skills) pack, such as `handoff`, `notetaker`, `file-organizer`, `backlog` and `scope-check`, pulled at a pinned commit so they never drift. [Why each one](skills/README.md). |
 | **The office** | A local web page (http://127.0.0.1:4316): the Floor, Work, Agents, Questions and Chat. Every session opened on your Hub shows up. Private by design: it reads session metadata only, never prompts or file contents, and binds to this computer alone. |
-| **Specialist agents** | An agent for one job you repeat, with its own rules, facts, memory and dashboard. Make one with `new-agent`, or install one you were given. Each gets an office in the Agents' wing, with a door into its dashboard, by itself. [Guide 8](guides/08-agents.md). |
+| **Specialist agents** | An agent for one job you repeat, with its own rules, facts, memory and dashboard. Install one of ours (`install-agent louise`), make your own with `new-agent`, or install one you were given. Each gets an office in the Agents' wing, with a door into its dashboard, by itself. [Guide 8](guides/08-agents.md). |
 | **The fleet** (optional) | Your computers sharing work through your own private `fleet-ops` repo: a board of work orders, a message file per computer, and handoffs from a session on one to a session on another. The installer sets it up. [Guide 7](guides/07-several-computers.md). |
 
 And inside the office:
@@ -81,6 +81,16 @@ the [v2.0.0 release page](https://github.com/wilson-works/workspace/releases/tag
 The whole Workspace is **free and public**. Everything here is yours to set up yourself, with the
 guides and the course.
 
+**Install one of ours.** Louise, the research librarian, researches any topic in stages, keeps
+everything she finds on library shelves you can browse, and fetches any of it when you ask. She is
+free. Say yes when the installer offers her, or, from the Workspace folder:
+
+```
+node agents/bin/install-agent.js louise
+```
+
+`node agents/bin/agent.js catalog` lists every agent of ours you can install.
+
 If you'd rather have it done for you, WilsonWorks offers two things:
 
 - **Done-for-you setup**: we set up the Workspace on your computers with you, ready to work.
@@ -99,7 +109,7 @@ Setup help is $150 per seat; a one-job agent (a social media or sales assistant,
 5. [The CTO org](guides/05-the-org.md): your software team, and specialists for everything else.
 6. [Your Hub](guides/06-the-hub.md): the zones, the rules, the map, where projects live.
 7. [Several computers](guides/07-several-computers.md): the fleet, handoffs, a builder and a gate.
-8. [Specialist agents](guides/08-agents.md): the agent contract, `new-agent`, installing an agent.
+8. [Specialist agents](guides/08-agents.md): the agent contract, `new-agent`, installing Louise or any agent.
 
 And [the prompt library](prompts/README.md).
 
@@ -133,6 +143,7 @@ node install.js [--dry-run] [--yes] [--remove]      the one installer (--help li
 node hub/bin/hub.js nav --root <Hub>                regenerate your Hub's map, NAV.md
 node hub/bin/hub.js new-project <name>              a new project in your code zone, with its CLAUDE.md
 node agents/bin/new-agent.js <key> --name <N> --title <T>    a new specialist agent, with its office
+node agents/bin/install-agent.js louise             install one of our agents (agents/bin/agent.js catalog lists them)
 node agents/bin/install-agent.js <package>          install an agent you were given
 node fleet/bin/fleet.js init | join <owner/name> | schedule  your computers working together
 node bin/office-start.js [--restart]                start (or restart) the office

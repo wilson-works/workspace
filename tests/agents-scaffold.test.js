@@ -60,10 +60,10 @@ function makeHub() {
 test('scaffold writes every template file, filled; a dry run writes nothing; an existing folder is refused', () => {
   const base = tmp('agents-scaffold');
   try {
-    const dir = path.join(base, 'iris');
-    const dry = lib.scaffold(dir, { key: 'iris', name: 'Iris', title: 'The Research Desk', line: 'Reads everything.', color: '#38BDF8', port: 7611, dryRun: true });
+    const dir = path.join(base, 'sample');
+    const dry = lib.scaffold(dir, { key: 'sample', name: 'Sample', title: 'The Sample Desk', line: 'Reads everything.', color: '#38BDF8', port: 7611, dryRun: true });
     assert.ok(!fs.existsSync(dir), 'a dry run writes nothing');
-    const made = lib.scaffold(dir, { key: 'iris', name: 'Iris', title: 'The Research Desk', line: 'Reads everything.', color: '#38BDF8', port: 7611 });
+    const made = lib.scaffold(dir, { key: 'sample', name: 'Sample', title: 'The Sample Desk', line: 'Reads everything.', color: '#38BDF8', port: 7611 });
     assert.deepEqual(made.lines, dry.lines, 'the plan is what gets written');
 
     const want = ['CLAUDE.md', 'README.md', 'agent.json', 'art.svg', 'brains/README.md', 'brains/example-topic.md',
@@ -74,12 +74,12 @@ test('scaffold writes every template file, filled; a dry run writes nothing; an 
 
     const m = JSON.parse(fs.readFileSync(path.join(dir, 'agent.json'), 'utf8'));
     assert.deepEqual(lib.validateManifest(m), { ok: true, errors: [] });
-    assert.equal(m.key, 'iris');
+    assert.equal(m.key, 'sample');
     assert.equal(m.probe.port, 7611);
     assert.equal(m.door.local, 'http://127.0.0.1:7611/');
     assert.equal(m.brand.accent, '#38BDF8');
     assert.equal(m.autostart, true);
-    assert.deepEqual(lib.listAgents([base]).map((a) => [a.key, a.ok]), [['iris', true]], 'its images are there too');
+    assert.deepEqual(lib.listAgents([base]).map((a) => [a.key, a.ok]), [['sample', true]], 'its images are there too');
 
     for (const f of want) {
       const text = fs.readFileSync(path.join(dir, ...f.split('/')), 'utf8');
@@ -87,12 +87,12 @@ test('scaffold writes every template file, filled; a dry run writes nothing; an 
       assert.deepEqual(left, [], `${f}: every placeholder is filled`);
       if (f !== 'subagent.md') assert.ok(!text.includes('{{agent_dir}}'), `${f}: only the subagent keeps {{agent_dir}}`);
     }
-    assert.match(fs.readFileSync(path.join(dir, 'mark.svg'), 'utf8'), />I</, 'the mark is its initial');
+    assert.match(fs.readFileSync(path.join(dir, 'mark.svg'), 'utf8'), />S</, 'the mark is its initial');
     assert.equal(JSON.parse(fs.readFileSync(path.join(dir, 'dashboard', 'package.json'), 'utf8')).type, 'commonjs',
       'the dashboard stays CommonJS even under a folder whose package.json says type: module');
-    assert.match(fs.readFileSync(path.join(dir, 'CLAUDE.md'), 'utf8'), /# Iris, The Research Desk/);
+    assert.match(fs.readFileSync(path.join(dir, 'CLAUDE.md'), 'utf8'), /# Sample, The Sample Desk/);
 
-    assert.throws(() => lib.scaffold(dir, { key: 'iris', name: 'Iris', title: 'x', port: 7611 }), /already exists/);
+    assert.throws(() => lib.scaffold(dir, { key: 'sample', name: 'Sample', title: 'x', port: 7611 }), /already exists/);
     assert.throws(() => lib.scaffold(path.join(base, 'Bad'), { key: 'Bad', name: 'Bad', title: 'x', port: 7611 }), /not a key/);
     assert.throws(() => lib.scaffold(path.join(base, 'long'), { key: 'long', name: 'x'.repeat(41), title: 'x', port: 7611 }), /contract/);
     assert.ok(!fs.existsSync(path.join(base, 'long')), 'nothing is written when the manifest would fail');
@@ -104,26 +104,26 @@ test('scaffold writes every template file, filled; a dry run writes nothing; an 
 test('the subagent: {{agent_dir}} becomes its folder; absent +, same =, yours differs ! and is kept, replace ~', () => {
   const base = tmp('agents-sub');
   try {
-    const dir = path.join(base, 'agents', 'iris');
-    lib.scaffold(dir, { key: 'iris', name: 'Iris', title: 'The Research Desk', port: 7611 });
+    const dir = path.join(base, 'agents', 'sample');
+    lib.scaffold(dir, { key: 'sample', name: 'Sample', title: 'The Sample Desk', port: 7611 });
     const text = lib.subagentText(dir);
     const folder = path.resolve(dir).replace(/\\/g, '/');
-    assert.match(text, /^---\r?\nname: iris\r?\ndescription: "Iris, The Research Desk\./);
+    assert.match(text, /^---\r?\nname: sample\r?\ndescription: "Sample, The Sample Desk\./);
     assert.match(text, /\r?\nmodel: \w+\r?\n---/);
-    assert.ok(text.includes(`You are Iris, The Research Desk. Before working, read ${folder}/CLAUDE.md`));
+    assert.ok(text.includes(`You are Sample, The Sample Desk. Before working, read ${folder}/CLAUDE.md`));
     assert.ok(!text.includes('{{'), 'nothing left to fill');
 
     const subs = path.join(base, 'hub', '.claude', 'agents');
-    assert.match(lib.registerSubagent(subs, 'iris', text, { dryRun: true }), /^\+ /);
-    assert.ok(!fs.existsSync(path.join(subs, 'iris.md')), 'a dry run writes nothing');
-    assert.match(lib.registerSubagent(subs, 'iris', text), /^\+ /);
-    assert.equal(fs.readFileSync(path.join(subs, 'iris.md'), 'utf8'), text);
-    assert.match(lib.registerSubagent(subs, 'iris', text), /^= /);
-    fs.writeFileSync(path.join(subs, 'iris.md'), 'my own edit');
-    assert.match(lib.registerSubagent(subs, 'iris', text), /^! .*kept/);
-    assert.equal(fs.readFileSync(path.join(subs, 'iris.md'), 'utf8'), 'my own edit', 'yours is kept');
-    assert.match(lib.registerSubagent(subs, 'iris', text, { replace: true }), /^~ /);
-    assert.equal(fs.readFileSync(path.join(subs, 'iris.md'), 'utf8'), text);
+    assert.match(lib.registerSubagent(subs, 'sample', text, { dryRun: true }), /^\+ /);
+    assert.ok(!fs.existsSync(path.join(subs, 'sample.md')), 'a dry run writes nothing');
+    assert.match(lib.registerSubagent(subs, 'sample', text), /^\+ /);
+    assert.equal(fs.readFileSync(path.join(subs, 'sample.md'), 'utf8'), text);
+    assert.match(lib.registerSubagent(subs, 'sample', text), /^= /);
+    fs.writeFileSync(path.join(subs, 'sample.md'), 'my own edit');
+    assert.match(lib.registerSubagent(subs, 'sample', text), /^! .*kept/);
+    assert.equal(fs.readFileSync(path.join(subs, 'sample.md'), 'utf8'), 'my own edit', 'yours is kept');
+    assert.match(lib.registerSubagent(subs, 'sample', text, { replace: true }), /^~ /);
+    assert.equal(fs.readFileSync(path.join(subs, 'sample.md'), 'utf8'), text);
 
     // An agent folder with no subagent.md of its own still gets one, from the template.
     fs.rmSync(path.join(dir, 'subagent.md'));
@@ -159,10 +159,10 @@ test('freePort skips a port another agent.json claims and a port something liste
 
 test('the dashboard: 127.0.0.1 only, its page in its own name, /health without a token, a foreign Host refused, stopped by its pid', async () => {
   const base = tmp('agents-dash');
-  const dir = path.join(base, 'iris');
+  const dir = path.join(base, 'sample');
   try {
     const port = await spare();
-    lib.scaffold(dir, { key: 'iris', name: 'Iris', title: 'The Research Desk', line: 'Reads everything.', port });
+    lib.scaffold(dir, { key: 'sample', name: 'Sample', title: 'The Sample Desk', line: 'Reads everything.', port });
     const pid = await lib.startAgent(dir);
     assert.equal(Number(fs.readFileSync(path.join(dir, 'dashboard', '.pid'), 'utf8').trim()), pid, 'the pid is recorded');
     assert.equal(await lib.waitUp({ port, path: '/health' }, 15000), true, 'it answers within 15 s');
@@ -174,8 +174,8 @@ test('the dashboard: 127.0.0.1 only, its page in its own name, /health without a
     const page = await get(port, '/');
     assert.equal(page.status, 200);
     assert.match(page.type, /text\/html/);
-    assert.match(page.body, /Iris/);
-    assert.match(page.body, /The Research Desk/);
+    assert.match(page.body, /Sample/);
+    assert.match(page.body, /The Sample Desk/);
     assert.match(page.body, /<p class="n">1<\/p><p class="w">brain topic<\/p>/, 'one topic besides the README');
     assert.match(page.body, /<p class="n">1<\/p><p class="w">rule<\/p>/);
     assert.match(page.body, /<p class="n">1<\/p><p class="w">memory line<\/p>/);
@@ -184,7 +184,7 @@ test('the dashboard: 127.0.0.1 only, its page in its own name, /health without a
     assert.equal((await get(port, '/', `localhost:${port}`)).status, 200);
     const foreign = await get(port, '/', 'evil.example.com');
     assert.equal(foreign.status, 403, 'a name it was not given is refused (DNS rebinding)');
-    assert.ok(!foreign.body.includes('Iris'));
+    assert.ok(!foreign.body.includes('Sample'));
     const mark = await get(port, '/mark.svg');
     assert.equal(mark.status, 200);
     assert.match(mark.type, /image\/svg\+xml/);
@@ -216,33 +216,33 @@ test('new-agent: refuses a bad or taken key, writes nothing on --dry-run, makes 
     const port = await spare();
     const agents = path.join(hub, '50-AI', 'agents');
 
-    const bad = run('Iris', '--name', 'Iris', '--title', 'The Research Desk', '--hub', hub, '--no-start');
+    const bad = run('Sample', '--name', 'Sample', '--title', 'The Sample Desk', '--hub', hub, '--no-start');
     assert.equal(bad.status, 2, bad.stdout);
     assert.match(bad.stdout, /NOT DONE/);
 
-    const noName = run('iris', '--title', 'The Research Desk', '--hub', hub, '--no-start');
+    const noName = run('sample', '--title', 'The Sample Desk', '--hub', hub, '--no-start');
     assert.equal(noName.status, 2, noName.stdout);
 
-    const dry = run('iris', '--name', 'Iris', '--title', 'The Research Desk', '--hub', hub, '--port', String(port), '--dry-run');
+    const dry = run('sample', '--name', 'Sample', '--title', 'The Sample Desk', '--hub', hub, '--port', String(port), '--dry-run');
     assert.equal(dry.status, 0, dry.stdout);
-    assert.match(dry.stdout, /\+ .*iris\/agent\.json/);
-    assert.ok(!fs.existsSync(path.join(agents, 'iris')), 'a dry run writes nothing');
-    assert.ok(!fs.existsSync(path.join(hub, '.claude', 'agents', 'iris.md')));
+    assert.match(dry.stdout, /\+ .*sample\/agent\.json/);
+    assert.ok(!fs.existsSync(path.join(agents, 'sample')), 'a dry run writes nothing');
+    assert.ok(!fs.existsSync(path.join(hub, '.claude', 'agents', 'sample.md')));
 
-    const made = run('iris', '--name', 'Iris', '--title', 'The Research Desk', '--line', 'Reads everything.', '--hub', hub, '--port', String(port), '--no-start');
+    const made = run('sample', '--name', 'Sample', '--title', 'The Sample Desk', '--line', 'Reads everything.', '--hub', hub, '--port', String(port), '--no-start');
     assert.equal(made.status, 0, made.stdout);
-    const m = JSON.parse(fs.readFileSync(path.join(agents, 'iris', 'agent.json'), 'utf8'));
+    const m = JSON.parse(fs.readFileSync(path.join(agents, 'sample', 'agent.json'), 'utf8'));
     assert.equal(m.probe.port, port);
     assert.equal(m.door.local, `http://127.0.0.1:${port}/`);
-    const sub = fs.readFileSync(path.join(hub, '.claude', 'agents', 'iris.md'), 'utf8');
-    assert.ok(sub.includes(`${path.resolve(agents, 'iris').replace(/\\/g, '/')}/CLAUDE.md`), 'the subagent points at the agent folder');
+    const sub = fs.readFileSync(path.join(hub, '.claude', 'agents', 'sample.md'), 'utf8');
+    assert.ok(sub.includes(`${path.resolve(agents, 'sample').replace(/\\/g, '/')}/CLAUDE.md`), 'the subagent points at the agent folder');
     assert.ok(made.stdout.includes(`http://127.0.0.1:${port}/`), 'it prints its door');
     assert.match(made.stdout, /now has an office in the Agents' wing/);
-    assert.ok(!fs.existsSync(path.join(agents, 'iris', 'dashboard', '.pid')), '--no-start starts nothing');
+    assert.ok(!fs.existsSync(path.join(agents, 'sample', 'dashboard', '.pid')), '--no-start starts nothing');
 
-    const again = run('iris', '--name', 'Iris', '--title', 'The Research Desk', '--hub', hub, '--no-start');
+    const again = run('sample', '--name', 'Sample', '--title', 'The Sample Desk', '--hub', hub, '--no-start');
     assert.equal(again.status, 2, 'a key that exists is refused');
-    assert.match(again.stdout, /already an agent called iris/);
+    assert.match(again.stdout, /already an agent called sample/);
 
     const taken = run('nova', '--name', 'Nova', '--title', 'The Night Desk', '--hub', hub, '--port', String(port), '--no-start');
     assert.equal(taken.status, 2, 'a port another agent.json claims is refused');

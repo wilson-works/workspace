@@ -27,7 +27,7 @@ where things go, and never search the whole Hub at once.
 | Regenerate the Hub's map | `node hub/bin/hub.js nav --root <Hub>` |
 | A new project in the Hub's code zone | `node hub/bin/hub.js new-project <name>` |
 | A new specialist agent, with its office | `node agents/bin/new-agent.js <key> --name <Name> --title "<Title>"` |
-| Install an agent package | `node agents/bin/install-agent.js <package>` (plan first; `--yes`) |
+| Install one of our agents, or a package | `node agents/bin/install-agent.js louise` or `<package>` (plan first; `--yes`); `node agents/bin/agent.js catalog` lists ours |
 | Several computers (the fleet) | `node fleet/bin/fleet.js init [--create-repo]`, `join <owner/name>`, `schedule [--remove]` |
 | Start the office | `node bin/office-start.js` → http://127.0.0.1:4316 (or `office.port` in workspace.config.json) |
 | Restart it (after changing machines in workspace.config.json) | `node bin/office-start.js --restart` |

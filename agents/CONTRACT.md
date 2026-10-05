@@ -1,7 +1,7 @@
 # The agent contract
 
 A **specialist agent** is an agent built for one job you do over and over: drafting your posts,
-sorting receipts, writing research briefs. In the WilsonWorks Workspace each one is a folder with a
+sorting receipts, researching a topic. In the WilsonWorks Workspace each one is a folder with a
 brain, rules, a memory and a small dashboard, and each one gets an office in the Agents' wing with a
 door into that dashboard.
 
@@ -37,20 +37,24 @@ belong to this computer: they are never part of a package.
 
 ## `agent.json`
 
+Here it is for Louise, the first WilsonWorks agent (`install-agent louise`). Her colours and her joke
+are only an example here; her own `agent.json` has the real ones.
+
 ```json
 {
-  "key": "iris", "name": "Iris", "title": "The Research Desk",
-  "line": "Reads everything on a topic and hands back one page with the sources.",
+  "key": "louise", "name": "Louise", "title": "The Research Librarian",
+  "line": "Researches any topic in stages, keeps everything she finds on library shelves you can browse, and fetches any of it when you ask.",
   "status": "live",
-  "door": { "local": "http://127.0.0.1:7601/", "phone": null },
-  "probe": { "port": 7601, "path": "/health" },
+  "door": { "local": "http://127.0.0.1:7540/", "phone": null },
+  "probe": { "port": 7540, "path": "/health" },
   "start": "node dashboard/server.js",
   "autostart": true,
-  "match": ["iris", "research desk"],
-  "brand": { "bg": "#0B1020", "panel": "#16213E", "ink": "#E6EDF7", "accent": "#38BDF8", "accent2": "#818CF8",
-             "font": "Inter, system-ui, sans-serif", "mark": "mark.svg" },
+  "match": ["louise", "research librarian"],
+  "brand": { "bg": "#1F1A14", "panel": "#2E261D", "ink": "#F3EBDD", "accent": "#C8A96A", "accent2": "#B5523B",
+             "font": "Georgia, serif", "mark": "mark.svg" },
   "art": "art.svg",
-  "jokes": ["I read the footnotes so you do not have to."]
+  "jokes": ["It is on the third shelf. It is always on the third shelf."],
+  "requires": { "skills": ["marathon-research", "marathon-research-council", "distill", "quick-research"] }
 }
 ```
 
@@ -70,6 +74,7 @@ belong to this computer: they are never part of a package.
 | `brand` | yes | `bg`, `panel`, `ink`, `accent` and `accent2`, each a colour written `#rrggbb`; `font` (text, optional); `mark` (optional). |
 | `brand.mark`, `art` | no | A plain file name in the agent's own folder ending `.svg` or `.png`: no folders, no `..`. The file must be there. |
 | `jokes` | no | At most 12, each at most 160 characters. What it answers when someone right-clicks its door to knock. |
+| `requires` | no | `{ "skills": [...] }`: the skills it needs, by name only. At most 30 names, each lower-case letters and `-`, starting with a letter, at most 30 characters. See "Required skills" below. |
 
 `machine` is ignored: an agent runs on the computer it is installed on. (An agent on another computer
 belongs in `config/agents.json`, with its `machine` and a `{ "url" }` probe.)
@@ -87,6 +92,43 @@ redirect that carries its login token; a probe that hits it would hand that toke
 - the template's probe is `/health`, which answers `{"ok":true}` and nothing else.
 
 Up means any HTTP answer below 500.
+
+### Required skills
+
+An agent built on skills names them in `requires.skills`. They are names only: a package never
+carries skills of its own. They come from the free claude_skills pack, at the commit the Workspace
+pins in `skills/starter.json`, the same place the starter skills come from.
+
+When the agent is installed, `install-agent`:
+
+- leaves each skill that is already in `<Hub>/.claude/skills/<name>/` as it is (`=`), whether the
+  installer put it there or you did;
+- copies each one that is missing from the Hub's clone of the pack, `<Hub>/50-AI/claude_skills`, at
+  the pinned commit (one `+` per skill), and records it in `<Hub>/.hub/installed.json` the way the
+  installer records the starter skills, so `node install.js --remove` takes it out again while its
+  files are unchanged;
+- refuses the package (exit `2`) and writes nothing when a skill it needs is neither in
+  `<Hub>/.claude/skills/` nor in the pack at that commit. Running the installer (`node install.js`)
+  first gets the pack.
+
+## The catalog
+
+`agents/catalog.json` lists the WilsonWorks agents anyone can install, one entry each:
+
+| Field | What it is |
+|---|---|
+| `key` | Its key, as in its `agent.json`. `install-agent <key>` installs it. |
+| `name`, `title`, `line` | Who it is and what it does, as in its `agent.json`. |
+| `source` | Its package: a git address (or a folder or a `.zip` file). |
+| `price` | What it costs. |
+| `offer` | The question the installer asks about it (optional). The installer offers the first agent that has one. |
+
+`install-agent` takes a key when its argument is not a folder, a `.zip` file or a git address; any
+other name is refused, with the catalog listed. `node agents/bin/agent.js catalog` lists the catalog
+and says which agents are installed. The installer offers the first agent with an `offer` and asks
+first; `node install.js --agent <key>` installs any catalog agent without asking, and `--yes` alone
+never installs one. `WW_AGENT_CATALOG` points every one of these at another catalog file, for tests
+and trials; a `source` there that is a relative folder is read from that file's own folder.
 
 ## What the office does with it
 
@@ -128,21 +170,24 @@ another computer. It is any of:
 - **a folder** with `agent.json` at its top;
 - **a `.zip` file** with `agent.json` at its top (or inside the one folder the zip holds);
 - **a git address** (`https://...`, `ssh://...` or `git@...`) whose repository has `agent.json` at
-  its top.
+  its top;
+- **a key from the catalog** (above), which stands for that agent's package.
 
 Installing one (`install-agent`):
 
 1. A `.zip` is opened with `tar` on Windows (it ships with Windows 10 and later), `ditto` on macOS or
    `unzip` elsewhere; a git address is cloned with `git clone --depth 1`. Both go to a temporary
    folder. **Nothing from the package is run while it is installed.**
-2. Its `agent.json` is checked. A package that fails is refused, and nothing is written.
+2. Its `agent.json` is checked, and so are the skills it requires (above). A package that fails is
+   refused, and nothing is written.
 3. It is copied to `<agents folder>/<key>/`, without symbolic links, `.git` or a running agent's own
    files. When that folder is already there and differs, yours is kept unless you say `--force` (or
    yes); a replaced one moves to `<Hub>/90-Archive/_DumpQueue/`.
 4. When its port is taken by another agent or by anything listening, it gets a free one, and
    `probe.port` and `door.local` are rewritten.
-5. Its subagent is registered.
-6. When it says `autostart: true`, its dashboard is started after you say yes (or `--yes`). Starting
+5. The skills it requires that the Hub lacks are copied from the pack and recorded.
+6. Its subagent is registered.
+7. When it says `autostart: true`, its dashboard is started after you say yes (or `--yes`). Starting
    it runs its `start` command: install packages only from people you trust.
 
 ## The commands
@@ -154,8 +199,9 @@ Run from the Workspace folder. Each prints its plan with the same marks: `+` add
 | Job | Command |
 |---|---|
 | Make a new agent | `node agents/bin/new-agent.js <key> --name <Name> --title <Title> [--line <text>] [--color <#rrggbb>] [--hub <root>] [--port <n>] [--no-start] [--dry-run]` |
-| Install a package | `node agents/bin/install-agent.js <folder, .zip or git address> [--hub <root>] [--port <n>] [--yes] [--force] [--no-start] [--dry-run]` |
+| Install one of ours, or a package | `node agents/bin/install-agent.js <key, folder, .zip or git address> [--hub <root>] [--port <n>] [--yes] [--force] [--no-start] [--dry-run]` |
 | See them all | `node agents/bin/agent.js list` |
+| See ours you can install | `node agents/bin/agent.js catalog` |
 | Start or stop one | `node agents/bin/agent.js start <key>` (or `start --all`), `node agents/bin/agent.js stop <key>` |
 | Take one out | `node agents/bin/agent.js remove <key> [--yes]` |
 

@@ -61,8 +61,8 @@ test('rows come from nav.json, then one per project, company and agent', async (
   }));
   mkdir(root, '10-Business/GreenThumb/Receipts');
   mkdir(root, '20-Coding/Projects/garden-planner');
-  mkdir(root, '50-AI/agents/iris');
-  fs.writeFileSync(at(root, '50-AI/agents/iris/agent.json'), JSON.stringify({ key: 'iris', name: 'Iris', title: 'The Research Desk' }));
+  mkdir(root, '50-AI/agents/sample');
+  fs.writeFileSync(at(root, '50-AI/agents/sample/agent.json'), JSON.stringify({ key: 'sample', name: 'Sample', title: 'The Sample Desk' }));
   mkdir(root, '50-AI/agents/bare');
 
   const text = hub.generateNav(root, DATE);
@@ -71,7 +71,7 @@ test('rows come from nav.json, then one per project, company and agent', async (
   assert.ok(text.includes('1 row in `.hub/nav.json` skipped'), text);
   assert.ok(text.includes('| "garden-planner" | `20-Coding/Projects/garden-planner/` |'), text);
   assert.ok(text.includes('| "GreenThumb", "green thumb" | `10-Business/GreenThumb/` |'), text);
-  assert.ok(text.includes('| "Iris", "The Research Desk" | `50-AI/agents/iris/` |'), text);
+  assert.ok(text.includes('| "Sample", "The Sample Desk" | `50-AI/agents/sample/` |'), text);
   assert.ok(text.includes('| "bare" | `50-AI/agents/bare/` |'), text);
   assert.ok(text.includes('| `garden-planner` | no |  |'), text);
 });

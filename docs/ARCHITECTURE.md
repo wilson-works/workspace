@@ -90,22 +90,24 @@ overwritten without a yes; with `--yes`, the answer to "replace your file?" is a
 
 ### `agent.json` (one per specialist agent, in `50-AI/agents/<key>/`)
 
-The same shape as an entry in `config/agents.json`, plus how to start it:
+The same shape as an entry in `config/agents.json`, plus how to start it and the skills it needs.
+Here for Louise, the first WilsonWorks agent (her colours and joke are only an example):
 
 ```json
 {
-  "key": "iris", "name": "Iris", "title": "The Research Desk",
-  "line": "Reads everything on a topic and hands back one page with the sources.",
+  "key": "louise", "name": "Louise", "title": "The Research Librarian",
+  "line": "Researches any topic in stages, keeps everything she finds on library shelves you can browse, and fetches any of it when you ask.",
   "status": "live",
-  "door": { "local": "http://127.0.0.1:7601/", "phone": null },
-  "probe": { "port": 7601, "path": "/health" },
+  "door": { "local": "http://127.0.0.1:7540/", "phone": null },
+  "probe": { "port": 7540, "path": "/health" },
   "start": "node dashboard/server.js",
   "autostart": true,
-  "match": ["iris", "research desk"],
-  "brand": { "bg": "#0B1020", "panel": "#16213E", "ink": "#E6EDF7", "accent": "#38BDF8", "accent2": "#818CF8",
-             "font": "Inter, system-ui, sans-serif", "mark": "mark.svg" },
+  "match": ["louise", "research librarian"],
+  "brand": { "bg": "#1F1A14", "panel": "#2E261D", "ink": "#F3EBDD", "accent": "#C8A96A", "accent2": "#B5523B",
+             "font": "Georgia, serif", "mark": "mark.svg" },
   "art": "art.svg",
-  "jokes": ["I read the footnotes so you do not have to."]
+  "jokes": ["It is on the third shelf. It is always on the third shelf."],
+  "requires": { "skills": ["marathon-research", "marathon-research-council", "distill", "quick-research"] }
 }
 ```
 
@@ -114,6 +116,10 @@ The same shape as an entry in `config/agents.json`, plus how to start it:
   this computer; `{url}` (an `https://*.ts.net` address) is checked from any computer.
 - `mark` and `art` are files in the agent's own folder (`.svg` or `.png`); the office serves them.
 - The office finds every `agent.json` by itself. Nobody edits `config/agents.json` to add one.
+- `requires.skills` names skills from the pinned claude_skills pack. `install-agent` copies each one the
+  Hub lacks into `<Hub>/.claude/skills/` and records it in `<Hub>/.hub/installed.json`; a skill the
+  pack does not have refuses the package before anything is written.
+- `agents/catalog.json` lists the WilsonWorks agents anyone can install by key (`install-agent louise`).
 
 ### The fleet repo
 
@@ -140,7 +146,7 @@ several computers from ever editing the same file at once.
 |---|---|
 | `hub/` | the Hub template, its generator (`hub/bin/hub.js`) and the root resolver (`hub/lib/root.js`) |
 | `skills/` | the pinned starter set |
-| `agents/` | the agent contract, `new-agent`, `install-agent`, the scaffold and a demo package |
+| `agents/` | the agent contract, `new-agent`, `install-agent`, the scaffold and the catalog of WilsonWorks agents |
 | `fleet/` | the fleet repo template and `fleet/bin/fleet.js` |
 | `src/`, `bin/`, `config/`, `public/`, `dist/` | the office |
 | `org/`, `permissions/` | the CTO org and the permission setup |

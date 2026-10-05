@@ -5,6 +5,8 @@
  * agent.js — look after the specialist agents on this computer.
  *
  *   node agents/bin/agent.js list                     every agent: running or off, its door, or what is wrong
+ *   node agents/bin/agent.js catalog                  the WilsonWorks agents you can install (agents/catalog.json),
+ *                                                     each marked installed or not installed
  *   node agents/bin/agent.js start <key>              start its dashboard (detached; pid in dashboard/.pid)
  *   node agents/bin/agent.js start --all              start every agent that has a start command and is down
  *   node agents/bin/agent.js stop <key>               stop its dashboard: the pid in dashboard/.pid, and only that
@@ -25,6 +27,7 @@ const fs = require('fs');
 const path = require('path');
 const lib = require('../lib/agents');
 const cli = require('../lib/cli');
+const catalog = require('../lib/catalog');
 const config = require('../../src/server/config');
 
 const { out, fwd, refuse, fail } = cli;
@@ -60,6 +63,16 @@ async function start(a) {
 (async () => {
   const { _: pos, flags } = cli.parseArgs(process.argv.slice(2), ['hub']);
   const [cmd, key] = pos;
+
+  if (cmd === 'catalog') {
+    // Without --hub, the office's agents folders (none when no Hub is found: then nothing is installed).
+    const have = new Set(lib.listAgents(flags.hub ? dirsFrom(flags) : config.agentsDirs()).map((a) => a.key));
+    let text;
+    try { text = catalog.lines(have); } catch (e) { fail(e.message); }
+    text.forEach((l) => out(l));
+    return;
+  }
+
   const dirs = dirsFrom(flags);
 
   if (cmd === 'list' || !cmd) {
@@ -116,5 +129,5 @@ async function start(a) {
     return;
   }
 
-  refuse(`"${cmd}" is not a command. Use list, start <key>, start --all, stop <key> or remove <key>.`);
+  refuse(`"${cmd}" is not a command. Use list, catalog, start <key>, start --all, stop <key> or remove <key>.`);
 })().catch((e) => fail(e.message));
