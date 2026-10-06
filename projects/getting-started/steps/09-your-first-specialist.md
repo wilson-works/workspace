@@ -54,7 +54,7 @@ Open the office and go to the **Agents** tab. Its office is there already, with 
 **4. Give it a history of its own.** Paste:
 
 ```
-In 50-AI/agents/<key>, make a git repository: git init, a .gitignore with the lines dashboard/.pid, dashboard/dashboard.log and .claude/comms.db, then commit everything with the message "Made by new-agent". Show me each command before you run it.
+In 50-AI/agents/<key>, make a git repository: git init, a .gitignore with the lines dashboard/.pid, dashboard/dashboard.log and .claude/comms.db, my name for git in that folder if git has none, then commit everything with the message "Made by new-agent". Show me each command before you run it.
 ```
 
 **5. Put it in your own words.** Paste this whole prompt. Claude asks one thing at a time, so all you do is answer.

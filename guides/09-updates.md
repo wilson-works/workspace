@@ -88,8 +88,10 @@ To take the update again later, revert that revert.
 
 Running the one-line installer again (`install.ps1` or `install.sh`) updates the Workspace folder only
 with `git pull --ff-only`, and only when it has no unsaved changes. On `my-workspace` that pull stops
-before it changes anything ("Could not update it; going on with the copy you have."), and the installer
-runs on the copy you have. Updates come through the prompt above.
+before it changes anything: git says there is no tracking information for the branch, the installer
+says "Could not update it; going on with the copy you have.", and it runs on the copy you have. That is
+expected, so leave the branch as it is (don't set the upstream git suggests). Updates come through the
+prompt above.
 
 ## If something's off
 

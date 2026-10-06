@@ -71,8 +71,10 @@ Keep the answers in this chat: they are saved in step 2, once there is a setting
 3. **What is your office called?** Suggest two names that fit the mood ("The Studio", "The Reading Room",
    "The Newsroom", "The Workshop", "Night Desk"). Then: is it just for you, or for a business? For a
    business, the business name too (it shows next to the office name).
-4. **Two colours.** The office has an orb in its top bar, in a lighter and a darker colour. Offer two or
-   three pairs that fit their mood, with the codes, or turn their own brand colours into codes:
+4. **Two colours.** The office has an orb in its top bar, in a lighter and a darker colour, and their
+   own agents can wear them too. Offer two or three pairs that fit their mood, with the codes, or turn
+   their own brand colours into codes. (The rest of the page keeps its own look; "Change the look" in
+   `prompts/README.md` changes that later.)
 
    | Mood | Pairs (lighter, darker) |
    |---|---|
@@ -129,18 +131,20 @@ Do these in order, each after a yes. Run every command from the Hub folder unles
    `git config user.name "<their name>"` and `git config user.email "workspace@localhost"` (this copy is
    never pushed anywhere).
 7. **Session names**, if they chose a theme: add a pool of about 60 short one-word names to
-   `config/callsigns.json` (a new key under `pools`), set `"callsigns": "<pool>"` on this machine in
+   `config/callsigns.json` (a new key at the end of `pools`, as new lines in the file's own layout:
+   never rewrite the whole file, or every later update will meet your change), set `"callsigns": "<pool>"` on this machine in
    `workspace.config.json`, then save it on their branch:
    `git add config/callsigns.json` and `git commit -m "My session names"`.
    Restart the office so it picks up the pool: `node bin/office-start.js --restart`.
 8. **Open the office** at the address the installer printed (`http://127.0.0.1:4316/` unless it said
    another port). Open it for them if you can (`start <address>` on Windows, `open <address>` on a Mac),
-   or give them the link. Then the **Agents** tab: Louise's and Bryn's offices, each with a door. Click a
-   door to open that agent's own page (`node agents/bin/agent.js list` prints both addresses).
+   or give them the link. Then the **Agents** tab: Louise's and Bryn's offices. Within about 20 seconds of
+   the office starting, each one says "In the office" with a **Step inside** button that opens that
+   agent's own page (`node agents/bin/agent.js list` prints both addresses).
 
-What they see: the office with their name in the bar and the orb in their colours (or their logo);
-Louise's and Bryn's doors standing open in the Agents tab; Louise's library and Bryn's trailhead each
-in a tab of its own.
+What they see: the office with their office name in the bar, "Good evening, <their name>", and the orb
+in their colours (or their logo); Louise's and Bryn's offices in the Agents tab, each "In the office";
+Louise's library and Bryn's trailhead each in a tab of its own.
 
 **Then a new chat.** A chat loads its agents and the office's connection when it starts, and this one
 started before the install. Tell them: "Open a new chat on your Hub and paste:
@@ -198,7 +202,8 @@ copy, for doing it again later.
    once, in their colour.
 4. **Give it a history of its own.** In `50-AI/agents/<key>`: `git init`, then a `.gitignore` with three
    lines, `dashboard/.pid`, `dashboard/dashboard.log` and `.claude/comms.db` (files the running agent and
-   its build team write for themselves), then `git add -A` and `git commit -m "Made by new-agent"`. Say: "Your agent is its own little repository, in your Hub,
+   its build team write for themselves), the same `user.name` and `user.email` as in step 2 if git has
+   none, then `git add -A` and `git commit -m "Made by new-agent"`. Say: "Your agent is its own little repository, in your Hub,
    outside the Workspace, so no update ever touches it, and every change to it is saved with a note
    of why."
 5. **Their own words.** Interview them, one question at a time (GS-09 step 5 has the prompt: the job, its

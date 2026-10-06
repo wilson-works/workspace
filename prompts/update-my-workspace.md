@@ -74,7 +74,9 @@ If the fetch fails, say so in plain words (no internet, or no such branch or tag
 2. Propose one version that keeps what they meant and adds what the update brings. For a JSON file in
    `config/`, keep both sets of entries, then check it still reads:
    `node -e "JSON.parse(require('fs').readFileSync('<file>','utf8'))"`.
-3. On their yes, write it and `git add <file>`.
+3. On their yes, write it. Then check it against their side: `git diff HEAD -- <file>` must show only
+   what the update adds, with every line of theirs still there and no line twice (a JSON file reads
+   fine with a key in it twice, so look). Then `git add <file>`.
 
 `dist/` (the built page) is the one exception: take the update's (`git checkout --theirs -- dist`, then
 `git add dist`), and after the merge, if they changed anything in `src/ui/`, build the page again
