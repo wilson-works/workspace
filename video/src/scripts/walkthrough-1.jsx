@@ -137,8 +137,12 @@ export default {
       ],
     },
     {
-      scene: 'shot', props: { shot: 'louise-dashboard', address: "Louise's dashboard, on DESK", title: 'Louise', keys: [{ at: 0, box: 'full' }, { at: 'c1', box: 'scene', pad: 40, dur: 1.4 }] },
-      lines: [{ text: 'Each in its own colours, with a door to its own dashboard.', s: 3.4 }, 'Louise, our research librarian, is free: install-agent louise.'],
+      scene: 'shot', props: { shot: 'louise-dashboard', address: "Louise's dashboard, on DESK", title: 'Louise', keys: [{ at: 0, box: 'full' }, { at: 'c2', box: 'scene', pad: 40, dur: 1.4 }] },
+      lines: [
+        { text: 'Each in its own colours, with a door to its own dashboard.', s: 3.4 },
+        'On her page, ask Louise to look something up, or what you already have.',
+        'Louise, our research librarian, is free: install-agent louise.',
+      ],
     },
     {
       scene: 'shot', props: { shot: 'bryn-dashboard', address: "Bryn's dashboard, on DESK", title: 'Bryn', keys: [{ at: 0, box: 'full' }, { at: 'c1', box: 'scene', pad: 40, dur: 1.4 }] },
