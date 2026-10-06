@@ -64,8 +64,9 @@ The page is React, in `src/ui/`. `office.css` holds the whole look (colours are 
 top, light and dark). After a change: `npm install` once, then `npm run build`, and reload the page.
 `dist/` is committed so your other computers get the change by pulling.
 
-## Keeping up to date
+## Keeping current
 
-`git pull` in the WorkSpace folder brings the newest version. Your `workspace.config.json`, `brand/`
-and your own projects are never touched by a pull. If you changed tracked files (like
-`config/org-people.json`), git merges them or tells you where it could not.
+Updates arrive as a prompt to paste, and Claude merges them into your own branch, `my-workspace`
+([guide 9](09-updates.md)). Your `workspace.config.json`, `brand/` and your own projects are never
+touched by an update: git does not track them. Save any change you make to a tracked file (like
+`config/org-people.json`) on `my-workspace`, and the next update keeps it.

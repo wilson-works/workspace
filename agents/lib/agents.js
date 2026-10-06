@@ -13,7 +13,8 @@
  *   freePort(dirs, from)             Promise of the first port from `from` (default 7600) that no
  *                                    agent.json uses and nothing listens on
  *   scaffold(dir, opts)              a new agent from agents/template/: { lines, manifest }
- *   installPackage(src, agentsDir, opts)  a package (folder, .zip or git URL) into the agents folder:
+ *   installPackage(src, agentsDir, opts)  a package (folder, .zip or git URL) into the agents folder,
+ *                                    with the skills its requires.skills names (agents/lib/skills.js):
  *                                    Promise of { ok, refused, errors, key, target, lines, started, ... }
  *   startAgent(dir) / stopAgent(dir) its dashboard, detached; the pid is kept in dashboard/.pid and
  *                                    a stop only ever stops that pid
@@ -44,6 +45,9 @@ const HEX_RE = /^#[0-9a-fA-F]{6}$/;
 const IMAGE_RE = /^[A-Za-z0-9_][A-Za-z0-9_.-]*\.(svg|png)$/i;
 const LOCAL_DOOR_RE = /^http:\/\/(127\.0\.0\.1|localhost):(\d{1,5})(\/\S*)?$/;
 const PHONE_DOOR_RE = /^https:\/\/[a-z0-9-]+(\.[a-z0-9-]+)*\.ts\.net(:\d{1,5})?(\/\S*)?$/i;
+// A skill's name in requires.skills: lower-case letters and "-", starting with a letter, at most 30 characters.
+const SKILL_RE = /^[a-z][a-z-]{0,29}$/;
+const MAX_SKILLS = 30;
 const COLORS = ['bg', 'panel', 'ink', 'accent', 'accent2'];
 const STATUSES = ['live', 'building', 'planned'];
 const PORT_FROM = 7600;
@@ -138,6 +142,16 @@ function validateManifest(m) {
   if (m.autostart === true) {
     if (!isStr(m.start)) bad('autostart is true, so start is needed.');
     if (!probe || typeof probe !== 'object' || !portOk(probe.port)) bad('autostart is true, so a probe with a port is needed (that is how the office sees it is up).');
+  }
+  const req = m.requires;
+  if (req != null) {
+    if (typeof req !== 'object' || Array.isArray(req)) bad('requires must be an object, for example {"skills": ["quick-research"]}.');
+    else if (req.skills != null) {
+      if (!Array.isArray(req.skills) || req.skills.length > MAX_SKILLS) bad(`requires.skills must be a list of at most ${MAX_SKILLS} skill names.`);
+      else if (req.skills.some((s) => typeof s !== 'string' || !SKILL_RE.test(s))) {
+        bad('each name in requires.skills must be a skill\'s name: lower-case letters and "-", starting with a letter, at most 30 characters.');
+      }
+    }
   }
   return { ok: errors.length === 0, errors };
 }
@@ -576,9 +590,13 @@ function sameAsInstalled(pkgDir, pkgManifest, target) {
 /**
  * Install an agent package into `agentsDir`.
  *   src   a folder, a .zip file or a git address, with agent.json at its top
- *   opts  { dirs (every agents folder, for ports), subagentsDir, hubRoot (for the DumpQueue),
+ *   opts  { dirs (every agents folder, for ports), subagentsDir, hubRoot (for the DumpQueue, and for
+ *           the skills it requires: refused before anything is written when one is missing from both
+ *           <Hub>/.claude/skills and the Hub's pinned pack),
  *           dryRun, yes, force, start (false: never start), ask (async question -> true/false),
- *           from (first port to try, default 7600) }
+ *           from (first port to try, default 7600), packLater (a dry run only: the installer will
+ *           fetch the pack first, so the skills it requires are planned unchecked), starterInHub
+ *           (with packLater: the installer copies the starter skills into the Hub first) }
  * Never runs anything from the package. Returns { ok, refused, errors, key, target, lines, port, started,
  * startFailed, unchanged (already installed, the same), kept (yours differs and was kept) }.
  */
@@ -599,6 +617,21 @@ async function installPackage(src, agentsDir, opts) {
     const errors = v.errors.concat(missingFiles(top, manifest));
     if (errors.length) return { ok: false, refused: true, errors, lines };
 
+    // The skills it needs (requires.skills): each one the Hub lacks must be in the Hub's pinned pack,
+    // or the package is refused here, before anything is written (agents/lib/skills.js).
+    let skills = null;
+    const needed = require('./skills').needs(manifest);
+    if (needed.length) {
+      if (!o.hubRoot) return { ok: false, refused: true, errors: [`${manifest.name} needs skills (requires.skills), and installing them needs the Hub.`], lines };
+      skills = require('./skills').plan(o.hubRoot, needed, manifest.name, { packLater: !!(o.dryRun && o.packLater), starterInHub: !!o.starterInHub });
+      if (!skills.ok) return { ok: false, refused: true, errors: skills.errors, lines };
+    }
+    const addSkills = () => {
+      if (!skills) return;
+      lines.push(...skills.lines);
+      if (!o.dryRun) skills.apply();
+    };
+
     const key = manifest.key;
     const target = path.join(agentsDir, key);
     const dirs = [...new Set([agentsDir].concat(o.dirs || []).map((d) => path.resolve(d)))];
@@ -617,6 +650,7 @@ async function installPackage(src, agentsDir, opts) {
     if (fs.existsSync(target)) {
       if (sameAsInstalled(top, manifest, target)) {
         lines.push(`= ${shown} (already installed)`);
+        addSkills();
         if (o.subagentsDir) lines.push(registerSubagent(o.subagentsDir, key, subagentText(target), { dryRun: o.dryRun }));
         return { ok: true, key, target, lines, started: false, unchanged: true };
       }
@@ -655,6 +689,10 @@ async function installPackage(src, agentsDir, opts) {
       if (final !== manifest) fs.writeFileSync(path.join(target, MANIFEST), `${JSON.stringify(final, null, 2)}\n`, 'utf8');
     }
 
+    // 3b. The skills it needs that the Hub lacks, copied from the pinned pack and recorded like the
+    //     installer's own skills.
+    addSkills();
+
     // 4. Its subagent, so any session on the Hub can call it.
     if (o.subagentsDir) {
       lines.push(registerSubagent(o.subagentsDir, key, subagentText(target, final, top), { dryRun: o.dryRun, replace: o.force }));
@@ -690,7 +728,7 @@ function ask(question) {
 }
 
 module.exports = {
-  MANIFEST, KEY_RE, PORT_FROM, TEMPLATE,
+  MANIFEST, KEY_RE, GIT_URL_RE, PORT_FROM, TEMPLATE,
   validateManifest, listAgents, freePort, scaffold, installPackage,
   isImageName, doorPort, usedPorts, listening, withPort, palette, fill, templateValues,
   subagentText, registerSubagent, splitCommand, startAgent, stopAgent, runningPid, probeLocal, waitUp,

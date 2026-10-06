@@ -21,10 +21,13 @@
  *            computers, the DESK office's address for the other two, and a tailscale_cli that does not
  *            exist, so no office in a sandbox ever asks this computer's Tailscale for its name.
  *            A computer whose Hub is already installed is left as it is.
- *   content  Projects (hub new-project), two plain-English rows in DESK's .hub/nav.json and hub nav;
- *            on DESK the agent Iris (new-agent) and the example agent Quill (install-agent, from a copy
- *            in Downloads with its port moved to 7661); the fleet's board, comms posts, a handoff from
- *            DESK to MINI that MINI picks up, and syncs.
+ *   content  Projects (hub new-project); on DESK the two WilsonWorks agents, Louise then Bryn, installed
+ *            by their catalog keys (install-agent louise, install-agent bryn), so each is cloned from
+ *            its GitHub source the way anyone gets it, each on a sandbox port (demo-world.json); then
+ *            new-agent's plan for an agent of Alex's own (--dry-run: nothing is made, so it never has
+ *            an office); two plain-English rows in DESK's .hub/nav.json and hub nav, after the agents,
+ *            so the map lists them; the fleet's board, comms posts, a handoff from DESK to MINI that
+ *            MINI picks up, and syncs.
  *   live     With the offices up (capture/stage.js up): every computer syncs, then DESK's fleet status,
  *            so the status shows each office answering.
  *   Every command's display line and full output go to <sandbox>/capture-log/<step>.json, which
@@ -72,9 +75,13 @@ const tool = (sb, rel) => path.join(sb.workspace, ...rel.split('/'));
  */
 const shown = (prog, args) => [prog].concat(args.map((a) => (/[\s"]/.test(a) ? JSON.stringify(a) : a))).join(' ');
 
-/** Iris, made on DESK with new-agent (capture/terminal.js shows this same command). */
-const IRIS = WORLD.agents.find((a) => a.key === 'iris');
-const NEW_AGENT = ['iris', '--name', IRIS.name, '--title', IRIS.title, '--line', IRIS.line, '--color', IRIS.color, '--port', String(IRIS.port), '--yes'];
+/** Each of our agents, installed on DESK by its key (capture/terminal.js shows these same commands). */
+const INSTALL_AGENT = (a) => [a.key, '--port', String(a.port), '--yes'];
+const INSTALL_SHOWN = 'node 50-AI\\workspace\\agents\\bin\\install-agent.js';
+
+/** Build your own, in Alex's own words: new-agent's plan only (capture/terminal.js shows this same command). */
+const NEW_AGENT = [WORLD.new_agent.key, '--name', WORLD.new_agent.name, '--title', WORLD.new_agent.title, '--dry-run'];
+const NEW_AGENT_SHOWN = 'node 50-AI\\workspace\\agents\\bin\\new-agent.js';
 
 /** The handoff DESK writes to MINI (capture/terminal.js shows this same command). */
 const HANDOFF = ['handoff', '--to', 'MINI', 'Build GP-04 frost dates',
@@ -163,25 +170,6 @@ function handoffId(sb, words) {
   throw new Stop(1, `${sb.name}: no handoff "${words}".`);
 }
 
-/** What Alex teaches Iris in its first week: two brain topics, a rule, and three memory lines. */
-function teachIris(dir) {
-  const brain = path.join(dir, 'brains', 'raised-bed-soil.md');
-  if (fs.existsSync(brain)) return;
-  const w = (rel, lines) => {
-    fs.mkdirSync(path.dirname(path.join(dir, rel)), { recursive: true });
-    fs.writeFileSync(path.join(dir, rel), `${lines.join('\n')}\n`, 'utf8');
-  };
-  w('brains/raised-bed-soil.md', ['# Raised-bed soil', '', 'What the guides agree on (a third compost), and where they differ (how much sand). Every line has its source.']);
-  w('brains/frost-dates.md', ['# Frost dates', '', 'First and last frost by region, and where each date comes from.']);
-  w('rules/every-claim-has-a-source.md', ['# Every claim has a source', '', 'A brief never says something without the page it came from.']);
-  w('memory/2026-10-05-two-sources-disagree.md', ['# When two good sources disagree', '', 'Show both, with one line on why they differ. Alex prefers that to picking one.']);
-  w('memory/2026-10-05-one-page.md', ['# One page', '', 'A brief fits on one page. The sources go at the bottom.']);
-  fs.appendFileSync(path.join(dir, 'memory', 'MEMORY.md'), `${[
-    '- 2026-10-05 A brief fits on one page, sources at the bottom (memory/2026-10-05-one-page.md)',
-    '- 2026-10-05 When two good sources disagree, show both and say why (memory/2026-10-05-two-sources-disagree.md)',
-  ].join('\n')}\n`, 'utf8');
-}
-
 function content(all) {
   const [desk, mini, laptop] = all;
 
@@ -192,6 +180,17 @@ function content(all) {
       hub(sb, `new-project-${r}`, ['new-project', r]);
     }
   }
+  // Our agents on DESK, by their keys: each is cloned from its GitHub source (agents/catalog.json),
+  // checked, copied in with the skills it needs, and started. Louise first, then Bryn.
+  for (const a of WORLD.agents) {
+    if (fs.existsSync(path.join(desk.agents, a.key, 'agent.json'))) continue;
+    const args = INSTALL_AGENT(a);
+    node(desk, `install-agent-${a.key}`, shown(INSTALL_SHOWN, args), tool(desk, 'agents/bin/install-agent.js'), args.concat(['--hub', desk.hub]));
+  }
+  // Build your own: the plan new-agent shows for Alex's own agent. A dry run: nothing is written.
+  node(desk, 'new-agent', shown(NEW_AGENT_SHOWN, NEW_AGENT),
+    tool(desk, 'agents/bin/new-agent.js'), NEW_AGENT.concat(['--hub', desk.hub]));
+
   // Two rows in plain English, the way a person adds their own (hub/templates/nav.json says how).
   const navFile = path.join(desk.hub, '.hub', 'nav.json');
   const nav = JSON.parse(fs.readFileSync(navFile, 'utf8').replace(/^\uFEFF/, ''));
@@ -202,29 +201,6 @@ function content(all) {
   for (const row of mine) if (!nav.rows.some((x) => x.path === row.path)) nav.rows.push(row);
   fs.writeFileSync(navFile, JSON.stringify(nav, null, 2) + '\n', 'utf8');
   node(desk, 'nav', 'node 50-AI\\workspace\\hub\\bin\\hub.js nav', tool(desk, 'hub/bin/hub.js'), ['nav', '--root', desk.hub]);
-
-  // Agents on DESK: one made here, one installed from a package.
-  const quill = WORLD.agents.find((a) => a.key === 'quill');
-  if (!fs.existsSync(path.join(desk.agents, 'iris', 'agent.json'))) {
-    node(desk, 'new-agent', shown('node 50-AI\\workspace\\agents\\bin\\new-agent.js', NEW_AGENT),
-      tool(desk, 'agents/bin/new-agent.js'), NEW_AGENT.concat(['--hub', desk.hub]));
-    const f = path.join(desk.agents, 'iris', 'agent.json');
-    const m = JSON.parse(fs.readFileSync(f, 'utf8').replace(/^\uFEFF/, ''));
-    m.jokes = IRIS.jokes;
-    fs.writeFileSync(f, JSON.stringify(m, null, 2) + '\n', 'utf8');
-  }
-  teachIris(path.join(desk.agents, 'iris'));
-  if (!fs.existsSync(path.join(desk.agents, 'quill', 'agent.json'))) {
-    const pkg = path.join(desk.downloads, 'quill');
-    fs.cpSync(tool(desk, quill.package), pkg, { recursive: true });
-    const f = path.join(pkg, 'agent.json');
-    const m = JSON.parse(fs.readFileSync(f, 'utf8').replace(/^\uFEFF/, ''));
-    m.door.local = `http://127.0.0.1:${quill.port}/`;
-    m.probe.port = quill.port;
-    fs.writeFileSync(f, JSON.stringify(m, null, 2) + '\n', 'utf8');
-    node(desk, 'install-agent', 'node 50-AI\\workspace\\agents\\bin\\install-agent.js C:\\Users\\alex\\Downloads\\quill --yes',
-      tool(desk, 'agents/bin/install-agent.js'), [pkg, '--hub', desk.hub, '--yes']);
-  }
 
   // The fleet: the board, notes, a handoff from DESK to MINI, and the syncs that carry them.
   if (fs.existsSync(path.join(desk.root, 'capture-log', 'handoff.json'))) { say('= the fleet already has its week'); return; }
@@ -267,7 +243,7 @@ function live(all) {
 
 /* -------------------------------------------------------------------- main */
 
-module.exports = { shown, NEW_AGENT, HANDOFF };
+module.exports = { shown, INSTALL_AGENT, INSTALL_SHOWN, NEW_AGENT, NEW_AGENT_SHOWN, HANDOFF };
 
 if (require.main === module) {
   try {

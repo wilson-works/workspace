@@ -6,7 +6,7 @@ asks Claude to show you the change first.
 
 **Contents:** [Your settings](#your-settings) · [The office](#the-office) ·
 [The CTO org](#the-cto-org) · [Specialists](#specialists) · [The Work page](#the-work-page) ·
-[How sessions work](#how-sessions-work) · [Company use](#company-use)
+[How sessions work](#how-sessions-work) · [Company use](#company-use) · [Updates](#updates)
 
 ---
 
@@ -309,4 +309,23 @@ Explain it in plain words before I paste it into the admin console.
 Brand my office for <company>: set the office name, the company name, our two brand colours and our
 logo (file at <path>), make the Home Screen icons match, and add our product names to
 config/plain-names.json. Show me each change before you make it.
+```
+
+---
+
+## Updates
+
+**Take an update from WilsonWorks** (a feature branch or a version tag; the full procedure is
+[update-my-workspace.md](update-my-workspace.md), and [guide 9](../guides/09-updates.md) explains it)
+
+```
+Update my Workspace with <the branch or tag>, following prompts/update-my-workspace.md.
+```
+
+**Save a change of mine before the next update**
+
+```
+In 50-AI/workspace, show me in plain words which of the Workspace's own files I have changed. Then save
+them on my branch, my-workspace, with a commit message saying what I changed and why. Show me the
+commit before you make it.
 ```

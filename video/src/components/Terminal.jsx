@@ -43,7 +43,17 @@ export const Terminal = ({ w, h, title, prompt, steps, at = 0.4, fontSize = 24, 
   }
   const lineH = fontSize * 1.45;
   const maxRows = Math.floor((h - 70) / lineH);
-  const visible = rows.slice(-maxRows);
+  // Keep the newest lines that fit, counting a long line by the rows it wraps to (a monospace
+  // character is about 0.6 of the font size; words wrap whole, so allow a little slack), so the
+  // last line printed is never pushed below the window.
+  const perRow = Math.max(1, Math.floor(((w - 48) / (fontSize * 0.6)) * 0.92));
+  const rowsOf = (r) => Math.max(1, Math.ceil((r.kind === 'cmd' ? `${prompt} ${r.text}` : r.text).length / perRow));
+  const visible = [];
+  for (let i = rows.length - 1, used = 0; i >= 0; i -= 1) {
+    used += rowsOf(rows[i]);
+    if (used > maxRows) break;
+    visible.unshift(rows[i]);
+  }
   const caret = Math.floor(frame / 15) % 2 === 0;
   return (
     <div style={{ width: w, height: h, borderRadius: 16, overflow: 'hidden', background: '#0F0B1C', boxShadow: '0 40px 100px rgba(0,0,0,0.55), 0 0 0 2px rgba(224,231,255,0.14)', display: 'flex', flexDirection: 'column' }}>

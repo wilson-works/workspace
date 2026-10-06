@@ -25,7 +25,7 @@ export const NAV = [
   { say: 'the bakery website', path: '20-Coding/Projects/bakery-site/' },
   { say: 'stuff to sort', path: '00-Inbox/' },
   { say: 'new media', path: '30-Media/_Ingest/' },
-  { say: 'Iris', path: '50-AI/agents/iris/' },
+  { say: 'Louise', path: '50-AI/agents/louise/' },
 ];
 
 /** The constitution's core rules, as the Hub's CLAUDE.md states them, in plain words. */
@@ -67,12 +67,12 @@ export const ORDERS = [
 
 /** What each computer wrote in its own comms file (the sandbox fleet's comms/, times in CDT). */
 export const COMMS = {
-  DESK: ['12:18 Joined the fleet as command.', '12:19 Planned GP-04: frost dates on the calendar.'],
-  MINI: ['12:19 Joined the fleet as builder.', '12:20 Took the frost dates handoff. Building GP-04 on gp-04-frost-dates.', '12:20 GP-04: the calendar tests pass. Ready for the gate on DESK.'],
-  LAPTOP: ['12:19 Joined the fleet as mobile.', '12:20 Drafted the About page and pushed bs-03-about-page.'],
+  DESK: ['22:53 Joined the fleet as command.', '22:54 Planned GP-04: frost dates on the calendar.'],
+  MINI: ['22:54 Joined the fleet as builder.', '22:55 Took the frost dates handoff. Building GP-04 on gp-04-frost-dates.', '22:55 GP-04: the calendar tests pass. Ready for the gate on DESK.'],
+  LAPTOP: ['22:54 Joined the fleet as mobile.', '22:55 Drafted the About page and pushed bs-03-about-page.'],
 };
 
 /** The handoff DESK wrote to MINI, by its real id. */
-export const HANDOFF_ID = 'HO-20261005-1219-DESK-build-gp-04-frost-dates';
+export const HANDOFF_ID = 'HO-20261005-2254-DESK-build-gp-04-frost-dates';
 
 export const REPO_URL = WORLD.repo;

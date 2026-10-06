@@ -9,7 +9,7 @@
  *                   [--owner <name>] [--office-port <n>] [--skills-scope hub|user]
  *                   [--skills-source <git url or path>] [--fleet none|create|join]
  *                   [--fleet-repo <owner/name|url>] [--create-repo] [--no-start] [--startup]
- *                   [--skip <part,part>] [--remove]
+ *                   [--agent <key>] [--skip <part,part>] [--remove]
  *
  * The parts, in order. Each prints its plan first, then does it after a yes (or at once under --yes):
  *   check   Node 20+ and git are required; Python 3, gh, Claude Code and Tailscale are optional and
@@ -26,7 +26,10 @@
  *   skills  the claude_skills pack cloned to <Hub>/50-AI/claude_skills at the pinned commit
  *           (skills/starter.json), and each starter skill copied from that commit's own files to
  *           <Hub>/.claude/skills/<name>, or <claude home>/skills with --skills-scope user.
- *   agents  <Hub>/50-AI/agents with its README, when missing.
+ *   agents  <Hub>/50-AI/agents with its README, when missing. Then the agent of ours on offer: the
+ *           first in agents/catalog.json with an offer line (Louise), installed after a yes to that
+ *           question, with the skills it requires. --agent <key> installs that catalog agent without
+ *           asking; --yes alone never installs one. One already installed is "=".
  *   fleet   only with --fleet, or a yes to "more than one computer?": fleet init or join, then the
  *           daily sync on offer. --yes alone never joins a fleet.
  *
@@ -46,8 +49,9 @@
  * takes its default: keep your files, no fleet.
  * Exit: 0 done or plan shown, 1 a part failed, 2 refused (bad arguments).
  *
- * WORKSPACE_STARTER points at another starter.json (tests). WORKSPACE_CONFIG, WORKSPACE_HOME and
- * CLAUDE_CONFIG_DIR mean what they mean everywhere else in the office.
+ * WORKSPACE_STARTER points at another starter.json (tests). WW_AGENT_CATALOG points at another agent
+ * catalog (tests and drills). WORKSPACE_CONFIG, WORKSPACE_HOME and CLAUDE_CONFIG_DIR mean what they
+ * mean everywhere else in the office.
  */
 
 const fs = require('fs');
@@ -64,7 +68,7 @@ const PARTS = ['check', 'hub', 'office', 'skills', 'agents', 'fleet'];
 const ROLES = ['command', 'builder', 'mobile'];
 const DEFAULT_PORT = 4316;
 const VALUE_FLAGS = new Set(['--hub', '--machine', '--role', '--owner', '--office-port', '--skills-scope',
-  '--skills-source', '--fleet', '--fleet-repo', '--skip']);
+  '--skills-source', '--fleet', '--fleet-repo', '--skip', '--agent']);
 const BOOL_FLAGS = new Set(['--dry-run', '--yes', '--create-repo', '--no-start', '--startup', '--remove', '--help']);
 
 const HELP = `The WilsonWorks Workspace installer: your Hub, the starter skills and the office, in one go.
@@ -87,6 +91,8 @@ Options:
   --create-repo              make the private fleet repo on your GitHub account
   --no-start                 do not start the office
   --startup                  start the office when you log in
+  --agent <key>              install one of our agents without asking, such as louise
+                             (node agents/bin/agent.js catalog lists them)
   --skip <parts>             leave out parts: check,hub,office,skills,agents,fleet
 
 Marks: + add  ~ change  = already there  ! yours differs (kept)  - remove`;
@@ -110,6 +116,9 @@ const config = lazy(() => require('../src/server/config'));
 const home = lazy(() => require('../src/server/home'));
 const inst = lazy(() => require('./install'));
 const hubLib = lazy(() => require('../hub/lib/root'));
+const agentsLib = lazy(() => require('../agents/lib/agents'));
+const catalogLib = lazy(() => require('../agents/lib/catalog'));
+const skillsLib = lazy(() => require('../agents/lib/skills'));
 
 /* --------------------------------------------------------------- arguments */
 
@@ -159,6 +168,14 @@ function parseArgs(argv, opts) {
   }
   const interactive = opts && opts.interactive;
   if (o.fleet === 'join' && !o.fleetRepo && !interactive) throw new Refusal('--fleet join needs --fleet-repo <owner/name>.');
+  if (o.agent !== undefined) {
+    o.agent = o.agent.toLowerCase();
+    if (o.skip.has('agents')) throw new Refusal('--agent installs the agent in the agents part, so it cannot go with --skip agents.');
+    if (o.remove) throw new Refusal('--agent goes with an install, not with --remove. To take an agent out: node agents/bin/agent.js remove <key>.');
+    let entry;
+    try { entry = catalogLib().find(o.agent); } catch (e) { throw new Refusal(e.message); }
+    if (!entry) throw new Refusal(`--agent: there is no agent called "${o.agent}" in the catalog.\n${catalogLib().lines().join('\n')}`);
+  }
   return o;
 }
 
@@ -745,6 +762,9 @@ async function partSkills(ctx) {
     }
   }
 
+  // The pinned commit is not readable yet and this run fetches it: an agent's skills wait for it.
+  ctx.packPending = !ready && packActions.length > 0;
+
   const planCopies = (quietNew) => {
     const acts = [];
     for (const s of starter.skills) {
@@ -820,13 +840,23 @@ const AGENTS_README = `# Your agents
 One folder per specialist agent. Each one holds an \`agent.json\` that gives the agent an office in
 the Agents' wing of your WorkSpace office: the office finds it by itself, with no list to edit.
 
-Make a new one (run these from your Hub folder):
+Run these from your Hub folder.
 
-    node 50-AI/workspace/agents/bin/new-agent.js <key> --name <Name> --title "<What it does>"
+Install one of ours (Louise, the research librarian, is the first):
 
-Install one you were given (one of ours, or one a friend built):
+    node 50-AI/workspace/agents/bin/install-agent.js louise
 
-    node 50-AI/workspace/agents/bin/install-agent.js <the package folder or file>
+See every agent of ours you can install:
+
+    node 50-AI/workspace/agents/bin/agent.js catalog
+
+Make a new one, in your own words:
+
+    node 50-AI/workspace/agents/bin/new-agent.js <key> --name "<Name>" --title "<what it does>"
+
+Install one you were given (a folder, a .zip file or a git address):
+
+    node 50-AI/workspace/agents/bin/install-agent.js <the package>
 
 The guide: 50-AI/workspace/guides/08-agents.md
 `;
@@ -835,13 +865,88 @@ async function partAgents(ctx) {
   const dir = path.join(ctx.hub, '50-AI', 'agents');
   const readme = path.join(dir, 'README.md');
   out('agents - the home of your specialist agents');
-  if (exists(readme)) { out(`  = ${show(ctx, dir)}`); return; }
-  out(`  + ${show(ctx, readme)}`);
-  if (ctx.dry) { ctx.planned += 1; return; }
-  if (!(await goAhead(ctx, 'the agents folder'))) { out('  Skipped.'); return; }
-  fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(readme, AGENTS_README, 'utf8');
-  ctx.changes += 1;
+  if (exists(readme)) out(`  = ${show(ctx, dir)}`);
+  else {
+    out(`  + ${show(ctx, readme)}`);
+    if (ctx.dry) ctx.planned += 1;
+    else if (!(await goAhead(ctx, 'the agents folder'))) out('  Skipped.');
+    else {
+      fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(readme, AGENTS_README, 'utf8');
+      ctx.changes += 1;
+    }
+  }
+  await offerAgent(ctx, dir);
+}
+
+/**
+ * One of our agents (agents/catalog.json): the one named with --agent, installed without asking, or
+ * the first with an offer line, installed after a yes. --yes alone never installs one. An agent that
+ * is already installed is "=", and only the skills it requires are checked.
+ */
+async function offerAgent(ctx, dir) {
+  const { o } = ctx;
+  let entry;
+  try { entry = o.agent ? catalogLib().find(o.agent) : catalogLib().read().find((a) => a.offer); } catch (e) {
+    out(`  ! ${e.message}`);
+    ctx.failed.push('agents');
+    return;
+  }
+  if (!entry) return;
+  // Installed means installed in this Hub. Every agents folder the office reads still counts for ports.
+  const dirs = [dir].concat(config().agentsDirs());
+  const have = agentsLib().listAgents([dir]).find((a) => a.key === entry.key);
+
+  if (have) {
+    out(`  = ${show(ctx, have.dir)}: ${entry.name} is in your office`);
+    if (!have.ok) return;
+    const p = skillsLib().plan(ctx.hub, skillsLib().needs(have.manifest), entry.name, { packLater: ctx.dry && !!ctx.packPending, starterInHub: o.skillsScope === 'hub' });
+    if (!p.ok) { for (const e of p.errors) out(`  ! ${e}`); ctx.failed.push('agents'); return; }
+    for (const l of p.lines) out(`  ${l}`);
+    if (!p.changes) return;
+    if (ctx.dry) { ctx.planned += p.changes; return; }
+    p.apply();
+    ctx.record = readRecord(ctx.hub);
+    ctx.changes += p.changes;
+    return;
+  }
+
+  if (!o.agent) {
+    if (!ctx.asker.interactive) {
+      const why = o.yes ? '--yes installs an agent only when you name it with --agent' : 'there is nobody at the keyboard to ask';
+      out(`  ${entry.name}, ${entry.title || 'one of our agents'}, is on offer, and was not installed: ${why}.`);
+      out(`    To install: add --agent ${entry.key}, or run node agents/bin/install-agent.js ${entry.key}`);
+      return;
+    }
+    const a = String((await ctx.asker.ask(`${entry.offer} (y/N)`, '')) || '').trim().toLowerCase();
+    if (!a.startsWith('y')) { out(`  ${entry.name} was not installed. Any time: node agents/bin/install-agent.js ${entry.key}`); return; }
+  }
+
+  out(`  ${entry.name}, from ${entry.source}:`);
+  let r;
+  try {
+    r = await agentsLib().installPackage(entry.source, dir, {
+      dirs, subagentsDir: path.join(ctx.hub, '.claude', 'agents'), hubRoot: ctx.hub,
+      dryRun: ctx.dry, packLater: !!ctx.packPending, starterInHub: o.skillsScope === 'hub', yes: true, start: !o.noStart, ask: async () => false,
+    });
+  } catch (e) {
+    out(`  ${entry.name} could not be installed: ${e.message}`);
+    ctx.record = readRecord(ctx.hub);
+    ctx.failed.push('agents');
+    return;
+  }
+  for (const l of r.lines) out(`    ${l}`);
+  if (r.refused) {
+    out(`  ${entry.name} cannot be installed:`);
+    for (const e of r.errors) out(`    - ${e}`);
+    ctx.failed.push('agents');
+    return;
+  }
+  const n = r.lines.filter(isChange).length;
+  if (ctx.dry) { ctx.planned += n; ctx.agentPlanned = entry.name; return; }
+  ctx.record = readRecord(ctx.hub); // installPackage recorded the skills it copied; keep that record
+  ctx.changes += n;
+  if (r.startFailed) ctx.failed.push('agents');
 }
 
 /* -------------------------------------------------------------------- fleet */
@@ -1029,7 +1134,10 @@ function summary(ctx) {
   out(`  Office settings       ${config().file()}`);
   if (ctx.skillsDest) out(`  Starter skills        ${ctx.skillsDest}`);
   if (ctx.packDir) out(`  The skills pack       ${ctx.packDir}`);
-  out(`  Your agents           ${path.join(ctx.hub, '50-AI', 'agents')}`);
+  const agentsDir = path.join(ctx.hub, '50-AI', 'agents');
+  const named = agentsLib().listAgents([agentsDir]).filter((a) => a.ok).map((a) => a.manifest.name);
+  if (ctx.agentPlanned) named.push(`${ctx.agentPlanned} (once installed)`);
+  out(`  Your agents           ${agentsDir}${named.length ? `: ${named.join(', ')}` : ' (none yet)'}`);
   out(`  The install record    ${recordFile(ctx.hub)}`);
   out();
   out('Next:');
@@ -1100,4 +1208,4 @@ async function main(argv) {
 
 if (require.main === module) main(process.argv.slice(2)).then((code) => { process.exitCode = code; });
 
-module.exports = { main, parseArgs, hashDir, hashEntries, normRemote };
+module.exports = { main, parseArgs, hashDir, hashEntries, normRemote, readStarter, packFiles, readRecord, recordFile };

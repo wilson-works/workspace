@@ -65,15 +65,22 @@ const SHOTS = [
   { name: 'fleet', url: `${OFFICE}/#/fleet`, view: WIDE, wait: '.fcomps .fcomp' },
   { name: 'fleet-board', url: `${OFFICE}/#/fleet`, view: TALL, wait: '.fcomps .fcomp' },
   {
+    // A knock on the first agent's door (Louise), found by the name on its plaque, not by its place.
     name: 'agents-knock', url: `${OFFICE}/#/agents`, view: WIDE, wait: '.ahall .aoffice',
     act: async (page) => {
-      const doors = await page.$$('.ahall .aoffice .adoor');
-      await doors[0].click({ button: 'right' });
+      const door = await page.evaluateHandle((k) => {
+        const office = [...document.querySelectorAll('.ahall .aoffice')]
+          .find((el) => ((el.querySelector('.aplaque-name') || {}).textContent || '').trim().toLowerCase().startsWith(k));
+        return office ? office.querySelector('.adoor') : null;
+      }, WORLD.agents[0].key);
+      if (!door.asElement()) throw new Error(`no door for ${WORLD.agents[0].key} in the Agents' wing`);
+      await door.asElement().click({ button: 'right' });
       await new Promise((r) => setTimeout(r, 1300));
     },
   },
-  { name: 'iris-dashboard', url: agentUrl('iris'), view: WIDE, wait: 'main' },
-  { name: 'quill-dashboard', url: agentUrl('quill'), view: WIDE, wait: 'main' },
+  // Each agent's own dashboard, at its sandbox port: louise-dashboard, bryn-dashboard. An agent whose
+  // page picks a scene at random (Bryn at rest) is pinned to one with its query (demo-world.json).
+  ...WORLD.agents.map((a) => ({ name: `${a.key}-dashboard`, url: `${agentUrl(a.key)}${a.query || ''}`, view: WIDE, wait: 'main' })),
   { name: 'phone-floor', url: `${OFFICE}/#/floor/all`, view: PHONE, wait: '.desk' },
   { name: 'phone-questions', url: `${OFFICE}/#/questions`, view: PHONE, wait: '.panel' },
   { name: 'phone-agents', url: `${OFFICE}/#/agents`, view: PHONE, wait: '.ahall .aoffice' },
@@ -120,6 +127,7 @@ function boxesOf() {
   one('.panel .q-text', 'q-text');
   one('.panel .q-actions', 'q-actions');
   one('main', 'main');
+  one('main #scene', 'scene');
   one('.fcomps', 'fleet-computers');
   one('.kanban-fleet', 'fleet-board');
   one('.fhands', 'fleet-handoffs');

@@ -10,7 +10,8 @@
  * its title and the right state; the owner questions pass the plain-English gate; nothing the page
  * shows carries this computer's own name, user name or the sandbox folder; a computer that is not
  * installed is refused and nothing is written for it; the seed never touches the settings; session
- * ids are stable from one seed to the next.
+ * ids are stable from one seed to the next; each installed agent (Louise, Bryn) has its stage set with its
+ * own engine/stage.js, an agent that is not installed is skipped, and one that refuses its stage fails the seed.
  *
  * mesh.js reads its machines once, when it loads, so the reader is required only after the DESK's
  * settings are written and WORKSPACE_CONFIG points at them.
@@ -61,8 +62,8 @@ test('the DESK floor reads every session with its title and state', () => {
   const byTitle = Object.fromEntries(state.desks.map((d) => [d.title, d.state]));
   assert.strictEqual(byTitle['Plan the frost dates feature'], 'working');
   assert.strictEqual(byTitle['Gate review: frost dates'], 'working');
-  assert.strictEqual(byTitle['Iris: research brief on raised-bed soil'], 'working');
-  assert.strictEqual(byTitle['Quill: draft the spring newsletter'], 'waiting');
+  assert.strictEqual(byTitle['Louise: research brief on raised-bed soil'], 'working');
+  assert.strictEqual(byTitle['Bryn: should the bakery website take orders?'], 'working');
   assert.strictEqual(byTitle['Sort the inbox into zones'], 'stale');
   const cedar = state.desks.find((d) => d.title === 'Plan the frost dates feature');
   assert.strictEqual(cedar.seats.length, 1, 'its helper is at the desk');
@@ -102,4 +103,56 @@ test('session ids are stable from one seed to the next', () => {
   assert.match(uuidOf('DESK:Cedar'), /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-a[0-9a-f]{3}-[0-9a-f]{12}$/);
   const again = seed(BASE, null);
   assert.deepStrictEqual(again.computers.DESK.sessions.map((s) => s.id), first.computers.DESK.sessions.map((s) => s.id));
+});
+
+/** A stand-in agent folder: agent.json, and an engine/stage.js that keeps its arguments, or refuses. */
+function standInAgent(dir, key, refuse) {
+  fs.mkdirSync(path.join(dir, 'engine'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 'agent.json'), JSON.stringify({ key }));
+  fs.writeFileSync(path.join(dir, 'engine', 'stage.js'), refuse
+    ? "process.stdout.write('That stage is not one I know.\\n'); process.exit(2);\n"
+    : "require('fs').writeFileSync(require('path').join(__dirname, 'args.json'), JSON.stringify(process.argv.slice(2)));\n");
+}
+
+test("each installed agent's stage is set with its own stage command; one not installed is skipped", () => {
+  const base = fs.mkdtempSync(path.join(os.tmpdir(), 'video-seed-agents-'));
+  const all = sandboxes(base);
+  for (const sb of all) {
+    fs.mkdirSync(path.dirname(sb.config), { recursive: true });
+    fs.writeFileSync(sb.config, settingsOf(sb));
+  }
+  const d = all.find((s) => s.name === 'DESK');
+  const [first, second] = WORLD.agents;
+  standInAgent(path.join(d.agents, first.key), first.key, false);
+  const r = seed(base, 'DESK');
+  assert.strictEqual(r.ok, true, r.error);
+  const got = JSON.parse(fs.readFileSync(path.join(d.agents, first.key, 'engine', 'args.json'), 'utf8'));
+  assert.deepStrictEqual(got, ['set'].concat(first.stage));
+  assert.strictEqual(fs.existsSync(path.join(d.agents, second.key)), false, 'an agent that is not installed is left alone');
+});
+
+test('an installed agent that refuses its stage fails the seed, in plain words', () => {
+  const base = fs.mkdtempSync(path.join(os.tmpdir(), 'video-seed-refuse-'));
+  const all = sandboxes(base);
+  for (const sb of all) {
+    fs.mkdirSync(path.dirname(sb.config), { recursive: true });
+    fs.writeFileSync(sb.config, settingsOf(sb));
+  }
+  const d = all.find((s) => s.name === 'DESK');
+  const a = WORLD.agents[0];
+  standInAgent(path.join(d.agents, a.key), a.key, true);
+  const r = seed(base, 'DESK');
+  assert.strictEqual(r.ok, false);
+  assert.ok(r.error.includes(`${a.key}'s stage (${a.stage[0]}) was refused: That stage is not one I know.`), r.error);
+});
+
+test('the agents filmed are ours, from the catalog, each on a sandbox port from 7660 to 7669, Louise first', () => {
+  const catalog = require('../agents/catalog.json');
+  assert.deepStrictEqual(WORLD.agents.map((x) => x.key), ['louise', 'bryn']);
+  for (const x of WORLD.agents) {
+    assert.ok(catalog.agents.some((c) => c.key === x.key), `${x.key} is in agents/catalog.json`);
+    assert.ok(x.port >= 7660 && x.port <= 7669, `${x.key} port ${x.port}`);
+  }
+  assert.strictEqual(new Set(WORLD.agents.map((x) => x.port)).size, WORLD.agents.length);
+  assert.ok(!catalog.agents.some((c) => c.key === WORLD.new_agent.key), 'the build-your-own example is never one of ours');
 });

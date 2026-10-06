@@ -18,7 +18,7 @@ Each lesson is short and hands-on. You paste prompts into a Claude Code chat, wa
 | GS-06 | Answer questions from sessions and use the group chat |
 | GS-07 | Meet the CTO org and give it its first job |
 | GS-08 | Make the org fit your work |
-| GS-09 | Build a specialist agent for a job you repeat, with its own office |
+| GS-09 | With Bryn and Louise, build a specialist agent for a job you repeat, with its own office |
 | GS-10 | Learn your Hub: its zones, its map and your first project |
 | GS-11 | Share work between your computers, and hand a job from one to another (optional) |
 

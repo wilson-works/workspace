@@ -10,4 +10,4 @@
 **What never goes here:** client data, passwords, keys or tokens. An agent reads those from where they belong; it
 never keeps a copy.
 
-**Example:** `50-AI/agents/iris/agent.json` makes the research agent Iris show up in the office.
+**Example:** `50-AI/agents/louise/agent.json` gives Louise, the research librarian, her office.

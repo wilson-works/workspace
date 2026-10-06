@@ -14,7 +14,10 @@
  *       branches) in the shapes src/server/sources.js reads;
  *     - in its office's files (<home>/AppData/Local/WorkSpace): the hook event stream, the callsign
  *       book, an owner question or two, a delivered note and course progress, in the shapes
- *       .claude/hooks/office-hook.js, callsign.js, questions.js, inbox.js and work.js write.
+ *       .claude/hooks/office-hook.js, callsign.js, questions.js, inbox.js and work.js write;
+ *     - for each agent installed there (Louise, Bryn), what it is doing, with that agent's own
+ *       `node engine/stage.js set <stage> ...` (demo-world.json says which stage), so its dashboard
+ *       shows that scene. The agent writes its own stage file; this never writes it.
  *   It replaces only what it wrote before (those files, and the Claude folder's projects/).
  *   Timestamps are "now", so run it right before a capture: a desk is "working" for two minutes.
  *   Exit 0 seeded, 1 failed.
@@ -27,6 +30,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { spawnSync } = require('child_process');
 const { WORLD, RIG, baseFrom, idsFrom, sandboxes } = require('./sandbox');
 
 const MIN = 60 * 1000;
@@ -75,8 +79,8 @@ function dayOf(computer) {
         },
       },
       {
-        callsign: 'Rowan', cwd: where(c, '50-AI/agents/iris'), branch: null, model: OPUS, state: 'working',
-        title: 'Iris: research brief on raised-bed soil',
+        callsign: 'Rowan', cwd: where(c, '50-AI/agents/louise'), branch: null, model: OPUS, state: 'working',
+        title: 'Louise: research brief on raised-bed soil',
         tools: [['WebSearch'], ['Agent', 'Compare three soil guides'], ['WebFetch']],
         helpers: [{ type: 'general-purpose', description: 'Compare three soil guides', tool: 'WebFetch' }],
         question: {
@@ -85,9 +89,9 @@ function dayOf(computer) {
         },
       },
       {
-        callsign: 'Birch', cwd: where(c, '50-AI/agents/quill'), branch: null, model: SONNET, state: 'waiting',
-        title: 'Quill: draft the spring newsletter',
-        tools: [['Write'], ['ScheduleWakeup', 'Check back after Alex reviews the outline']],
+        callsign: 'Birch', cwd: where(c, '50-AI/agents/bryn'), branch: null, model: OPUS, state: 'working',
+        title: 'Bryn: should the bakery website take orders?',
+        tools: [['Read'], ['Agent', 'Five scouts weigh the question']],
         helpers: [],
       },
       {
@@ -257,6 +261,16 @@ function seedOne(sb, now) {
   events.sort((a, b) => Date.parse(a.received_at) - Date.parse(b.received_at));
   fs.writeFileSync(path.join(sb.office, 'events.jsonl'), events.map((e) => JSON.stringify(e)).join('\n') + '\n', 'utf8');
   fs.writeFileSync(path.join(sb.office, 'callsigns.json'), JSON.stringify(book, null, 2), 'utf8');
+
+  // What each installed agent is doing, set with its own stage command, the way its runbook sets it.
+  // An agent that is not installed here is skipped; one that is installed and refuses its stage fails.
+  for (const a of WORLD.agents) {
+    const dir = path.join(sb.agents, a.key);
+    if (!a.stage || !fs.existsSync(path.join(dir, 'agent.json'))) continue;
+    const r = spawnSync(process.execPath, [path.join(dir, 'engine', 'stage.js'), 'set'].concat(a.stage),
+      { cwd: dir, env: sb.env, encoding: 'utf8', timeout: 20000, windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
+    if (r.status !== 0) return { ok: false, error: `${a.key}'s stage (${a.stage[0]}) was refused: ${String(r.stdout || r.stderr || r.error || '').trim()}` };
+  }
 
   if (sb.computer.hub) {
     // The course, part way through: three lessons done, the fourth under way.

@@ -24,22 +24,25 @@ and how sessions call it.
 
 ## The contract: agent.json, in plain words
 
+The examples are Louise's, the first WilsonWorks agent (her colours here are only an example).
+
 | Field | What it means | Example |
 |---|---|---|
-| `key` | The agent's short name, the same as its folder. | `"research-desk"` |
-| `name` | What it is called on its door. | `"Iris"` |
-| `title` | What it does, in a few words. | `"The Research Desk"` |
-| `line` | One sentence about its job, shown in its office. | `"Reads everything on a topic and hands back one page with the sources."` |
+| `key` | The agent's short name, the same as its folder. | `"louise"` |
+| `name` | What it is called on its door. | `"Louise"` |
+| `title` | What it does, in a few words. | `"The Research Librarian"` |
+| `line` | One sentence about its job, shown in its office. | `"Researches your questions with a source for every fact, and keeps what she finds on shelves you can browse."` |
 | `status` | `live` when it is ready to work. | `"live"` |
-| `door.local` | The address of its dashboard on this computer. | `"http://127.0.0.1:7601/"` |
+| `door.local` | The address of its dashboard on this computer. | `"http://127.0.0.1:7540/"` |
 | `door.phone` | Its dashboard's address on your tailnet, once you publish it ([guide 2](02-tailscale.md)); empty until then. | `null` |
-| `probe` | How the office tells whether the agent is running: a port and a page on this computer, or its tailnet address. **Never** a page that hands out a login or a token. | `{ "port": 7601, "path": "/health" }` |
+| `probe` | How the office tells whether the agent is running: a port and a page on this computer, or its tailnet address. **Never** a page that hands out a login or a token. | `{ "port": 7540, "path": "/health" }` |
 | `start` | The command that starts its dashboard, run in its folder. | `"node dashboard/server.js"` |
 | `autostart` | Start the dashboard with the office. | `true` |
-| `match` | Words that tie a session to this agent, so its chats show at its door. | `["iris", "research desk"]` |
-| `brand` | Its colours and font, and `mark`, its logo file in its folder. | `{ "accent": "#38BDF8", "mark": "mark.svg" }` |
+| `match` | Words that tie a session to this agent, so its chats show at its door. | `["louise", "research librarian"]` |
+| `brand` | Its colours and font, and `mark`, its logo file in its folder. | `{ "accent": "#C8A96A", "mark": "mark.svg" }` |
 | `art` | A full figure for inside its door (optional). | `"art.svg"` |
-| `jokes` | What it says when you knock (right-click its door). | `["I read the footnotes so you do not have to."]` |
+| `jokes` | What it says when you knock (right-click its door). | `["It is on the third shelf. It is always on the third shelf."]` |
+| `requires` | The skills it needs, by name. Installing the agent adds any your Hub doesn't have yet. | `{ "skills": ["marathon-research", "distill"] }` |
 
 The agent runs on the computer it is installed on, so there is no machine field. Its door stands open
 while it works and shows zzz while it rests. A bubble by its door counts the questions its sessions
@@ -50,7 +53,7 @@ have asked you.
 From a chat on your Hub:
 
 ```
-Make me a specialist agent with node 50-AI/workspace/agents/bin/new-agent.js <key> --name <Name>
+Make me a specialist agent with node 50-AI/workspace/agents/bin/new-agent.js <key> --name "<Name>"
 --title "<what it does>". Show me what it will make before it makes it. When it's made, show me its
 folder, and tell me how to see its office in the Agents wing.
 ```
@@ -63,10 +66,25 @@ office appears in the Agents wing.
 Then fill it in. Lesson GS-09 of the course does this with you: an interview about the job, its
 rules and its facts, a practice run, and one fix from what the practice showed.
 
+## Install one of ours
+
+The installer offers Louise, the research librarian, after it sets up your agents folder. To install
+her later, or another agent of ours, use its key. From a chat on your Hub:
+
+```
+Install Louise with node 50-AI/workspace/agents/bin/install-agent.js louise. Show me its plan first
+and wait for my yes. Then show me her office in the Agents wing and tell me how to ask her for research.
+```
+
+Some agents are built on skills from the free claude_skills pack, and say which in `requires`.
+Installing the agent adds each one your Hub doesn't have yet, from the same pinned pack as your
+starter skills (a `+` line for each). If the pack doesn't have one, nothing is installed and it says
+which skill is missing.
+
 ## Install one you were given
 
-An agent **package** is an agent someone else built: one of WilsonWorks' agents, or one a friend
-made. It might be a folder or a single file.
+An agent **package** is an agent someone else built, such as one a friend made. It might be a
+folder, a single `.zip` file or a git address.
 
 ```
 Install the agent package at <the package folder or file> with
@@ -80,11 +98,18 @@ never replaces a file of yours without asking. Run it again with a newer package
 Only install packages from people you trust: an agent can read and change files on your computer, as
 you can.
 
-## Agents from WilsonWorks
+## WilsonWorks agents
 
-WilsonWorks builds specialist agents for real jobs. You can install one of ours, or have one built
-for your own work. See "Free, or done for you" in the [README](../README.md), or get in touch:
-https://wilsonworks.studio/ai-consulting?inquiry=workspace-agent
+These are the agents of ours anyone can install, from `agents/catalog.json`:
+
+| Agent | What it does | Price | Install |
+|---|---|---|---|
+| **Louise**, The Research Librarian | Researches your questions with a source for every fact, and keeps what she finds on shelves you can browse. | free | `install-agent louise` |
+| **Bryn**, The Trail Guide | Helps you think a decision through. Five scouts weigh it on their own, she looks for where the plan could fail, and she keeps your call so you never argue it twice. | free | `install-agent bryn` |
+
+`node 50-AI/workspace/agents/bin/agent.js catalog` lists them on your computer and says which ones
+you have. To have one built for your own work, see "Free, or done for you" in the
+[README](../README.md), or get in touch: https://wilsonworks.studio/ai-consulting?inquiry=workspace-agent
 
 ## Its door on your phone
 

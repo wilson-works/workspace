@@ -4,6 +4,9 @@ About 20 minutes, most of it downloads. You need a computer running Windows or m
 the same way as macOS). You don't need to be a developer: you paste one line, answer a few
 questions, and the installer shows you what it will do before it does it.
 
+Rather have Claude do it all with you, starting with how you want your office to look and feel? Open an
+empty `Hub` folder in Claude Code and paste the one line at the top of [SETUP.md](../SETUP.md).
+
 When you finish, you have:
 
 - **your Hub**: one folder that holds all your work, in numbered zones, with rules that teach Claude
@@ -66,7 +69,7 @@ it **prints its plan first** and asks before it changes anything:
 | hub | Makes your Hub: the zones, its rules (`CLAUDE.md`) and its map (`NAV.md`). |
 | office | Writes the office's settings, connects every chat opened on the Hub to the office, and starts it. |
 | skills | Downloads the skills pack into `50-AI/claude_skills` and copies the twelve starter skills into your Hub. |
-| agents | Makes `50-AI/agents`, the home of your specialist agents. |
+| agents | Makes `50-AI/agents`, the home of your specialist agents, then offers Louise, the research librarian: say yes and she moves into your office, with the research skills she works with. |
 | fleet | Only if you say you use more than one computer: see [guide 7](07-several-computers.md). |
 
 Each line of a plan starts with a mark:
@@ -109,8 +112,9 @@ node install.js
 ```
 
 `node install.js --help` lists every option, such as `--machine DESK` (this computer's short name),
-`--owner Alex` (what your sessions call you), `--startup` (start the office when you log in) and
-`--yes` (no questions; your files are always kept).
+`--owner Alex` (what your sessions call you), `--startup` (start the office when you log in),
+`--agent louise` (install Louise without being asked) and `--yes` (no questions; your files are
+always kept; it never installs an agent you didn't name with `--agent`).
 
 ### Running it again, and taking it out
 
@@ -189,10 +193,20 @@ Lesson GS-10 and [guide 6](06-the-hub.md) say more.
 
 A specialist agent is an agent built for one job you repeat, with its own rules, facts and memory.
 Every agent you make or install gets an office in the office's **Agents** wing, with a door to its
-dashboard, by itself. In a chat on your Hub:
+dashboard, by itself.
+
+If you said yes to Louise during the install, she is already there. If not, install her any time
+from a chat on your Hub:
 
 ```
-Make me a specialist agent with node 50-AI/workspace/agents/bin/new-agent.js <key> --name <Name>
+Install Louise with node 50-AI/workspace/agents/bin/install-agent.js louise. Show me its plan first
+and wait for my yes. Then show me her office in the Agents wing.
+```
+
+To make your own, in your own words:
+
+```
+Make me a specialist agent with node 50-AI/workspace/agents/bin/new-agent.js <key> --name "<Name>"
 --title "<what it does>". Show me what it will make before it makes it. When it's made, tell me
 where it lives and how to see its office in the Agents wing.
 ```

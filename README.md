@@ -20,9 +20,53 @@ your phone buzzes when one does.
   └──────────────────────────────────────────────────────────────────────────┘
 ```
 
+## Install with Claude
+
+Make a folder called `Hub` in your user folder, open it in Claude Code (the VS Code extension, or the
+Code tab of the Claude desktop app), start a chat and paste:
+
+```
+Set up my WilsonWorks Workspace from https://github.com/wilson-works/workspace, following SETUP.md.
+```
+
+What happens next:
+
+1. **A short chat about how you want it to feel and look**: what your office is called, its mood (a
+   calm studio, a busy newsroom, a cosy library), two colours to match, your logo if you have one, and
+   what your sessions call you.
+2. **Claude installs it**, with Louise and Bryn, showing you the plan first, and opens your office in
+   your colours.
+3. **You meet your first agents**: you bring Bryn a small decision and ask Louise one question.
+4. **You build your first agent of your own, together**: Bryn helps you choose the job it takes off
+   your hands, Louise researches how that job is done well, and the agent org builds it, in your own
+   words, in your Hub.
+
+Nothing runs without your yes, and you can stop after any step. [SETUP.md](SETUP.md) is the runbook
+Claude follows. You need Claude Code, [Node.js](https://nodejs.org) 20 or newer and
+[Git](https://git-scm.com/downloads).
+
+## Send it to someone
+
+Copy this message and send it to anyone who would like a Workspace of their own:
+
+```text
+I've been using the WilsonWorks Workspace, a free setup for Claude Code: one folder for all your work, an office page where every Claude chat shows up as a person at a desk, and two free agents, Louise for research and Bryn for thinking decisions through. It's here: https://github.com/wilson-works/workspace
+
+You need three things first: Claude Code (in VS Code or the Claude desktop app, https://claude.com/claude-code), Node.js 20 or newer (https://nodejs.org) and Git (https://git-scm.com/downloads).
+
+Then make a folder called Hub in your user folder, open it in Claude Code, start a chat and paste this line:
+
+Set up my WilsonWorks Workspace from https://github.com/wilson-works/workspace, following SETUP.md.
+
+Claude asks how you'd like your office to look and feel, installs it, introduces you to Louise and Bryn, and helps you build your first agent of your own. It shows you every step before it does it.
+```
+
+New features arrive the same way, as one line to paste: Claude merges them into your own copy and
+keeps everything you changed ([guide 9](guides/09-updates.md)).
+
 ## Install in one line
 
-**Windows** (PowerShell):
+The other way, from a terminal. **Windows** (PowerShell):
 
 ```
 irm https://raw.githubusercontent.com/wilson-works/workspace/main/install.ps1 | iex
@@ -38,7 +82,8 @@ You need [Node.js](https://nodejs.org) 20 or newer and [Git](https://git-scm.com
 installer checks for both and says where to get anything missing. It shows its plan before every
 step, never replaces a file of yours, and can be run again any time (a second run says "Nothing
 changed."). Add `--dry-run` to see the plan without changing anything. Then open your Hub folder in
-VS Code or the desktop app's Code tab and start a chat: you're on the floor.
+VS Code or the desktop app's Code tab and start a chat: you're on the floor. To have Claude style it
+and introduce your first agents, paste `Carry on my Workspace setup from step 1 of 50-AI/workspace/SETUP.md.`
 [Guide 1](guides/01-install.md) walks through it, step by step.
 
 ## The suite
@@ -48,7 +93,7 @@ VS Code or the desktop app's Code tab and start a chat: you're on the floor.
 | **The Hub** | One folder on each computer for all your work, in numbered zones (`00-Inbox` to `90-Archive`), with a constitution `CLAUDE.md` every session reads, a plain-English map (`NAV.md`) rebuilt from what is on disk, and a `CLAUDE.md` per project. Claude always knows where things go, on any drive, on Windows or macOS. [Guide 6](guides/06-the-hub.md). |
 | **The starter skills** | Twelve skills from the free [claude_skills](https://github.com/wilson-works/claude_skills) pack, such as `handoff`, `notetaker`, `file-organizer`, `backlog` and `scope-check`, pulled at a pinned commit so they never drift. [Why each one](skills/README.md). |
 | **The office** | A local web page (http://127.0.0.1:4316): the Floor, Work, Agents, Questions and Chat. Every session opened on your Hub shows up. Private by design: it reads session metadata only, never prompts or file contents, and binds to this computer alone. |
-| **Specialist agents** | An agent for one job you repeat, with its own rules, facts, memory and dashboard. Make one with `new-agent`, or install one you were given. Each gets an office in the Agents' wing, with a door into its dashboard, by itself. [Guide 8](guides/08-agents.md). |
+| **Specialist agents** | An agent for one job you repeat, with its own rules, facts, memory and dashboard. Install one of ours (`install-agent louise`), make your own with `new-agent`, or install one you were given. Each gets an office in the Agents' wing, with a door into its dashboard, by itself. [Guide 8](guides/08-agents.md). |
 | **The fleet** (optional) | Your computers sharing work through your own private `fleet-ops` repo: a board of work orders, a message file per computer, and handoffs from a session on one to a session on another. The installer sets it up. [Guide 7](guides/07-several-computers.md). |
 
 And inside the office:
@@ -66,20 +111,36 @@ And inside the office:
 ## Videos
 
 Short promos and captioned walkthroughs, all filmed on a demo install with invented data. They are on
-the [v2.0.0 release page](https://github.com/wilson-works/workspace/releases/tag/v2.0.0):
+the [v2.1.0 release page](https://github.com/wilson-works/workspace/releases/tag/v2.1.0):
 
 | Video | Length | Watch |
 |---|---|---|
-| The Workspace in under a minute | promo | [wide](https://github.com/wilson-works/workspace/releases/download/v2.0.0/workspace-promo-16x9.mp4) · [phone](https://github.com/wilson-works/workspace/releases/download/v2.0.0/workspace-promo-9x16.mp4) |
-| Specialist agents with an office of their own | promo | [wide](https://github.com/wilson-works/workspace/releases/download/v2.0.0/agents-promo-16x9.mp4) · [phone](https://github.com/wilson-works/workspace/releases/download/v2.0.0/agents-promo-9x16.mp4) |
-| 1. What it is: the Hub, the skills, the office | walkthrough | [watch](https://github.com/wilson-works/workspace/releases/download/v2.0.0/walkthrough-1-what-it-is.mp4) |
-| 2. Several computers, one office | walkthrough | [watch](https://github.com/wilson-works/workspace/releases/download/v2.0.0/walkthrough-2-several-computers.mp4) |
-| 3. Fleet ops: sessions on different computers working together | walkthrough | [watch](https://github.com/wilson-works/workspace/releases/download/v2.0.0/walkthrough-3-fleet-ops.mp4) |
+| The Workspace in under a minute | 53.6 s | [wide](https://github.com/wilson-works/workspace/releases/download/v2.1.0/workspace-promo-16x9.mp4) · [phone](https://github.com/wilson-works/workspace/releases/download/v2.1.0/workspace-promo-9x16.mp4) |
+| Specialist agents with an office of their own | 52.6 s | [wide](https://github.com/wilson-works/workspace/releases/download/v2.1.0/agents-promo-16x9.mp4) · [phone](https://github.com/wilson-works/workspace/releases/download/v2.1.0/agents-promo-9x16.mp4) |
+| 1. What it is: the Hub, the skills, the office | 4:58 | [watch](https://github.com/wilson-works/workspace/releases/download/v2.1.0/walkthrough-1-what-it-is.mp4) |
+| 2. Several computers, one office | 2:44 | [watch](https://github.com/wilson-works/workspace/releases/download/v2.1.0/walkthrough-2-several-computers.mp4) |
+| 3. Fleet ops: sessions on different computers working together | 3:35 | [watch](https://github.com/wilson-works/workspace/releases/download/v2.1.0/walkthrough-3-fleet-ops.mp4) |
 
 ## Free, or done for you
 
 The whole Workspace is **free and public**. Everything here is yours to set up yourself, with the
 guides and the course.
+
+**Install one of ours.** Both are free.
+
+- **Louise, the research librarian**, researches your questions with a source for every fact, and
+  keeps what she finds on shelves you can browse. Say yes when the installer offers her.
+- **Bryn, the trail guide**, helps you think a decision through: five scouts weigh it on their own,
+  she looks for where the plan could fail, and she keeps your call so you never argue it twice.
+
+From the Workspace folder:
+
+```
+node agents/bin/install-agent.js louise
+node agents/bin/install-agent.js bryn
+```
+
+`node agents/bin/agent.js catalog` lists every agent of ours you can install.
 
 If you'd rather have it done for you, WilsonWorks offers two things:
 
@@ -99,9 +160,10 @@ Setup help is $150 per seat; a one-job agent (a social media or sales assistant,
 5. [The CTO org](guides/05-the-org.md): your software team, and specialists for everything else.
 6. [Your Hub](guides/06-the-hub.md): the zones, the rules, the map, where projects live.
 7. [Several computers](guides/07-several-computers.md): the fleet, handoffs, a builder and a gate.
-8. [Specialist agents](guides/08-agents.md): the agent contract, `new-agent`, installing an agent.
+8. [Specialist agents](guides/08-agents.md): the agent contract, `new-agent`, installing Louise or any agent.
+9. [Updates](guides/09-updates.md): how new features arrive, and why they never break your own pieces.
 
-And [the prompt library](prompts/README.md).
+And [the prompt library](prompts/README.md), with [the update procedure](prompts/update-my-workspace.md).
 
 ## How it works, in one paragraph
 
@@ -133,6 +195,7 @@ node install.js [--dry-run] [--yes] [--remove]      the one installer (--help li
 node hub/bin/hub.js nav --root <Hub>                regenerate your Hub's map, NAV.md
 node hub/bin/hub.js new-project <name>              a new project in your code zone, with its CLAUDE.md
 node agents/bin/new-agent.js <key> --name <N> --title <T>    a new specialist agent, with its office
+node agents/bin/install-agent.js louise             install one of our agents (agents/bin/agent.js catalog lists them)
 node agents/bin/install-agent.js <package>          install an agent you were given
 node fleet/bin/fleet.js init | join <owner/name> | schedule  your computers working together
 node bin/office-start.js [--restart]                start (or restart) the office

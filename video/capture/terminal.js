@@ -12,8 +12,9 @@
  *     says so where it does, with a line of its own: "…". So an excerpt never passes for the whole.
  *   - The sandbox's folders are written as the invented person's own: <sandbox>\Hub as
  *     C:\Users\alex\Hub and <sandbox>\home as C:\Users\alex, with either slash.
- *   - The command shown is the one that ran (install.js records it; new-agent and the handoff are
- *     rebuilt from the same arguments install.js passed), less --hub, which names the folder it ran in.
+ *   - The command shown is the one that ran (install.js records it; install-agent, new-agent and the
+ *     handoff are rebuilt from the same arguments install.js passed), less --hub, which names the
+ *     folder it ran in.
  *   - Refuses (exit 2, nothing written) when any line still holds the sandbox folder, this computer's
  *     user or name, a drive path outside the invented folders, or a phrase the release scan refuses.
  * Exit 0 written, 1 failed, 2 refused.
@@ -23,7 +24,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { WORLD, baseFrom, idsFrom, sandboxes } = require('./sandbox');
-const { shown, NEW_AGENT, HANDOFF } = require('./install');
+const { shown, INSTALL_AGENT, INSTALL_SHOWN, NEW_AGENT, NEW_AGENT_SHOWN, HANDOFF } = require('./install');
 
 const OUT = path.join(__dirname, '..', 'src', 'data', 'terminal.json');
 // The invented person's own folder: the one their Windows computer's Hub sits in.
@@ -49,8 +50,12 @@ const ENTRIES = {
     ] }],
   },
   nav: { on: 'DESK', steps: [{ log: 'nav', all: true }] },
-  newAgent: { on: 'DESK', cps: 60, steps: [{ log: 'new-agent', cmd: shown('node 50-AI\\workspace\\agents\\bin\\new-agent.js', NEW_AGENT), all: true }] },
-  installAgent: { on: 'DESK', steps: [{ log: 'install-agent', all: true }] },
+  newAgent: { on: 'DESK', cps: 60, steps: [{ log: 'new-agent', cmd: shown(NEW_AGENT_SHOWN, NEW_AGENT), all: true }] },
+  // Louise, then Bryn: our agents, each installed by its key.
+  installAgent: {
+    on: 'DESK', cps: 90,
+    steps: WORLD.agents.map((a) => ({ log: `install-agent-${a.key}`, cmd: shown(INSTALL_SHOWN, INSTALL_AGENT(a)), all: true })),
+  },
   fleetInit: {
     on: 'DESK', cps: 60,
     steps: [{ log: 'install-1', pick: [
@@ -146,7 +151,7 @@ function build(base, ids) {
       return { cmd: plainPaths(s.cmd || j.display, all), out, source: `${e.on} ${s.log}` };
     });
     // A command run in the person's folder (the installer) shows that folder; the rest, the Hub.
-    const prompt = e.steps[0].log.startsWith('install-') && e.steps[0].log !== 'install-agent' ? `${HOME}>` : `${HOME}\\Hub>`;
+    const prompt = /^install-\d+$/.test(e.steps[0].log) ? `${HOME}>` : `${HOME}\\Hub>`;
     const entry = { title: `Terminal, on ${e.on}`, prompt, steps: steps.map(({ cmd, out }) => ({ cmd, out })) };
     if (e.cps) entry.cps = e.cps;
     entry.sources = steps.map((s) => s.source);

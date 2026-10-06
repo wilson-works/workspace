@@ -63,21 +63,21 @@ test('from a folder: copied under its key, nothing in it runs, its subagent regi
   const s = setup();
   try {
     const port = await spare();
-    const pkg = makePackage(s.base, 'quill', port, s.marker);
+    const pkg = makePackage(s.base, 'sample', port, s.marker);
     const asked = [];
     const r = await lib.installPackage(pkg, s.agents, { subagentsDir: s.subs, hubRoot: s.hub, ask: async (q) => { asked.push(q); return false; } });
     assert.equal(r.ok, true, JSON.stringify(r));
-    assert.equal(r.key, 'quill');
+    assert.equal(r.key, 'sample');
     assert.equal(r.port, port, 'its own port, free, is kept');
-    const target = path.join(s.agents, 'quill');
+    const target = path.join(s.agents, 'sample');
     assert.deepEqual(JSON.parse(fs.readFileSync(path.join(target, 'agent.json'), 'utf8')), JSON.parse(fs.readFileSync(path.join(pkg, 'agent.json'), 'utf8')));
     for (const f of ['CLAUDE.md', 'brains/README.md', 'rules/never-send-without-a-yes.md', 'memory/MEMORY.md', 'dashboard/server.js', 'mark.svg', 'art.svg']) {
       assert.ok(fs.existsSync(path.join(target, ...f.split('/'))), f);
     }
     assert.ok(!fs.existsSync(path.join(target, '.git')), '.git is never copied');
-    assert.ok(r.lines.some((l) => l.startsWith('+ ') && l.includes('quill')));
+    assert.ok(r.lines.some((l) => l.startsWith('+ ') && l.includes('sample')));
 
-    const sub = fs.readFileSync(path.join(s.subs, 'quill.md'), 'utf8');
+    const sub = fs.readFileSync(path.join(s.subs, 'sample.md'), 'utf8');
     assert.ok(sub.includes(`${fwd(target)}/CLAUDE.md`), 'its subagent points at the installed folder, not the package');
     assert.ok(!sub.includes('{{agent_dir}}'));
 
@@ -104,10 +104,10 @@ test('a port another agent.json claims, or one something listens on, is swapped 
   try {
     const port = await spare();
     lib.scaffold(path.join(s.agents, 'other'), { key: 'other', name: 'Other', title: 'x', port });
-    const r = await lib.installPackage(makePackage(s.base, 'quill', port, s.marker), s.agents, { subagentsDir: s.subs, start: false });
+    const r = await lib.installPackage(makePackage(s.base, 'sample', port, s.marker), s.agents, { subagentsDir: s.subs, start: false });
     assert.equal(r.ok, true, JSON.stringify(r));
     assert.notEqual(r.port, port);
-    const m = JSON.parse(fs.readFileSync(path.join(s.agents, 'quill', 'agent.json'), 'utf8'));
+    const m = JSON.parse(fs.readFileSync(path.join(s.agents, 'sample', 'agent.json'), 'utf8'));
     assert.equal(m.probe.port, r.port);
     assert.equal(m.door.local, `http://127.0.0.1:${r.port}/`);
     assert.deepEqual(lib.validateManifest(m), { ok: true, errors: [] });
@@ -118,7 +118,7 @@ test('a port another agent.json claims, or one something listens on, is swapped 
     const r2 = await lib.installPackage(makePackage(s.base, 'nib', busy, s.marker), s.agents, { start: false });
     assert.equal(r2.ok, true, JSON.stringify(r2));
     assert.notEqual(r2.port, busy, 'something listens on it');
-    assert.notEqual(r2.port, r.port, 'and not the port just given to quill');
+    assert.notEqual(r2.port, r.port, 'and not the port just given to sample');
   } finally {
     holder.close();
     fs.rmSync(s.base, { recursive: true, force: true });
@@ -128,7 +128,7 @@ test('a port another agent.json claims, or one something listens on, is swapped 
 test('a package that fails the contract, or has no agent.json, is refused and nothing is written', async () => {
   const s = setup();
   try {
-    const pkg = makePackage(s.base, 'quill', await spare(), s.marker);
+    const pkg = makePackage(s.base, 'sample', await spare(), s.marker);
     const m = JSON.parse(fs.readFileSync(path.join(pkg, 'agent.json'), 'utf8'));
     m.key = 'Not A Key';
     m.door.local = 'http://evil.example:7600/';
@@ -159,9 +159,9 @@ test('a package that fails the contract, or has no agent.json, is refused and no
 test('a copy that differs is kept unless forced; forcing moves yours to the _DumpQueue, never deleting it', async () => {
   const s = setup();
   try {
-    const pkg = makePackage(s.base, 'quill', await spare(), s.marker);
+    const pkg = makePackage(s.base, 'sample', await spare(), s.marker);
     await lib.installPackage(pkg, s.agents, { subagentsDir: s.subs, hubRoot: s.hub, start: false });
-    const memory = path.join(s.agents, 'quill', 'memory', 'MEMORY.md');
+    const memory = path.join(s.agents, 'sample', 'memory', 'MEMORY.md');
     fs.appendFileSync(memory, '- 2026-10-05 something it learned (memory/x.md)\n');
     const learned = fs.readFileSync(memory, 'utf8');
 
@@ -176,7 +176,7 @@ test('a copy that differs is kept unless forced; forcing moves yours to the _Dum
     const queue = path.join(s.hub, '90-Archive', '_DumpQueue');
     const moved = fs.readdirSync(queue);
     assert.equal(moved.length, 1);
-    assert.match(moved[0], /^agent-quill-\d{4}-\d{2}-\d{2}$/);
+    assert.match(moved[0], /^agent-sample-\d{4}-\d{2}-\d{2}$/);
     assert.equal(fs.readFileSync(path.join(queue, moved[0], 'memory', 'MEMORY.md'), 'utf8'), learned, 'yours waits in the _DumpQueue');
   } finally {
     fs.rmSync(s.base, { recursive: true, force: true });
@@ -187,16 +187,16 @@ test('--port: a free one is used as asked; a taken one is refused before anythin
   const s = setup();
   const holder = net.createServer();
   try {
-    const pkg = makePackage(s.base, 'quill', await spare(), s.marker);
+    const pkg = makePackage(s.base, 'sample', await spare(), s.marker);
     const asked = await spare();
     const first = await lib.installPackage(pkg, s.agents, { subagentsDir: s.subs, hubRoot: s.hub, start: false, port: asked });
     assert.equal(first.ok, true, JSON.stringify(first));
     assert.match(first.lines.join('\n'), new RegExp(`^~ .*gets port ${asked}, as asked`, 'm'));
-    const m = JSON.parse(fs.readFileSync(path.join(s.agents, 'quill', 'agent.json'), 'utf8'));
+    const m = JSON.parse(fs.readFileSync(path.join(s.agents, 'sample', 'agent.json'), 'utf8'));
     assert.equal(m.probe.port, asked);
     assert.equal(m.door.local, `http://127.0.0.1:${asked}/`);
 
-    const memory = path.join(s.agents, 'quill', 'memory', 'MEMORY.md');
+    const memory = path.join(s.agents, 'sample', 'memory', 'MEMORY.md');
     fs.appendFileSync(memory, '- 2026-10-05 something it learned (memory/x.md)\n');
     const learned = fs.readFileSync(memory, 'utf8');
     const taken = await new Promise((resolve) => holder.listen(0, '127.0.0.1', () => resolve(holder.address().port)));
@@ -214,7 +214,7 @@ test('--port: a free one is used as asked; a taken one is refused before anythin
 test('a link inside a package is never copied', async (t) => {
   const s = setup();
   try {
-    const pkg = makePackage(s.base, 'quill', await spare(), s.marker);
+    const pkg = makePackage(s.base, 'sample', await spare(), s.marker);
     fs.writeFileSync(path.join(s.base, 'secret.txt'), 'outside the package');
     try { fs.symlinkSync(path.join(s.base, 'secret.txt'), path.join(pkg, 'brains', 'linked.md')); } catch (_) {
       t.skip('no right to make links here');
@@ -222,7 +222,7 @@ test('a link inside a package is never copied', async (t) => {
     }
     const r = await lib.installPackage(pkg, s.agents, { start: false });
     assert.equal(r.ok, true);
-    assert.ok(!fs.existsSync(path.join(s.agents, 'quill', 'brains', 'linked.md')));
+    assert.ok(!fs.existsSync(path.join(s.agents, 'sample', 'brains', 'linked.md')));
   } finally {
     fs.rmSync(s.base, { recursive: true, force: true });
   }
@@ -237,7 +237,7 @@ test('install-agent: a refused package exits 2; a good one exits 0, gets an offi
   });
   const run = (...args) => spawnSync(process.execPath, [INSTALL, ...args], { env, encoding: 'utf8', timeout: 60000 });
   try {
-    const pkg = makePackage(s.base, 'quill', await spare(), s.marker);
+    const pkg = makePackage(s.base, 'sample', await spare(), s.marker);
     const badDir = path.join(s.base, 'bad');
     fs.mkdirSync(badDir);
     fs.writeFileSync(path.join(badDir, 'agent.json'), JSON.stringify({ key: 'bad', name: 'Bad' }));
@@ -248,13 +248,13 @@ test('install-agent: a refused package exits 2; a good one exits 0, gets an offi
 
     const dry = run(pkg, '--hub', s.hub, '--dry-run');
     assert.equal(dry.status, 0, dry.stdout);
-    assert.ok(!fs.existsSync(path.join(s.agents, 'quill')), 'a dry run writes nothing');
+    assert.ok(!fs.existsSync(path.join(s.agents, 'sample')), 'a dry run writes nothing');
 
     const ok = run(pkg, '--hub', s.hub, '--yes', '--no-start');
     assert.equal(ok.status, 0, ok.stdout);
-    assert.ok(fs.existsSync(path.join(s.agents, 'quill', 'agent.json')));
+    assert.ok(fs.existsSync(path.join(s.agents, 'sample', 'agent.json')));
     assert.match(ok.stdout, /now has an office in the Agents' wing/);
-    assert.equal(lib.runningPid(path.join(s.agents, 'quill')), null);
+    assert.equal(lib.runningPid(path.join(s.agents, 'sample')), null);
     assert.ok(!fs.existsSync(s.marker));
   } finally {
     fs.rmSync(s.base, { recursive: true, force: true });

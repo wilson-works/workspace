@@ -46,9 +46,9 @@ export default function promoWorkspace(portrait) {
       {
         scene: 'shot',
         props: portrait
-          ? { shot: 'agents', frame: 'card', keys: [{ at: 0, box: 'office:iris', pad: 20 }] }
-          : { shot: 'agents', keys: [{ at: 0, box: ['office:iris', 'office:quill'], pad: 30, free: true }] },
-        lines: [{ text: 'Specialist agents get an office of their own.', s: 3.8 }],
+          ? { shot: 'agents', frame: 'card', keys: [{ at: 0, box: 'office:louise', pad: 20 }, { at: 'c1', box: 'office:bryn', pad: 20 }] }
+          : { shot: 'agents', keys: [{ at: 0, box: ['office:louise', 'office:bryn'], pad: 30, free: true }] },
+        lines: [{ text: 'Specialist agents get an office of their own.', s: 3.8 }, { text: 'Louise and Bryn are ours, and free to install.', s: 3.6 }],
       },
       {
         scene: 'offer', hl: ['free', 'paid', 'all'],

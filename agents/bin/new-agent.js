@@ -7,7 +7,7 @@
  *   node agents/bin/new-agent.js <key> --name <Name> --title <Title> [--line <text>] [--color <#rrggbb>]
  *                                [--hub <root>] [--port <n>] [--no-start] [--dry-run] [--yes]
  *
- *   node agents/bin/new-agent.js iris --name Iris --title "The Research Desk" --line "Reads everything on a topic."
+ *   node agents/bin/new-agent.js <key> --name "<Name>" --title "<what it does>" --line "<its job, in one line>"
  *
  * It finds the Hub (--hub, else hub/lib/root.js), and writes the agent from agents/template/ into
  * <Hub>/50-AI/agents/<key>/ (or the office's first agents folder): agent.json, CLAUDE.md, brains/,
@@ -75,7 +75,7 @@ const { out, fwd, refuse, fail } = cli;
 
   const door = made.manifest.door.local;
   if (dry) {
-    out(`  + its dashboard on port ${port}${flags['no-start'] ? ' (not started: --no-start)' : ', started'}`);
+    out(`  + its dashboard on port ${port}${flags['no-start'] ? ' (it would not be started: --no-start)' : ', which would be started'}`);
     out('Nothing was written. Run it again without --dry-run to make it.');
     return;
   }

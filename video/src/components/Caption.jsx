@@ -3,7 +3,8 @@
 // Rules (create-onboarding-video): the caption sits at the same spot in every frame, in a band
 // reserved at the top; it is big; it rises in from 60 px below while fading in, with a strong
 // UI ease-out, and stays for the whole line; when the next line has exactly the same words it
-// does not animate again. The band also carries a small chapter tag at its left edge.
+// does not animate again. A video's opening line is already in place on frame 0, so no frame,
+// the first included, is without a caption. The band also carries a small chapter tag at its left edge.
 
 import React from 'react';
 import { Easing, interpolate, useCurrentFrame, useVideoConfig } from 'remotion';
@@ -12,13 +13,17 @@ import { Orb } from './Orb';
 
 const RISE = 12;
 
-/** The line showing at a frame, and whether it simply continues the one before. */
+/**
+ * The line showing at a frame, and whether it is already in place: it continues the one before, or
+ * it is the video's opening line, which stands at full strength from frame 0 so the first frame is
+ * never without its caption.
+ */
 function lineAt(lines, frame) {
   let i = 0;
   for (let k = 0; k < lines.length; k += 1) if (frame >= lines[k].from) i = k;
   const line = lines[i];
   const prev = lines[i - 1];
-  return { line, continued: !!prev && prev.text === line.text, since: frame - line.from };
+  return { line, continued: i === 0 || (!!prev && prev.text === line.text), since: frame - line.from };
 }
 
 /** An address in a caption never breaks across two lines. */
