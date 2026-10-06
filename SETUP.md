@@ -86,7 +86,7 @@ Keep the answers in this chat: they are saved in step 2, once there is a setting
 
 5. **A logo?** Optional. An `.svg` or `.png` file on their computer. No logo is fine: the orb stays.
 6. **Names for your sessions?** The office gives every chat a short name (trees, out of the box: Cedar,
-   Rowan, Birch). Offer a theme that fits the mood, in their words (a reading room: Folio, Quill,
+   Rowan, Birch). Offer a theme that fits the mood, in their words (a reading room: Folio, Inkwell,
    Margin, Index; a workshop: Anvil, Chisel, Lathe). Optional; trees are fine.
 7. **This computer's short name**, shown on its chip on the office: capitals, like `DESK` or `LAPTOP`.
    Suggest one from step 0.

@@ -140,7 +140,7 @@ test('listAgents: one level down only; a folder must match its key; a missing im
   try {
     const all = lib.listAgents([d, path.join(d, 'no-such-folder'), d2]);
     const first = Object.fromEntries(all.filter((a) => path.dirname(a.dir) === d).map((a) => [a.key, a]));
-    assert.deepEqual(Object.keys(first).sort(), ['broken', 'sample', 'nomark', 'other']);
+    assert.deepEqual(Object.keys(first).sort(), ['broken', 'nomark', 'other', 'sample']);
     assert.equal(first.sample.ok, true);
     assert.match(first.other.errors.join(' '), /folder name/);
     assert.match(first.broken.errors.join(' '), /not valid JSON/);

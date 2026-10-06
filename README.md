@@ -115,11 +115,11 @@ the [v2.1.0 release page](https://github.com/wilson-works/workspace/releases/tag
 
 | Video | Length | Watch |
 |---|---|---|
-| The Workspace in under a minute | promo | [wide](https://github.com/wilson-works/workspace/releases/download/v2.1.0/workspace-promo-16x9.mp4) · [phone](https://github.com/wilson-works/workspace/releases/download/v2.1.0/workspace-promo-9x16.mp4) |
-| Specialist agents with an office of their own | promo | [wide](https://github.com/wilson-works/workspace/releases/download/v2.1.0/agents-promo-16x9.mp4) · [phone](https://github.com/wilson-works/workspace/releases/download/v2.1.0/agents-promo-9x16.mp4) |
-| 1. What it is: the Hub, the skills, the office | walkthrough | [watch](https://github.com/wilson-works/workspace/releases/download/v2.1.0/walkthrough-1-what-it-is.mp4) |
-| 2. Several computers, one office | walkthrough | [watch](https://github.com/wilson-works/workspace/releases/download/v2.1.0/walkthrough-2-several-computers.mp4) |
-| 3. Fleet ops: sessions on different computers working together | walkthrough | [watch](https://github.com/wilson-works/workspace/releases/download/v2.1.0/walkthrough-3-fleet-ops.mp4) |
+| The Workspace in under a minute | 53.6 s | [wide](https://github.com/wilson-works/workspace/releases/download/v2.1.0/workspace-promo-16x9.mp4) · [phone](https://github.com/wilson-works/workspace/releases/download/v2.1.0/workspace-promo-9x16.mp4) |
+| Specialist agents with an office of their own | 52.6 s | [wide](https://github.com/wilson-works/workspace/releases/download/v2.1.0/agents-promo-16x9.mp4) · [phone](https://github.com/wilson-works/workspace/releases/download/v2.1.0/agents-promo-9x16.mp4) |
+| 1. What it is: the Hub, the skills, the office | 4:58 | [watch](https://github.com/wilson-works/workspace/releases/download/v2.1.0/walkthrough-1-what-it-is.mp4) |
+| 2. Several computers, one office | 2:44 | [watch](https://github.com/wilson-works/workspace/releases/download/v2.1.0/walkthrough-2-several-computers.mp4) |
+| 3. Fleet ops: sessions on different computers working together | 3:35 | [watch](https://github.com/wilson-works/workspace/releases/download/v2.1.0/walkthrough-3-fleet-ops.mp4) |
 
 ## Free, or done for you
 
