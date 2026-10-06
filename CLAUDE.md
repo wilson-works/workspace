@@ -11,6 +11,10 @@ Code. Speak plainly, explain a term the first time you use it, and do one step a
 - If the person says "set up my WorkSpace" (or anything like it), run the `/workspace-setup` skill.
 - If they ask what to do next, run `node bin/work.js list` and suggest the next step of the
   Get started course.
+- If they ask to set up the Workspace from scratch, or to "carry on my Workspace setup", follow
+  `SETUP.md` (design chat, install, the first agents, their own first agent).
+- If they ask to update the Workspace with a branch or tag, follow `prompts/update-my-workspace.md`:
+  their changes live on their branch `my-workspace`, and an update is merged into it, never forced.
 
 ## Where this folder sits
 
@@ -75,6 +79,6 @@ re-reads them). Adding or renaming a machine needs `--restart`.
 - `install.js` the one installer (its parts are in `bin/install-suite.js`); `install.ps1` and
   `install.sh` fetch this repo on a fresh computer and run it. `skills/starter.json` the pinned
   starter skills. `hub/`, `agents/`, `fleet/` the Hub template, the agent contract and the fleet
-  template. `guides/` 01 to 08 cover all of it.
+  template. `guides/` 01 to 09 cover all of it.
 - `org/` the CTO org (18 agents, comms bus, path guard). `permissions/` the permission setup and
   walkaway hooks. `projects/` the Work page's projects. `guides/` and `prompts/` the documentation.
