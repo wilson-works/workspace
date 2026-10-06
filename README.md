@@ -50,19 +50,15 @@ Claude follows. You need Claude Code, [Node.js](https://nodejs.org) 20 or newer 
 Copy this message and send it to anyone who would like a Workspace of their own:
 
 ```text
-I've been using the WilsonWorks Workspace, a free setup for Claude Code: one folder for all your work, an
-office page where every Claude chat shows up as a person at a desk, and two free agents, Louise for
-research and Bryn for thinking decisions through. It's here: https://github.com/wilson-works/workspace
+I've been using the WilsonWorks Workspace, a free setup for Claude Code: one folder for all your work, an office page where every Claude chat shows up as a person at a desk, and two free agents, Louise for research and Bryn for thinking decisions through. It's here: https://github.com/wilson-works/workspace
 
-You need three things first: Claude Code (in VS Code or the Claude desktop app, https://claude.com/claude-code),
-Node.js 20 or newer (https://nodejs.org) and Git (https://git-scm.com/downloads).
+You need three things first: Claude Code (in VS Code or the Claude desktop app, https://claude.com/claude-code), Node.js 20 or newer (https://nodejs.org) and Git (https://git-scm.com/downloads).
 
 Then make a folder called Hub in your user folder, open it in Claude Code, start a chat and paste this line:
 
 Set up my WilsonWorks Workspace from https://github.com/wilson-works/workspace, following SETUP.md.
 
-Claude asks how you'd like your office to look and feel, installs it, introduces you to Louise and Bryn,
-and helps you build your first agent of your own. It shows you every step before it does it.
+Claude asks how you'd like your office to look and feel, installs it, introduces you to Louise and Bryn, and helps you build your first agent of your own. It shows you every step before it does it.
 ```
 
 New features arrive the same way, as one line to paste: Claude merges them into your own copy and
