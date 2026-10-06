@@ -75,7 +75,7 @@ const { out, fwd, refuse, fail } = cli;
 
   const door = made.manifest.door.local;
   if (dry) {
-    out(`  + its dashboard on port ${port}${flags['no-start'] ? ' (not started: --no-start)' : ', started'}`);
+    out(`  + its dashboard on port ${port}${flags['no-start'] ? ' (it would not be started: --no-start)' : ', which would be started'}`);
     out('Nothing was written. Run it again without --dry-run to make it.');
     return;
   }
