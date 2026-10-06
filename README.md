@@ -20,9 +20,53 @@ your phone buzzes when one does.
   └──────────────────────────────────────────────────────────────────────────┘
 ```
 
+## Install with Claude
+
+Make a folder called `Hub` in your user folder, open it in Claude Code (the VS Code extension, or the
+Code tab of the Claude desktop app), start a chat and paste:
+
+```
+Set up my WilsonWorks Workspace from https://github.com/wilson-works/workspace, following SETUP.md.
+```
+
+What happens next:
+
+1. **A short chat about how you want it to feel and look**: what your office is called, its mood (a
+   calm studio, a busy newsroom, a cosy library), two colours to match, your logo if you have one, and
+   what your sessions call you.
+2. **Claude installs it**, with Louise and Bryn, showing you the plan first, and opens your office in
+   your colours.
+3. **You meet your first agents**: you bring Bryn a small decision and ask Louise one question.
+4. **You build your first agent of your own, together**: Bryn helps you choose the job it takes off
+   your hands, Louise researches how that job is done well, and the agent org builds it, in your own
+   words, in your Hub.
+
+Nothing runs without your yes, and you can stop after any step. [SETUP.md](SETUP.md) is the runbook
+Claude follows. You need Claude Code, [Node.js](https://nodejs.org) 20 or newer and
+[Git](https://git-scm.com/downloads).
+
+## Send it to someone
+
+Copy this message and send it to anyone who would like a Workspace of their own:
+
+```text
+I've been using the WilsonWorks Workspace, a free setup for Claude Code: one folder for all your work, an office page where every Claude chat shows up as a person at a desk, and two free agents, Louise for research and Bryn for thinking decisions through. It's here: https://github.com/wilson-works/workspace
+
+You need three things first: Claude Code (in VS Code or the Claude desktop app, https://claude.com/claude-code), Node.js 20 or newer (https://nodejs.org) and Git (https://git-scm.com/downloads).
+
+Then make a folder called Hub in your user folder, open it in Claude Code, start a chat and paste this line:
+
+Set up my WilsonWorks Workspace from https://github.com/wilson-works/workspace, following SETUP.md.
+
+Claude asks how you'd like your office to look and feel, installs it, introduces you to Louise and Bryn, and helps you build your first agent of your own. It shows you every step before it does it.
+```
+
+New features arrive the same way, as one line to paste: Claude merges them into your own copy and
+keeps everything you changed ([guide 9](guides/09-updates.md)).
+
 ## Install in one line
 
-**Windows** (PowerShell):
+The other way, from a terminal. **Windows** (PowerShell):
 
 ```
 irm https://raw.githubusercontent.com/wilson-works/workspace/main/install.ps1 | iex
@@ -38,7 +82,8 @@ You need [Node.js](https://nodejs.org) 20 or newer and [Git](https://git-scm.com
 installer checks for both and says where to get anything missing. It shows its plan before every
 step, never replaces a file of yours, and can be run again any time (a second run says "Nothing
 changed."). Add `--dry-run` to see the plan without changing anything. Then open your Hub folder in
-VS Code or the desktop app's Code tab and start a chat: you're on the floor.
+VS Code or the desktop app's Code tab and start a chat: you're on the floor. To have Claude style it
+and introduce your first agents, paste `Carry on my Workspace setup from step 1 of 50-AI/workspace/SETUP.md.`
 [Guide 1](guides/01-install.md) walks through it, step by step.
 
 ## The suite
@@ -116,8 +161,9 @@ Setup help is $150 per seat; a one-job agent (a social media or sales assistant,
 6. [Your Hub](guides/06-the-hub.md): the zones, the rules, the map, where projects live.
 7. [Several computers](guides/07-several-computers.md): the fleet, handoffs, a builder and a gate.
 8. [Specialist agents](guides/08-agents.md): the agent contract, `new-agent`, installing Louise or any agent.
+9. [Updates](guides/09-updates.md): how new features arrive, and why they never break your own pieces.
 
-And [the prompt library](prompts/README.md).
+And [the prompt library](prompts/README.md), with [the update procedure](prompts/update-my-workspace.md).
 
 ## How it works, in one paragraph
 
