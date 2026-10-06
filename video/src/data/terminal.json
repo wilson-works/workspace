@@ -17,7 +17,7 @@
           "  Office settings       C:\\Users\\alex\\Hub\\50-AI\\workspace\\workspace.config.json",
           "  Starter skills        C:\\Users\\alex\\Hub\\.claude\\skills",
           "  The skills pack       C:\\Users\\alex\\Hub\\50-AI\\claude_skills",
-          "  Your agents           C:\\Users\\alex\\Hub\\50-AI\\agents",
+          "  Your agents           C:\\Users\\alex\\Hub\\50-AI\\agents (none yet)",
           "  The install record    C:\\Users\\alex\\Hub\\.hub\\installed.json",
           "…",
           "42 change(s) made.",
@@ -59,6 +59,8 @@
           "",
           "agents - the home of your specialist agents",
           "  = 50-AI\\agents",
+          "  Louise, The Research Librarian, is on offer, and was not installed: --yes installs an agent only when you name it with --agent.",
+          "    To install: add --agent louise, or run node agents/bin/install-agent.js louise",
           "",
           "fleet - your computers working together (a new fleet)",
           "  = DESK is in the fleet (50-AI\\fleet-ops)",
@@ -112,7 +114,7 @@
           "  + C:/Users/alex/Hub/50-AI/agents/garden-helper/rules/never-send-without-a-yes.md",
           "  + C:/Users/alex/Hub/50-AI/agents/garden-helper/subagent.md",
           "  + C:/Users/alex/Hub/.claude/agents/garden-helper.md",
-          "  + its dashboard on port 7600, started",
+          "  + its dashboard on port 7600, which would be started",
           "Nothing was written. Run it again without --dry-run to make it."
         ]
       }
@@ -121,9 +123,7 @@
     "sources": [
       "DESK new-agent"
     ],
-    "excerpt": false,
-    "draft": true,
-    "_draft": "Written by hand from new-agent.js before the capture, to look at the scene. capture/terminal.js replaces it with what the command printed."
+    "excerpt": false
   },
   "installAgent": {
     "title": "Terminal, on DESK",
@@ -134,13 +134,13 @@
         "out": [
           "Installing Louise, from https://github.com/wilson-works/louise.git:",
           "  ~ Louise gets port 7660, as asked (probe.port and door.local in its agent.json)",
-          "  + C:/Users/alex/Hub/50-AI/agents/louise/ (files)",
+          "  + C:/Users/alex/Hub/50-AI/agents/louise/ (93 files)",
           "  + C:/Users/alex/Hub/.claude/skills/marathon-research  (a skill Louise needs, from claude_skills@88fa015)",
           "  + C:/Users/alex/Hub/.claude/skills/marathon-research-council  (a skill Louise needs, from claude_skills@88fa015)",
           "  + C:/Users/alex/Hub/.claude/skills/distill  (a skill Louise needs, from claude_skills@88fa015)",
           "  = C:/Users/alex/Hub/.claude/skills/quick-research",
           "  + C:/Users/alex/Hub/.claude/agents/louise.md",
-          "  + started Louise's dashboard (pid)",
+          "  + started Louise's dashboard (pid 53708)",
           "",
           "Louise's door: http://127.0.0.1:7660/",
           "Louise now has an office in the Agents' wing."
@@ -151,13 +151,13 @@
         "out": [
           "Installing Bryn, from https://github.com/wilson-works/bryn.git:",
           "  ~ Bryn gets port 7661, as asked (probe.port and door.local in its agent.json)",
-          "  + C:/Users/alex/Hub/50-AI/agents/bryn/ (files)",
+          "  + C:/Users/alex/Hub/50-AI/agents/bryn/ (89 files)",
           "  + C:/Users/alex/Hub/.claude/skills/brainstorm  (a skill Bryn needs, from claude_skills@88fa015)",
           "  + C:/Users/alex/Hub/.claude/skills/llm-council  (a skill Bryn needs, from claude_skills@88fa015)",
           "  + C:/Users/alex/Hub/.claude/skills/premortem  (a skill Bryn needs, from claude_skills@88fa015)",
           "  + C:/Users/alex/Hub/.claude/skills/decision-policy  (a skill Bryn needs, from claude_skills@88fa015)",
           "  + C:/Users/alex/Hub/.claude/agents/bryn.md",
-          "  + started Bryn's dashboard (pid)",
+          "  + started Bryn's dashboard (pid 26256)",
           "",
           "Bryn's door: http://127.0.0.1:7661/",
           "Bryn now has an office in the Agents' wing."
@@ -169,9 +169,7 @@
       "DESK install-agent-louise",
       "DESK install-agent-bryn"
     ],
-    "excerpt": false,
-    "draft": true,
-    "_draft": "Written by hand from install-agent.js before the capture, to look at the scene. capture/terminal.js replaces it with what the commands printed."
+    "excerpt": false
   },
   "fleetInit": {
     "title": "Terminal, on DESK",
@@ -243,7 +241,7 @@
       {
         "cmd": "fleet handoff --to MINI \"Build GP-04 frost dates\" --body \"The plan is in work order GP-04. Next: the frost date lookup and its tests. Check: the calendar shows the first and last frost for the garden.\" --repo garden-planner --branch gp-04-frost-dates",
         "out": [
-          "  + handoffs/open/HO-20261005-1219-DESK-build-gp-04-frost-dates.md  (for MINI)",
+          "  + handoffs/open/HO-20261005-2254-DESK-build-gp-04-frost-dates.md  (for MINI)",
           "Handed to MINI: Build GP-04 frost dates",
           "Synced DESK. 3 computers in the fleet; 0 handoffs waiting for DESK."
         ]
@@ -263,15 +261,15 @@
         "cmd": "fleet pickup",
         "out": [
           "Waiting for MINI: 1",
-          "  HO-20261005-1219-DESK-build-gp-04-frost-dates",
-          "      from DESK, 2026-10-05 12:19 CDT: Build GP-04 frost dates  (branch gp-04-frost-dates)",
+          "  HO-20261005-2254-DESK-build-gp-04-frost-dates",
+          "      from DESK, 2026-10-05 22:54 CDT: Build GP-04 frost dates  (branch gp-04-frost-dates)",
           "Take one with: fleet pickup <id>"
         ]
       },
       {
-        "cmd": "fleet pickup HO-20261005-1219-DESK-build-gp-04-frost-dates",
+        "cmd": "fleet pickup HO-20261005-2254-DESK-build-gp-04-frost-dates",
         "out": [
-          "  ~ handoffs/open/HO-20261005-1219-DESK-build-gp-04-frost-dates.md -> handoffs/taken/HO-20261005-1219-DESK-build-gp-04-frost-dates.md  (taken by MINI)",
+          "  ~ handoffs/open/HO-20261005-2254-DESK-build-gp-04-frost-dates.md -> handoffs/taken/HO-20261005-2254-DESK-build-gp-04-frost-dates.md  (taken by MINI)",
           "Synced MINI. 3 computers in the fleet; 0 handoffs waiting for MINI.",
           "",
           "# Build GP-04 frost dates",
@@ -282,7 +280,7 @@
           "",
           "`garden-planner`, on the branch `gp-04-frost-dates` (pushed to GitHub).",
           "",
-          "When it is finished: fleet done HO-20261005-1219-DESK-build-gp-04-frost-dates --note \"what happened\""
+          "When it is finished: fleet done HO-20261005-2254-DESK-build-gp-04-frost-dates --note \"what happened\""
         ]
       }
     ],
@@ -316,14 +314,14 @@
         "cmd": "fleet status",
         "out": [
           "This computer: DESK (command). Hub: C:\\Users\\alex\\Hub",
-          "Last sync: 2026-10-05 12:22 CDT (just now), ok.",
+          "Last sync: 2026-10-05 22:56 CDT (just now), ok.",
           "Computers:",
           "  DESK       command    synced just now   office answering   (this one)",
           "  LAPTOP     mobile     synced just now   office answering",
           "  MINI       builder    synced just now   office answering",
           "Waiting for DESK: 0 handoffs.",
           "Sent by DESK:",
-          "  HO-20261005-1219-DESK-build-gp-04-frost-dates  Build GP-04 frost dates: taken by MINI, 2026-10-05 12:19 CDT",
+          "  HO-20261005-2254-DESK-build-gp-04-frost-dates  Build GP-04 frost dates: taken by MINI, 2026-10-05 22:54 CDT",
           "Board: backlog 1 · doing 3 · done 1 · archive 0"
         ]
       }

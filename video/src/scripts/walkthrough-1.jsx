@@ -150,10 +150,11 @@ export default {
     },
 
     {
-      scene: 'offer', chapter: 'WilsonWorks Workspace', hl: ['all', 'free', 'paid', 'all'],
+      scene: 'offer', chapter: 'WilsonWorks Workspace', hl: ['all', 'free', 'free', 'paid', 'all'],
       lines: [
         "That's the Workspace: a Hub, starter skills and an office.",
         "It's free to set up yourself, from github.com/wilson-works/workspace.",
+        'Or open an empty Hub folder in Claude Code, and Claude sets it up with you.',
         'Or have WilsonWorks set it up for you, with agents built for your work.',
         'Next: one office across several computers.',
       ],

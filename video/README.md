@@ -10,7 +10,7 @@ Research Librarian) and Bryn (The Trail Guide), installed by name from GitHub th
 |---|---|---|---|
 | `PromoWorkspace-16x9`, `PromoWorkspace-9x16` | The Hub, the starter skills, the office floor, the phone, the Agents' wing, and the offer | about 53 s | 1920x1080, 1080x1920 |
 | `PromoAgents-16x9`, `PromoAgents-9x16` | Specialist agents: an office of their own, a door into the dashboard, Louise and Bryn, knock for a joke, install ours by name or build your own | about 52 s | 1920x1080, 1080x1920 |
-| `Walkthrough1-WhatItIs` | The Hub's zones and NAV.md, the starter skills, sessions starting from VS Code and the desktop app, the course, the Agents' wing | about 4.9 min | 1920x1080 |
+| `Walkthrough1-WhatItIs` | The Hub's zones and NAV.md, the starter skills, sessions starting from VS Code and the desktop app, the course, the Agents' wing | about 5 min | 1920x1080 |
 | `Walkthrough2-SeveralComputers` | DESK, MINI and LAPTOP: their roles, their Hubs (the two values that differ), one office floor, agent doors on any computer, the phone over Tailscale | about 2.7 min | 1920x1080 |
 | `Walkthrough3-FleetOps` | The private fleet-ops repo, the board, one comms file per computer, a handoff from DESK to MINI, a builder and a gate, the daily sync, `fleet status` and the office's Fleet tab | about 3.6 min | 1920x1080 |
 

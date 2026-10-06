@@ -78,8 +78,9 @@ const SHOTS = [
       await new Promise((r) => setTimeout(r, 1300));
     },
   },
-  // Each agent's own dashboard, at its sandbox port: louise-dashboard, bryn-dashboard.
-  ...WORLD.agents.map((a) => ({ name: `${a.key}-dashboard`, url: agentUrl(a.key), view: WIDE, wait: 'main' })),
+  // Each agent's own dashboard, at its sandbox port: louise-dashboard, bryn-dashboard. An agent whose
+  // page picks a scene at random (Bryn at rest) is pinned to one with its query (demo-world.json).
+  ...WORLD.agents.map((a) => ({ name: `${a.key}-dashboard`, url: `${agentUrl(a.key)}${a.query || ''}`, view: WIDE, wait: 'main' })),
   { name: 'phone-floor', url: `${OFFICE}/#/floor/all`, view: PHONE, wait: '.desk' },
   { name: 'phone-questions', url: `${OFFICE}/#/questions`, view: PHONE, wait: '.panel' },
   { name: 'phone-agents', url: `${OFFICE}/#/agents`, view: PHONE, wait: '.ahall .aoffice' },

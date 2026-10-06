@@ -79,7 +79,9 @@
         "--question",
         "Should the bakery website take orders, or only show the menu?"
       ],
-      "_": "install-agent bryn --port 7661 on DESK, for the same reason (her default is 7550). stage is set with her own node engine/stage.js set."
+      "_": "install-agent bryn --port 7661 on DESK, for the same reason (her default is 7550). stage is set with her own node engine/stage.js set.",
+      "query": "?idle=rock",
+      "_q": "query: shoot.js loads her page with it, so her resting scene is always the rock with the cup (her page picks one of three at random). Her stage on the day is council, so the resting scene shows only if the stage ends."
     }
   ],
   "new_agent": {
