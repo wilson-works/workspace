@@ -64,6 +64,8 @@ function lines(installed) {
     if (a.line) out.push(`  ${''.padEnd(16)} ${a.line}`);
   }
   out.push('Install one: node agents/bin/install-agent.js <key>');
+  // Owner 2026-10-09: every agent we offer can be installed as it is, or built as your own version.
+  out.push('Want your own version of one, built around the way you work? https://wilsonworks.studio/ai-consulting/agents');
   return out;
 }
 

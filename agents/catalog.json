@@ -17,6 +17,22 @@
       "line": "Helps you think a decision through. Five scouts weigh it on their own, she looks for where the plan could fail, and she keeps your call so you never argue it twice.",
       "source": "https://github.com/wilson-works/bryn.git",
       "price": "free"
+    },
+    {
+      "key": "cowork",
+      "name": "James and John's Coworking Space",
+      "title": "The CTO org's office",
+      "line": "Tell James and John what you need. They read your projects, plan the work as a run for your team of agents, and hand you the steps. You start the lanes.",
+      "source": "https://github.com/wilson-works/cto-cowork.git",
+      "price": "free"
+    },
+    {
+      "key": "kindlemere",
+      "name": "Kindlemere",
+      "title": "Avo, Steady and Tumble by the lake",
+      "line": "Three keepers in a park by a lake: Avo plans your meals and shopping, Steady your workouts and stretches, Tumble your dog's training and play.",
+      "source": "https://github.com/wilson-works/wellbeing-agents.git",
+      "price": "free"
     }
   ]
 }
