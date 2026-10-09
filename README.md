@@ -93,7 +93,7 @@ and introduce your first agents, paste `Carry on my Workspace setup from step 1 
 | **The Hub** | One folder on each computer for all your work, in numbered zones (`00-Inbox` to `90-Archive`), with a constitution `CLAUDE.md` every session reads, a plain-English map (`NAV.md`) rebuilt from what is on disk, and a `CLAUDE.md` per project. Claude always knows where things go, on any drive, on Windows or macOS. [Guide 6](guides/06-the-hub.md). |
 | **The starter skills** | Twelve skills from the free [claude_skills](https://github.com/wilson-works/claude_skills) pack, such as `handoff`, `notetaker`, `file-organizer`, `backlog` and `scope-check`, pulled at a pinned commit so they never drift. [Why each one](skills/README.md). |
 | **The office** | A local web page (http://127.0.0.1:4316): the Floor, Work, Agents, Questions and Chat. Every session opened on your Hub shows up. Private by design: it reads session metadata only, never prompts or file contents, and binds to this computer alone. |
-| **Specialist agents** | An agent for one job you repeat, with its own rules, facts, memory and dashboard. Install one of ours (`install-agent louise`), make your own with `new-agent`, or install one you were given. Each gets an office in the Agents' wing, with a door into its dashboard, by itself. [Guide 8](guides/08-agents.md). |
+| **Specialist agents** | An agent for one job you repeat, with its own rules, facts, memory and dashboard. Install one of ours (`install-agent louise`), or make your own with `new-agent`. Each gets an office in the Agents' wing, with a door into its dashboard, by itself. [Guide 8](guides/08-agents.md). |
 | **The fleet** (optional) | Your computers sharing work through your own private `fleet-ops` repo: a board of work orders, a message file per computer, and handoffs from a session on one to a session on another. The installer sets it up. [Guide 7](guides/07-several-computers.md). |
 
 And inside the office:
@@ -205,7 +205,7 @@ node hub/bin/hub.js nav --root <Hub>                regenerate your Hub's map, N
 node hub/bin/hub.js new-project <name>              a new project in your code zone, with its CLAUDE.md
 node agents/bin/new-agent.js <key> --name <N> --title <T>    a new specialist agent, with its office
 node agents/bin/install-agent.js louise             install one of our agents (agents/bin/agent.js catalog lists them)
-node agents/bin/install-agent.js <package>          install an agent you were given
+node agents/bin/install-agent.js <package>          install an agent package (only one you trust; we vouch for our catalog only)
 node fleet/bin/fleet.js init | join <owner/name> | schedule  your computers working together
 node bin/office-start.js [--restart]                start (or restart) the office
 node bin/install.js [part] [--apply|--remove]       extra parts: hooks, permissions, startup, org --into <folder>
