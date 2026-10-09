@@ -2,7 +2,7 @@
 'use strict';
 
 /**
- * install-agent.js — install an agent package you were given, and give it an office.
+ * install-agent.js — install an agent from our catalog, or a package of your own, and give it an office.
  *
  *   node agents/bin/install-agent.js <key or package> [--hub <root>] [--port <n>] [--yes] [--dry-run] [--force] [--no-start]
  *
