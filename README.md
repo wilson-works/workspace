@@ -126,21 +126,30 @@ the [v2.1.0 release page](https://github.com/wilson-works/workspace/releases/tag
 The whole Workspace is **free and public**. Everything here is yours to set up yourself, with the
 guides and the course.
 
-**Install one of ours.** Both are free.
+**Install one of ours.** All four are free.
 
 - **Louise, the research librarian**, researches your questions with a source for every fact, and
   keeps what she finds on shelves you can browse. Say yes when the installer offers her.
 - **Bryn, the trail guide**, helps you think a decision through: five scouts weigh it on their own,
   she looks for where the plan could fail, and she keeps your call so you never argue it twice.
+- **James and John's Coworking Space**, the front office of the CTO org: tell James and John what
+  you need, they read your projects and plan the work as a run for your team of agents, and hand you
+  the steps to start it. It works with the CTO org in `org/` and your fleet repo (`fleet/`).
+- **Kindlemere**, three keepers in a park by a lake: Avo plans your meals and shopping, Steady your
+  workouts and stretches, and Tumble your dog's training and play.
 
 From the Workspace folder:
 
 ```
 node agents/bin/install-agent.js louise
 node agents/bin/install-agent.js bryn
+node agents/bin/install-agent.js cowork
+node agents/bin/install-agent.js kindlemere
 ```
 
-`node agents/bin/agent.js catalog` lists every agent of ours you can install.
+`node agents/bin/agent.js catalog` lists every agent of ours you can install. Each one is yours to
+change: its rules, facts and look are plain files. If you'd like your own version of one, built
+around the way you work, [WilsonWorks builds them](https://wilsonworks.studio/ai-consulting/agents).
 
 If you'd rather have it done for you, WilsonWorks offers two things:
 
