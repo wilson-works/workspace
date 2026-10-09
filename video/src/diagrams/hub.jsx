@@ -70,7 +70,7 @@ export const Zones = ({ cues, hl, root, compact }) => {
           const a = interpolate(f, [6 + i * 4, 18 + i * 4], [0, 1], clamp);
           const on = lit(i) || lit('all');
           return (
-            <div key={z.dir} style={{ opacity: a * dim(any, on), transform: `translateX(${(1 - a) * 30}px)`, display: 'flex', flexDirection: L.portrait ? 'column' : 'row', alignItems: L.portrait ? 'flex-start' : 'center', gap: L.portrait ? 6 : 34, height: rowH, paddingLeft: 60, borderLeft: `3px solid ${C.line}`, marginLeft: 26, justifyContent: L.portrait ? 'center' : 'flex-start' }}>
+            <div key={z.dir} style={{ opacity: a * dim(any, on), transform: `translateX(${(1 - a) * 30}px)`, display: 'flex', flexDirection: L.portrait ? 'column' : 'row', alignItems: L.portrait ? 'flex-start' : 'center', gap: L.portrait ? 6 : 34, height: rowH, paddingLeft: 60, borderLeft: `1px solid ${C.line}`, marginLeft: 26, justifyContent: L.portrait ? 'center' : 'flex-start' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, width: L.portrait ? undefined : 420 }}>
                 <Folder size={L.portrait ? 44 : 40} color={on && any ? C.white : C.accentLight} />
                 <PathText size={L.portrait ? 42 : 38} weight={700} color={on && any ? C.white : C.text}>{z.dir}</PathText>
