@@ -81,10 +81,13 @@ Installing the agent adds each one your Hub doesn't have yet, from the same pinn
 starter skills (a `+` line for each). If the pack doesn't have one, nothing is installed and it says
 which skill is missing.
 
-## Install one you were given
+## Installing a package from somewhere else
 
-An agent **package** is an agent someone else built, such as one a friend made. It might be a
-folder, a single `.zip` file or a git address.
+WilsonWorks vouches only for the agents in its own catalog (`agents/bin/agent.js catalog`). The
+installer can also take an agent **package** from a folder, a single `.zip` file or a git address,
+for example to move an agent you built yourself onto another of your computers. An agent can read and
+change files on your computer, so never install a package from a link or a person you don't know and
+trust.
 
 ```
 Install the agent package at <the package folder or file> with
