@@ -35,7 +35,10 @@ export function stepText(step) {
 export function nowText(s, ago) {
   if (s.state === 'waiting') {
     const w = s.waiting || {};
-    const base = w.kind === 'wakeup' ? 'Waiting on a timer it set' : 'Waiting on a background job';
+    const out = (s.helpers || []).length;
+    const base = w.kind === 'wakeup' ? 'Waiting on a timer it set'
+      : w.kind === 'helpers' ? `Waiting for ${out > 1 ? `its ${out} helpers` : 'its helper'} to come back`
+        : 'Waiting on a background job';
     return w.summary ? `${base} — ${w.summary}` : base;
   }
   if (s.state === 'idle') return `Idle · last active ${ago(s.last_at)} ago`;

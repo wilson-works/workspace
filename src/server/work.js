@@ -17,6 +17,10 @@
  * as "Private project" under an opaque key, its steps as Step 1, Step 2 ... with
  * ids P1, P2 ..., and its steps' text is not served: a folder, a file name or a
  * step id can each be a client's name. Open it in your editor.
+ *
+ * The page opens with Running now (liveWork): the sessions at work this minute,
+ * read off the floor, so the Work page shows what is actually being worked on,
+ * not only what the projects' steps say.
  */
 
 const fs = require('fs');
@@ -199,6 +203,43 @@ function step(home, key, id, now) {
   };
 }
 
+const LIVE_RECENT_MS = 15 * 60000;   // a quiet session that did something this recently still shows in Running now
+
+/**
+ * Running now: what is being worked on right now, read off the floor itself (the sessions of the
+ * office's last frame). Every session that is working, waiting, has helpers out, or did something in
+ * the last 15 minutes, grouped by the repo or room it is in, busiest group first. Private work shows
+ * as private work only: no title, no helper tasks, no repo or branch.
+ */
+function liveWork(sessions, at) {
+  const groups = new Map();
+  for (const s of sessions || []) {
+    const busy = s.state === 'working' || s.state === 'waiting' || (s.helpers || []).length > 0;
+    if (!busy && !(s.last_at && at - s.last_at < LIVE_RECENT_MS)) continue;
+    const priv = !!s.client_work;
+    const project = priv ? 'Private work' : s.repo || s.room || 'Unfiled';
+    if (!groups.has(project)) groups.set(project, []);
+    groups.get(project).push({
+      key: `${s.machine}:${s.id}`, machine: s.machine,
+      name: (s.display && s.display.label) || s.name || 'A session',
+      title: priv ? null : s.name || null,
+      avatar: s.avatar || null, family: s.family || 'unknown', state: s.state,
+      now: s.now || null, before: priv ? [] : (s.before || []).slice(0, 2), waiting: s.waiting || null,
+      helpers: (s.helpers || []).map((h) => ({ task: priv ? null : h.task || null, type: h.type || 'helper', now: h.now || null })),
+      repo: priv ? null : s.repo || null, branch: priv ? null : s.branch || null,
+      started_at: s.started_at || null, last_at: s.last_at || null,
+    });
+  }
+  const rank = { working: 0, waiting: 1, idle: 2 };
+  return [...groups.entries()]
+    .map(([project, list]) => ({
+      project,
+      working: list.filter((x) => x.state === 'working').length,
+      sessions: list.sort((a, b) => (rank[a.state] ?? 3) - (rank[b.state] ?? 3) || (b.last_at || 0) - (a.last_at || 0)),
+    }))
+    .sort((a, b) => b.working - a.working || b.sessions.length - a.sessions.length || a.project.localeCompare(b.project));
+}
+
 /** Mark a step To do, Doing or Done (the page's buttons and bin/work.js). */
 function mark(home, key, id, status, now) {
   const st = String(status || '').toLowerCase();
@@ -217,4 +258,4 @@ function mark(home, key, id, status, now) {
   return { ok: true, project: p.key, id: s.id, status: st };
 }
 
-module.exports = { parse, list, project, step, mark, folders, STATES };
+module.exports = { parse, list, project, step, mark, folders, liveWork, STATES };

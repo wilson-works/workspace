@@ -114,6 +114,21 @@ These are the agents of ours anyone can install, from `agents/catalog.json`:
 you have. To have one built for your own work, see "Free, or done for you" in the
 [README](../README.md), or get in touch: https://wilsonworks.studio/ai-consulting?inquiry=workspace-agent
 
+## Wake, Sleep and Restart
+
+Each agent installed on this computer has its own buttons on its door in the Agents wing:
+
+- **Wake** starts its dashboard (its `start` command), when it is off. The door opens once it answers.
+- **Sleep** stops it. It also stops the runs it started in the background: any Node program whose
+  command line names a file inside the agent's own folder, by its full path. A copy of the dashboard
+  the office didn't start, and can't be sure of, is left running, and the office says so.
+- **Restart** is Sleep, then Wake: what a dashboard needs after you change its code.
+- **Sleep all agents**, above the hall, puts every agent here to sleep at once, after asking.
+
+They work the same from your phone. An agent that is only planned, or runs on another computer, has
+none of them; its door says why. From a terminal, `node agents/bin/agent.js start <key>` and
+`stop <key>` do the same for the dashboard.
+
 ## Its door on your phone
 
 Once your phone is on the office ([guide 2](02-tailscale.md)), you can open an agent's dashboard
@@ -132,6 +147,8 @@ Show me each command before you run it.
   (ask Claude to check it), then reload the office page.
 - **The door shows zzz but the dashboard is running.** The `probe` doesn't match where the dashboard
   answers. Ask Claude to compare the probe's port and path with the dashboard's.
+- **Sleep says the office didn't start this copy.** The dashboard was started some other way (a
+  terminal, say), so its pid isn't in `dashboard/.pid`. Close it where it was started, then use Wake.
 - **A chat can't call the agent.** Open a new chat on the Hub: a chat reads the agents list when it
   starts. Check `.claude/agents/<key>.md` exists in your Hub.
 - **It guessed instead of saying "not verified".** Tighten its rules and add the missing fact, with

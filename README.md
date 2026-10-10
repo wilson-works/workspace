@@ -100,6 +100,9 @@ And inside the office:
 
 | | |
 |---|---|
+| **Running now** | The Work page opens with what is being worked on right now: every session at work, what it is doing this minute, the helpers it sent off, and its repo and branch. A session waiting for its helpers to come back says so. |
+| **Agent controls** | Wake, Sleep and Restart on each agent's door, and Sleep all for every agent at once, from your desk or your phone. Sleep also stops the runs an agent started in the background. |
+| **A tidy floor** | Clear the idle seats in one tap, or Remove from floor on one quiet seat. Nothing is stopped: a seat comes back as soon as its session does something new. |
 | **Get started** | An eleven-lesson course on the Work page, from your first note to your first specialist agent, your Hub and your computers working together. Every lesson has the prompts to paste. |
 | **Demo app** | A tiny practice app with four work orders for your new team. |
 | **The CTO org** | 18 agents (CTO, Chief Engineer, exec assistant, five department heads, ten juniors) with a message bus and a department guard. The same team as `agent-org` in the free claude_skills pack. |

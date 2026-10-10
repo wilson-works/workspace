@@ -371,6 +371,7 @@ function readReconstructed(projectsDir, sinceMs) {
 // unchanged. The server rebuilds a frame every 5 s; re-parsing 18 transcript
 // tails every frame is pointless disk work for files that did not move.
 const metaCache = new Map();
+const modelSeen = new Map();   // transcript path -> the last model id read from it
 
 function readSlice(p, fromEnd, bytes) {
   const st = fs.statSync(p);
@@ -496,6 +497,16 @@ function transcriptMeta(jsonlPath, maxBytes) {
       if (out.ok && out.cwd && out.model && out.title && out.recent.length >= 8 && (out.waiting || stoppedLater)) break;
     }
 
+    // One long line (a screenshot read back, a big file) can fill the whole tail and leave no
+    // assistant line to name the model, and the desk then said "Model unknown" under a session
+    // plainly running a known model. The model a session ran last is kept, and a tail that names no
+    // model is read again, wider, once.
+    if (out.model) modelSeen.set(key, out.model);
+    else if (modelSeen.has(key)) out.model = modelSeen.get(key);
+    if ((!out.ok || !out.model) && !maxBytes && st0.size > 262144) {
+      const wide = transcriptMeta(jsonlPath, 4194304);
+      if (wide.ok) return wide;
+    }
     if (!out.ok) out.reason = 'no assistant line in the tail';
     metaCache.set(key, { mtime: st0.mtimeMs, size: st0.size, out });
     return out;
@@ -504,9 +515,60 @@ function transcriptMeta(jsonlPath, maxBytes) {
   }
 }
 
+/** A folder the office must not look into: private work, or a never-read folder. */
+const offLimits = (p) => config.isPrivate(p) || config.neverRead(p);
+
 /**
- * The repo folder a path sits in: the first folder under one of the configured
- * `code_roots` (workspace.config.json), or null when it is under none.
+ * The name of the main repo a git worktree came from, or null when `dir` is not a worktree's top.
+ * A worktree's `.git` is a file that says where it came from: `gitdir: <repo>/.git/worktrees/<name>`
+ * (or `<repo>.git/worktrees/<name>` for a bare repo). That one line is all that is read, once per
+ * folder. A main repo in a private or never-read folder is never named.
+ */
+const worktreeSeen = new Map();
+function worktreeRepo(dir) {
+  if (worktreeSeen.has(dir)) return worktreeSeen.get(dir);
+  let repo = null;
+  try {
+    const g = /^gitdir:\s*(.+)$/m.exec(fs.readFileSync(path.join(dir, '.git'), 'utf8'));
+    const m = g && /^(.*[\\/]([^\\/]+?))(?:[\\/]\.git|\.git)[\\/]worktrees[\\/][^\\/]+[\\/]*$/i.exec(g[1].trim());
+    if (m && !offLimits(path.resolve(dir, m[1]))) repo = m[2];
+  } catch (_) { /* no .git file here: not a worktree's top (no checkout, or a normal repo's .git folder) */ }
+  if (worktreeSeen.size > 2000) worktreeSeen.clear();
+  worktreeSeen.set(dir, repo);
+  return repo;
+}
+
+/**
+ * The main repo of the git worktree an absolute path is in, walking up to the checkout's top (where
+ * `.git` is), or null: not in a checkout, a normal checkout, or a private or never-read folder.
+ * Cached per path.
+ */
+const checkoutSeen = new Map();
+function worktreeOf(cwd) {
+  if (!path.isAbsolute(String(cwd))) return null;
+  const start = path.resolve(String(cwd));
+  if (checkoutSeen.has(start)) return checkoutSeen.get(start);
+  let repo = null;
+  if (!offLimits(start)) {
+    for (let dir = start, i = 0; i < 40; i += 1) {
+      let st = null;
+      try { st = fs.statSync(path.join(dir, '.git')); } catch (_) { /* not here: one level up */ }
+      if (st) { repo = st.isFile() ? worktreeRepo(dir) : null; break; }
+      const up = path.dirname(dir);
+      if (up === dir) break;
+      dir = up;
+    }
+  }
+  if (checkoutSeen.size > 2000) checkoutSeen.clear();
+  checkoutSeen.set(start, repo);
+  return repo;
+}
+
+/**
+ * The repo a path sits in: the first folder under one of the configured `code_roots`
+ * (workspace.config.json), else the main repo of a git worktree wherever that worktree is, else
+ * null. A worktree is named for the repo it came from, so a session working in one sits in that
+ * repo's room, not in a room named after the worktree's own folder.
  */
 function repoOf(cwd) {
   if (!cwd) return null;
@@ -515,10 +577,12 @@ function repoOf(cwd) {
     const r = String(root).replace(/\//g, '\\').replace(/\\+$/, '');
     if (s.toLowerCase().startsWith(`${r.toLowerCase()}\\`)) {
       const name = s.slice(r.length + 1).split('\\')[0];
-      if (name) return name;
+      if (!name) continue;
+      const dir = path.join(root, name);
+      return (!offLimits(dir) && worktreeRepo(dir)) || name;
     }
   }
-  return null;
+  return worktreeOf(cwd);
 }
 
 /**
@@ -654,5 +718,5 @@ function readFlows(dbPaths, sinceIso) {
 module.exports = {
   VERBS, verbFor, summaryFor, laneId, laneLabel,
   readEvents, foldDesks, readReconstructed, transcriptMeta, transcriptHead, projectOf, isClientWork,
-  readComms, findCommsDbs, readFlows, repoOf,
+  readComms, findCommsDbs, readFlows, repoOf, worktreeRepo,
 };

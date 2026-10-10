@@ -42,7 +42,7 @@ const arg = (n, d) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] :
 const flag = (n) => args.indexOf(n) >= 0;
 
 const config = require('../src/server/config');
-const { homeDir, claudeHome } = require('../src/server/home');
+const { homeDir, ownerClaudeHome } = require('../src/server/home');
 
 const home = homeDir();
 const { cfg } = loadConfig();
@@ -83,11 +83,12 @@ let seen = [];
 try { seen = JSON.parse(fs.readFileSync(seenFile, 'utf8')); } catch (_) { seen = []; }
 let acks = [];
 
+// The office owner's sessions (home.js ownerClaudeHome), whichever account started this forwarder.
 function liveOptions() {
   return {
     officeHome: home,
-    projects: path.join(claudeHome(), 'projects'),
-    commsPaths: [path.join(claudeHome(), 'comms.db')],
+    projects: path.join(ownerClaudeHome(home), 'projects'),
+    commsPaths: [path.join(ownerClaudeHome(home), 'comms.db')],
   };
 }
 

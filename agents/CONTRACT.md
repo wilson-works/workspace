@@ -145,6 +145,13 @@ and trials; a `source` there that is a relative folder is read from that file's 
   link the browser opens itself.
 - When the office starts, every agent with `autostart: true` whose probe does not answer is started,
   detached, logging to its `dashboard/dashboard.log`.
+- Its door has Wake, Sleep and Restart, and the hall has Sleep all, for an agent with a `start` and a
+  probe with a port. A `planned` agent has none of them. Wake runs `start` exactly as `agent.js start`
+  does. Sleep stops only the pid in `dashboard/.pid`, and only while that process is still the program
+  `start` names. Sleep also stops the agent's runs: every Node process whose command line names a file
+  inside the agent's folder by its full path. So a background run started from a dashboard should name
+  its script by its full path, and a program that is not one of the agent's runs should not name a
+  file inside the agent's folder on its command line.
 
 ## The dashboard
 

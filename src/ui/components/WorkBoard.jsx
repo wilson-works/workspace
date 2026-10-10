@@ -1,23 +1,34 @@
-// WorkBoard.jsx — the Work tab (/api/work): every project in projects/ (and any
+// WorkBoard.jsx — the Work tab (/api/work): Running now (the sessions at work this
+// minute, read off the floor), then every project in projects/ (and any
 // workspace.config.json work_folders), each with its % done ring and its steps as
 // a small kanban - To do, Doing, Done. A course reads as lessons, with the next
 // one to take; a project reads as orders. A project opens its page
-// (#/work/<project>), a card its step (#/step/<project>/<id>).
+// (#/work/<project>), a card its step (#/step/<project>/<id>), a session its desk.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Close from './Close.jsx';
+import Avatar from './Avatar.jsx';
 import { Ring, useRise } from './Progress.jsx';
+import { nowText } from '../words.js';
+import { formatAgo } from '../useOfficeStream.js';
 
 const POLL_MS = 15000;
 
-// GET a JSON view now and every POLL_MS; `bump` reloads it at once.
-export function useJson(url, bump) {
+// GET a JSON view now and every POLL_MS (or every `fastMs` while one is given); `bump` and
+// `reload()` load it again at once.
+export function useJson(url, bump, fastMs) {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
+  const fast = useRef(null);
+  fast.current = fastMs || null;
+  const kick = useRef(() => {});
   useEffect(() => {
     let alive = true;
     let timer = null;
+    let seq = 0;
     const load = async () => {
+      clearTimeout(timer);
+      const mine = ++seq;
       try {
         const res = await fetch(url, { cache: 'no-store' });
         const body = await res.json();
@@ -27,12 +38,75 @@ export function useJson(url, bump) {
       } catch {
         if (alive) setError('Could not reach the office.');
       }
-      if (alive) timer = setTimeout(load, POLL_MS);
+      // Only the newest load sets the next one, so a reload never starts a second timer.
+      if (alive && mine === seq) timer = setTimeout(load, fast.current ? Math.min(POLL_MS, fast.current) : POLL_MS);
     };
+    kick.current = load;
     load();
-    return () => { alive = false; clearTimeout(timer); };
+    return () => { alive = false; clearTimeout(timer); kick.current = () => {}; };
   }, [url, bump]);
-  return { data, error };
+  return { data, error, reload: () => kick.current() };
+}
+
+// "4m ago", or "just now".
+const agoText = (asOf, t) => { const a = formatAgo(asOf - t); return a === 'now' ? 'just now' : `${a} ago`; };
+
+// One session at work: who, what it is for, what it is doing this minute, its helpers, and where
+// (repo, branch, machine). Opens its desk on the floor.
+function LiveCard({ x, asOf, onSession }) {
+  const ago = (t) => (t ? formatAgo(asOf - t) : '—');
+  const doing = nowText({ state: x.state, now: x.now, before: x.before, waiting: x.waiting, helpers: x.helpers, last_at: x.last_at }, ago);
+  const where = [x.repo, x.branch, x.machine].filter(Boolean).join(' · ');
+  const tasks = x.helpers.map((h) => h.task || `a ${h.type}`);
+  return (
+    <li>
+      <button type="button" className="kcard live-card" onClick={() => onSession(x.key)} title={`Open ${x.name}'s desk`}>
+        <span className="live-who">
+          <Avatar avatar={x.avatar} family={x.family} state={x.state} size={28} />
+          <span className="live-name">{x.name}</span>
+          <span className={`live-state live-${x.state}`}>{x.state === 'working' ? 'Working' : x.state === 'waiting' ? 'Waiting' : 'Quiet'}</span>
+        </span>
+        {x.title && x.title !== x.name && <span className="live-title">{x.title}</span>}
+        <span className="live-doing">{doing}</span>
+        {tasks.length > 0 && (
+          <span className="live-helpers">
+            {tasks.length === 1 ? '1 helper' : `${tasks.length} helpers`}: {tasks.slice(0, 3).join(' · ')}{tasks.length > 3 ? ` · +${tasks.length - 3} more` : ''}
+          </span>
+        )}
+        {(where || x.started_at) && (
+          <span className="run-meta">{[where, x.started_at ? `started ${agoText(asOf, x.started_at)}` : null].filter(Boolean).join(' · ')}</span>
+        )}
+      </button>
+    </li>
+  );
+}
+
+function liveCount(list) {
+  const n = (st) => list.filter((x) => x.state === st).length;
+  const quiet = list.length - n('working') - n('waiting');
+  return [n('working') && `${n('working')} working`, n('waiting') && `${n('waiting')} waiting`, quiet && `${quiet} quiet`].filter(Boolean).join(' · ');
+}
+
+// Running now: what is being worked on this minute, from the floor itself, grouped by repo or room.
+function RunningNow({ groups, asOf, onSession }) {
+  return (
+    <section className="live" aria-label="running now">
+      <h3 className="live-head">Running now</h3>
+      {groups.length === 0 ? <p className="kcol-empty">Nothing is being worked on right now.</p> : (
+        <ul className="live-groups">
+          {groups.map((g) => (
+            <li key={g.project} className={`live-group ${g.working > 0 ? 'is-live' : ''}`}>
+              <p className="live-group-head">
+                <span className="live-group-name">{g.project}</span>
+                <span className="live-group-count">{liveCount(g.sessions)}</span>
+              </p>
+              <ul className="kcards live-cards">{g.sessions.map((x) => <LiveCard key={x.key} x={x} asOf={asOf} onSession={onSession} />)}</ul>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
 }
 
 export const LISTS = [
@@ -126,7 +200,7 @@ function Totals({ projects }) {
   );
 }
 
-export default function WorkBoard({ onClose, onProject, onStep }) {
+export default function WorkBoard({ onClose, onProject, onStep, onSession }) {
   const { data, error } = useJson('/api/work');
   const projects = (data && data.projects) || [];
   return (
@@ -134,12 +208,13 @@ export default function WorkBoard({ onClose, onProject, onStep }) {
       <header className="panel-head">
         <div className="panel-id">
           <h2>Work</h2>
-          <p>Your projects and the Get started course</p>
+          <p>What is running now, your projects and the Get started course</p>
         </div>
         <Close onClose={onClose} />
       </header>
       <div className="panel-body">
         {error && <p className="q-error">{error}</p>}
+        {data && data.ok && Array.isArray(data.live_work) && <RunningNow groups={data.live_work} asOf={data.asOf} onSession={onSession} />}
         {data && data.ok === false && <p className="q-empty">{data.error || "Can't read the work."}</p>}
         {data && data.ok && projects.length === 0 && (
           <p className="q-empty">No projects yet. A project is a folder in projects/ with a PROJECT.md and a steps folder (projects/README.md).</p>

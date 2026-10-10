@@ -39,4 +39,24 @@ function claudeHome() {
   return env && env.trim() ? env.trim() : path.join(os.homedir(), '.claude');
 }
 
-module.exports = { homeDir, claudeHome };
+/**
+ * The user folder an office home belongs to (C:\Users\<name>\AppData\..., /Users/<name>/Library/...,
+ * /home/<name>/.local/...), else this account's own. On a computer with more than one account, an
+ * office started from another account must still read its owner's sessions, not the starter's.
+ */
+function ownerProfile(home) {
+  const m = /^(.*?[\\/](?:Users|home)[\\/][^\\/]+)[\\/](?:AppData|Library|\.local)[\\/]/i.exec(String(home || ''));
+  return m ? m[1] : os.homedir();
+}
+
+/**
+ * Claude Code's folder for the person whose office this is: CLAUDE_CONFIG_DIR when set, else the
+ * `.claude` folder in the user folder the office home belongs to (ownerProfile). The office, the
+ * forwarder and office-read.js read transcripts and the user-level comms bus from here.
+ */
+function ownerClaudeHome(home) {
+  const env = process.env.CLAUDE_CONFIG_DIR;
+  return env && env.trim() ? env.trim() : path.join(ownerProfile(home || homeDir()), '.claude');
+}
+
+module.exports = { homeDir, claudeHome, ownerProfile, ownerClaudeHome };

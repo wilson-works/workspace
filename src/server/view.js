@@ -152,13 +152,26 @@ function callsignOf(d, machine, tags, room) {
   };
 }
 
-function sessionOf(d, self, home) {
+// A helper read only from its transcript (no hook saw it start) counts as out for this long after its last line.
+const HELPER_FRESH_MS = 10 * 60 * 1000;
+// Past this a session's open helpers no longer make it 'waiting': one that died mid-wait never closes them.
+const HELPERS_WAIT_MAX_MS = 65 * 60 * 1000;
+
+function sessionOf(d, self, home, now) {
   const machine = d.machine || self;
   const tags = tagsOf(d);
   const model = d.model && d.model.status !== 'NOT_READ' ? d.model.value : null;
-  const state = d.state === 'working' ? 'working' : d.state === 'waiting' ? 'waiting' : 'idle';
+  let state = d.state === 'working' ? 'working' : d.state === 'waiting' ? 'waiting' : 'idle';
   const recent = d.recent || [];
   const seats = d.seats || [];
+  // A session that handed its work to helpers and waits for them to come back is not idle: it carries
+  // on when they return. Bounded, because a session that died mid-wait never closes its helpers.
+  let waiting = d.waiting ? { kind: d.waiting.kind, since: d.waiting.since, summary: d.waiting.summary || null } : null;
+  const out = seats.filter((s) => !s.reconstructed || (typeof s.age_ms === 'number' && s.age_ms < HELPER_FRESH_MS));
+  if (state === 'idle' && out.length && typeof now === 'number' && now - (d.last_event_at || 0) < HELPERS_WAIT_MAX_MS) {
+    state = 'waiting';
+    waiting = { kind: 'helpers', since: d.last_event_at || null, summary: null };
+  }
   // A private session's folder name can be a client's name, so it never names the room.
   const room = d.client_work ? 'Private work' : tags.run ? `Run ${tags.run}` : prettyRoom(d.project);
   // A waiter (bin/office-wake-hook.js) lives on this machine only; another
@@ -176,7 +189,12 @@ function sessionOf(d, self, home) {
     model,
     family: family(model),
     state,
-    waiting: d.waiting ? { kind: d.waiting.kind, since: d.waiting.since, summary: d.waiting.summary || null } : null,
+    waiting,
+    // Where the work is, for the Work page's Running now: the repo of its code tree (named where the
+    // files are, on its own machine) and its branch. Never for private work: a branch name can carry a
+    // client's.
+    repo: d.client_work || !d.code_cwd || !d.project ? null : prettyRoom(d.project),
+    branch: d.client_work || !d.branch || ['HEAD', 'main', 'master'].includes(d.branch) ? null : String(d.branch).slice(0, 80),
     now: step(recent[0]) || (d.activity && d.activity.value && d.activity.value.tool
       ? { verb: d.activity.value.verb, tool: d.activity.value.tool, summary: null, at: d.activity.observed_at }
       : null),
@@ -235,7 +253,7 @@ function buildView(state, opts) {
   const machine = opts.machine || thisMachine();
   const now = state.asOf;
   const desks = state.desks || [];
-  const sessions = desks.map((d) => sessionOf(d, machine, opts.home));
+  const sessions = desks.map((d) => sessionOf(d, machine, opts.home, now));
   const cfg = loadPeople(opts.peopleFile);
   nameSessions(sessions, desks.map((d) => personOf(d, cfg)));
   return {
