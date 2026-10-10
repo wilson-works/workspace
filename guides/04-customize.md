@@ -20,7 +20,7 @@ needs `node bin/office-start.js --restart`.
 | `brand.logo` | An .svg or .png that replaces the orb in the bar and the browser tab. Keep it in `brand/` (not committed). | `"brand/logo.svg"` |
 | `machines` | Your computers: short `name`, the computer's own name in `computer`, one `hub`, optional `callsigns` pool. [Guide 2](02-tailscale.md). | |
 | `hub_url` | The hub's tailnet address. | `"https://desk.tail1234.ts.net"` |
-| `code_roots` | Folders that hold your code repos. A session inside one sits in that repo's room on the floor, and the office reads each repo's org messages. | `["C:\\Users\\sam\\code"]` |
+| `code_roots` | Folders that hold your code repos. A session inside one sits in that repo's room on the floor, and the office reads each repo's org messages. A git worktree sits in the room of the repo it came from, wherever it is. | `["C:\\Users\\sam\\code"]` |
 | `work_folders` | Extra folders whose project folders show on the Work page. Good for private work you want outside this repo. | `["D:\\Work\\projects"]` |
 | `privacy.private_work` | Folders (or words in folder names) whose sessions never show a title, task or summary on the office or the phone. | `["clients", "C:\\Users\\sam\\tax"]` |
 | `privacy.never_read` | Folders the office never reads, which `install.js permissions` turns into deny rules for every session. | `["C:\\Users\\other-person"]` |

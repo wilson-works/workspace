@@ -13,11 +13,12 @@ const { read } = require('../src/server/reader');
 const args = process.argv.slice(2);
 const arg = (n, d) => { const i = args.indexOf(n); return i >= 0 ? args[i + 1] : d; };
 const path = require('path');
-const { homeDir, claudeHome } = require('../src/server/home');
+const { homeDir, ownerClaudeHome } = require('../src/server/home');
 const live = args.includes('--live');
 const root = arg('--root', '.');
+const claude = ownerClaudeHome(homeDir());
 const state = live
-  ? read(homeDir(), { officeHome: homeDir(), projects: path.join(claudeHome(), 'projects'), commsPaths: [path.join(claudeHome(), 'comms.db')] })
+  ? read(homeDir(), { officeHome: homeDir(), projects: path.join(claude, 'projects'), commsPaths: [path.join(claude, 'comms.db')] })
   : read(root, {});
 if (args.includes('--summary')) {
   const s = state;

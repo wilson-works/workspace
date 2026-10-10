@@ -8,6 +8,29 @@ import Close from './Close.jsx';
 import { QuestionCard } from './Questions.jsx';
 import { nowText, stepText, modelLabel } from '../words.js';
 import { formatClock } from '../useOfficeStream.js';
+import { clearSeats } from './Pulse.jsx';
+
+// Take this quiet seat off the floor (server seats.js). It stops nothing; the seat comes back the
+// moment the session does anything new.
+function ClearSeat({ s, token, onDone }) {
+  const [said, setSaid] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const press = async () => {
+    setBusy(true);
+    const r = await clearSeats(token, [`${s.machine}:${s.id}`]);
+    setBusy(false);
+    setSaid(r.text);
+    if (r.ok && /^Cleared/.test(r.text)) setTimeout(onDone, 900);
+  };
+  return (
+    <span className="seat-clear-wrap">
+      <button type="button" className="seat-clear" disabled={busy} onClick={press} title="Stops nothing. The seat comes back if this session does anything new.">
+        {busy ? 'Clearing…' : 'Remove from floor'}
+      </button>
+      <span className="seat-said" role="status" aria-live="polite">{said || ''}</span>
+    </span>
+  );
+}
 
 function Composer({ s, token }) {
   const [text, setText] = useState('');
@@ -147,6 +170,7 @@ export default function Panel({ s, flows, token, ago, onClose, question }) {
           {s.display.label !== s.name && <p className="panel-title">{s.name}</p>}
           <p>{modelLabel(s.model, s.family)} · {s.machine} · {s.room}{s.display.person && s.callsign && <> · callsign {s.callsign.name}</>}</p>
           {s.display.rename && <RenameButton c={s.display} />}
+          {s.state === 'idle' && token && !question && <ClearSeat s={s} token={token} onDone={onClose} />}
         </div>
         <Close onClose={onClose} sheet />
       </header>

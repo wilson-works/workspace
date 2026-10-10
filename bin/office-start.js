@@ -17,7 +17,9 @@
  *   3. waits up to 90 s for Tailscale when it is installed, because at login
  *      its service is often still starting - and without this machine's
  *      Tailscale name the phone gets 403 (the server only answers names it was
- *      told about);
+ *      told about). Started from another account on this computer (Tailscale
+ *      belongs to the account that set it up), it waits those 90 s for the
+ *      owner's own start instead, and starts the office only if nobody has;
  *   4. starts the server detached, logging to <office home>/office.log;
  *   5. starts each specialist agent with autostart: true whose probe does not answer
  *      (agents/lib/agents.js autostart), detached, never blocking the office. Only when the office
@@ -137,8 +139,23 @@ async function stopRunning(note) {
     const got = tailscaleName(cli);
     name = got.name || null;
     refused = !!got.refused;
-    if (refused && remembered) break;
+    if (refused) break; // it belongs to another account here: asking again never works
     if (!name) await sleep(5000);
+  }
+  // A start from that other account skipped the wait above, so after a restart it used to win the race
+  // for the port against the owner's own start (still waiting on Tailscale), and the office then ran as
+  // the wrong account. It now gives the owner's start the same 90 s, and starts the office only if
+  // nobody has.
+  if (refused) {
+    for (let i = 0; i < 18; i += 1) {
+      if (await portInUse()) {
+        note(`port ${PORT} was taken while this other account waited - the owner's office is up; not starting a second one`);
+        process.stdout.write(`The office is already running: http://127.0.0.1:${PORT}/\n`);
+        return;
+      }
+      await sleep(5000);
+    }
+    note('no office after 90 s - starting it from this other account');
   }
   if (name && name !== remembered) {
     try { fs.writeFileSync(nameFile, `${name}\n`); } catch (e) { note(`could not remember the Tailscale name: ${e.message}`); }

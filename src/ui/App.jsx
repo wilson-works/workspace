@@ -235,10 +235,10 @@ export default function App() {
     } else if (route.project) {
       view = <ProjectWork project={route.project} onClose={back} onStep={(id) => openStep(route.project, id)} />;
     } else {
-      view = <WorkBoard onClose={back} onProject={openProject} onStep={openStep} />;
+      view = <WorkBoard onClose={back} onProject={openProject} onStep={openStep} onSession={(k) => go({ tab: 'floor', machine, session: k })} />;
     }
   } else if (route.tab === 'agents') {
-    view = <AgentsWing onClose={back} questions={questions} onQuestions={() => go({ tab: 'questions' })} />;
+    view = <AgentsWing onClose={back} questions={questions} onQuestions={() => go({ tab: 'questions' })} token={frame.token} />;
   } else if (route.tab === 'fleet') {
     view = <Fleet onClose={back} />;
   } else if (route.tab === 'questions') {
@@ -310,6 +310,7 @@ export default function App() {
               onQuestions={() => pickTab('questions')}
               brand={frame.brand && frame.brand.company ? `${brandName} · ${frame.brand.company}` : brandName}
               owner={frame.brand && frame.brand.owner}
+              token={frame.token}
             />
             <Floor
               sessions={sessions}

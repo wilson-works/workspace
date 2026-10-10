@@ -326,6 +326,15 @@ h2, h3, p { margin: 0; }
   background: transparent; color: inherit; font: inherit; font-size: 12.5px; cursor: pointer;
 }
 .rename-done { font-size: 12px; color: var(--muted); user-select: all; }
+/* Remove from floor, on a quiet seat's panel (seats.js): hides it until it does something new. */
+.seat-clear-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-top: 6px; }
+.seat-clear {
+  min-height: 30px; padding: 4px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent;
+  color: var(--ink-2); font: inherit; font-size: 12.5px; font-weight: 600; cursor: pointer;
+}
+.seat-clear:hover, .seat-clear:focus-visible { border-color: var(--accent); color: var(--accent); }
+.seat-clear:disabled { cursor: progress; opacity: 0.7; }
+.seat-said { font-size: 12px; color: var(--muted); }
 .panel-close {
   flex: none; width: 32px; height: 32px; border-radius: 50%; border: 0;
   background: transparent; color: var(--muted); font-size: 22px; line-height: 1; cursor: pointer;
@@ -738,6 +747,31 @@ h2, h3, p { margin: 0; }
 .wnext-title { flex: 1; min-width: 0; font-weight: 620; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .wnext-time { flex: none; font-size: 12px; color: var(--muted); }
 .wdone { margin: 4px 14px 2px; font-size: 13px; color: #2fb36d; font-weight: 600; }
+
+/* Running now (WorkBoard.jsx RunningNow): the sessions at work this minute, a card each, by repo or room.
+   Status is a small dot and a word, never a stripe. */
+.live { display: flex; flex-direction: column; gap: 10px; }
+.panel .live-head { margin: 0; }
+.live-groups { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.live-group { border-radius: 18px; background: var(--room); border: 1px solid var(--line); box-shadow: var(--shadow); padding: 10px 10px 12px; }
+.live-group.is-live { border-color: color-mix(in srgb, #2fb36d 40%, var(--line)); }
+.live-group-head { display: flex; align-items: baseline; gap: 10px; margin: 2px 4px 8px; }
+.live-group-name { font-weight: 680; font-size: 15px; letter-spacing: -0.01em; overflow-wrap: anywhere; }
+.live-group-count { margin-left: auto; flex: none; font-size: 12px; color: var(--muted); }
+.live-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 8px; }
+.kcard.live-card { flex-direction: column; gap: 4px; font-size: 13px; }
+.live-who { display: flex; align-items: center; gap: 8px; width: 100%; min-width: 0; }
+.live-name { flex: 1; min-width: 0; font-weight: 620; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.live-state { flex: none; display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 650; color: var(--muted); }
+.live-state::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+.live-working { color: #2fb36d; }
+.live-working::before { background: #2fb36d; }
+.live-waiting { color: var(--tone-haiku); }
+.live-waiting::before { background: var(--tone-haiku); }
+.live-title { font-size: 12.5px; color: var(--ink-2); overflow-wrap: anywhere; }
+.live-doing { color: var(--ink-2); overflow-wrap: anywhere; }
+.live-helpers { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.live-card .run-meta { margin-top: 0; overflow-wrap: anywhere; }
 .lessons { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .lesson {
   display: grid; grid-template-columns: 28px 1fr; grid-template-rows: auto auto; column-gap: 10px; align-items: center;
@@ -861,6 +895,16 @@ body::after {
   min-height: 34px; padding: 6px 14px; border: 0; border-radius: 999px; background: transparent;
   color: var(--ink); font-weight: 650; cursor: pointer;
 }
+/* Clear idle seats (seats.js): a quiet pill, the same size as its neighbours. */
+.pulse-clear { padding: 0 !important; }
+.pulse-clear button {
+  min-height: 34px; padding: 6px 14px; border: 0; border-radius: 999px; background: transparent;
+  color: var(--ink-2); font: inherit; font-weight: 600; cursor: pointer;
+}
+.pulse-clear button:hover, .pulse-clear button:focus-visible { color: var(--accent); }
+.pulse-clear button:disabled { cursor: progress; opacity: 0.7; }
+.pulse-said { margin: 8px 2px 0; font-size: 12.5px; color: var(--muted); }
+.pulse-said:empty { display: none; }
 
 /* A ring that just moved up: a glow, and a burst of little orbs. */
 .ring-cheer { animation: cheer 2.6s ease-out 1; }
@@ -970,6 +1014,35 @@ body::after {
 }
 .aenter:hover { transform: translateY(-1px); }
 .aclosed { margin-top: 4px; font-size: 12.5px; opacity: 0.7; min-height: 20px; }
+/* Wake, Sleep and Restart (wake.js): Wake takes the Step-inside button's place and its colours; Sleep and
+   Restart wear the quiet Talk-to link's. Buttons lose the browser's own look so the agent's colours decide. */
+button.aenter { border: 0; cursor: pointer; font-family: inherit; font-size: inherit; }
+button.aenter:disabled { cursor: progress; opacity: 0.85; transform: none; }
+button.atalk { background: none; border: 0; padding: 0; cursor: pointer; font-family: inherit; }
+button.atalk:disabled { cursor: progress; }
+.aoffice button.aenter:focus-visible, .aoffice button.atalk:focus-visible { outline: 3px solid var(--a-accent); outline-offset: 3px; }
+.aactions { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 4px 18px; }
+.awake-say { margin: 0; max-width: 34ch; font-size: 13px; line-height: 1.4; }
+.awake-say:empty { display: none; }
+/* Sleep all, above the hall: a tinted bar with a full hairline border, in the office's own colours. */
+.asleepall {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; padding: 10px 16px;
+  border-radius: 16px; background: var(--room); border: 1px solid var(--line); color: var(--ink);
+}
+.asleepall-count { margin: 0; display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; }
+.asleepall-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.asleepall-dot.is-on { background: #2fb36d; }
+.asleepall-ask { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: 13.5px; }
+.asleepall-go, .asleepall-no {
+  min-height: 36px; padding: 0 16px; border-radius: 999px; font: inherit; font-size: 13px; font-weight: 650; cursor: pointer;
+}
+.asleepall-go { border: 0; background: var(--accent); color: #fff; }
+.asleepall-no { border: 1px solid var(--line); background: transparent; color: var(--ink-2); }
+.asleepall-no:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.asleepall-no:disabled { cursor: default; opacity: 0.6; }
+.asleepall button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.asleepall-say { flex-basis: 100%; margin: 0; font-size: 13px; color: var(--ink-2); }
+.asleepall-say:empty { display: none; }
 /* The sign on the leaf: the agent's mark with its name under it, in its own type. */
 .adoor-sign {
   position: absolute; left: 50%; top: 24%; transform: translateX(-50%);

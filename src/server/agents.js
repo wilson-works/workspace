@@ -52,7 +52,7 @@ function artOk(a) {
 
 /** The agents named by agent.json files that pass the contract, shaped like config/agents.json entries. */
 function manifestAgents(dirs) {
-  return contract.listAgents(dirs).filter((x) => x.ok).map(({ key, manifest: m }) => {
+  return contract.listAgents(dirs).filter((x) => x.ok).map(({ key, dir, manifest: m }) => {
     const brand = Object.assign({}, m.brand);
     if (m.brand.mark) brand.mark = fileUrl(key, m.brand.mark);
     return {
@@ -62,6 +62,9 @@ function manifestAgents(dirs) {
       probe: m.probe || null, match: m.match || [], brand,
       art: m.art ? fileUrl(key, m.art) : null,
       jokes: m.jokes || [],
+      // Its folder and the command that starts its dashboard, for Wake and Sleep (wake.js). Server-side
+      // only: view() never sends either to the page.
+      dir, start: typeof m.start === 'string' ? m.start : null,
     };
   });
 }
@@ -203,7 +206,7 @@ function createAgents(opts) {
     };
   }
 
-  return { view, refresh, fileFor };
+  return { view, refresh, fileFor, all };
 }
 
 module.exports = { createAgents, loadAgents, manifestAgents, sessionsOf, probeOnce, tailnetUrl, PROBE_EVERY_MS };

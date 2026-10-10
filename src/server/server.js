@@ -27,7 +27,7 @@ const push = require('./push');
 const nudge = require('./nudge');
 const work = require('./work');
 const config = require('./config');
-const { homeDir, claudeHome } = require('./home');
+const { homeDir, ownerClaudeHome } = require('./home');
 const { rotateEvents } = require('./events-archive');
 
 const TOKEN = crypto.randomBytes(24).toString('hex');
@@ -110,6 +110,10 @@ function start(opts) {
   // The Agents' wing (agents.js): each specialist's office, whether it runs here, its doors.
   const agents = o.agents || require('./agents').createAgents({ self, file: o.agentsFile, dirs: o.agentsDirs });
   agents.refresh(true);
+  // Wake, Sleep, Restart and Sleep all on the agents' doors (wake.js): only agents installed on this
+  // computer, only by their own agent.json `start`.
+  const waker = o.waker || require('./wake').createWaker(Object.assign(
+    { agents, self, onChange: () => agents.refresh(true) }, o.wakeOpts));
 
   const distDir = o.distDir || path.join(__dirname, '..', '..', 'dist');
   const staticDir = fs.existsSync(distDir) ? distDir : null;
@@ -229,6 +233,12 @@ function start(opts) {
         v.channel = channel.view(home, v.sessions, self);
       } catch (_) { /* the floor still renders */ }
     }
+    // Seats you cleared off the floor (seats.js), until they next do something. After the group chat,
+    // so a cleared session still hears it; a session with a question open for you always keeps its seat.
+    try {
+      const asking = new Set(openQuestionsEverywhere(v.sessions).map((q) => `${q.machine}:${q.session_id}`));
+      v.sessions = require('./seats').visible(home, v.sessions, asking);
+    } catch (_) { /* every seat stays */ }
     v.machines = (state.machines || []).map((m) => {
       const own = v.sessions.filter((s) => s.machine === m.name);
       const feed = m.feed || {};
@@ -350,6 +360,32 @@ function start(opts) {
     return allowedHosts.has(name);
   };
 
+  function sendJson(res, code, obj) {
+    res.writeHead(code, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+    res.end(JSON.stringify(obj));
+  }
+
+  /**
+   * The guard on the buttons that start, stop or hide something (Wake, Sleep, Restart, Sleep all, Clear
+   * seats): a POST with the page token, sent as JSON, from the office's own page. A form or a page on
+   * another site cannot press them: it cannot send JSON without the browser saying where it came from.
+   * Refuses (and audits the refusal) or returns true.
+   */
+  function ownerButton(req, res, audit) {
+    const no = (code, error, reason) => { if (reason) audit(`REFUSED: ${reason}`); sendJson(res, code, { ok: false, error }); return false; };
+    if (req.method !== 'POST') return no(405, 'Use POST.', null);
+    if (req.headers['x-office-token'] !== TOKEN) return no(403, 'bad or missing X-Office-Token', 'bad token');
+    if (!/^application\/json\s*(;|$)/i.test(String(req.headers['content-type'] || ''))) return no(415, 'Send this as JSON.', 'not JSON');
+    const site = String(req.headers['sec-fetch-site'] || '');
+    if (site && site !== 'same-origin' && site !== 'none') return no(403, "Only the office's own page can do that.", `sec-fetch-site ${site.slice(0, 20)}`);
+    if (req.headers.origin !== undefined) {
+      let h = null;
+      try { h = new URL(String(req.headers.origin)).hostname.toLowerCase(); } catch (_) { /* refused below */ }
+      if (!h || !allowedHosts.has(h)) return no(403, "Only the office's own page can do that.", 'cross-site origin');
+    }
+    return true;
+  }
+
   const server = http.createServer((req, res) => {
     if (!hostOk(req.headers.host)) {
       res.writeHead(403, { 'Content-Type': 'text/plain' });
@@ -382,7 +418,11 @@ function start(opts) {
       try {
         if (stepPath) v = work.step(home, decode(stepPath[1]), decode(stepPath[2]), Date.now());
         else if (workPath[1]) v = work.project(home, decode(workPath[1]), Date.now());
-        else v = work.list(home, Date.now());
+        else {
+          v = work.list(home, Date.now());
+          // Running now: the sessions at work this minute, off the floor (work.js liveWork).
+          try { v.live_work = work.liveWork(sessionsNow(), v.asOf); } catch (_) { v.live_work = []; }
+        }
       } catch (e) {
         v = { ok: false, asOf: Date.now(), error: String(e && e.message) };
       }
@@ -406,7 +446,65 @@ function start(opts) {
       res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
       let v;
       try { v = agents.view(sessionsNow(), Date.now()); } catch (e) { v = { agents: [], error: String(e && e.message) }; }
+      // Each door's Wake and Sleep (wake.js): can it be woken or stopped from here, and if not, why.
+      const byKey = new Map((typeof agents.all === 'function' ? agents.all() : []).map((a) => [a.key, a]));
+      for (const a of v.agents || []) {
+        try { a.wake = byKey.has(a.key) ? waker.status(byKey.get(a.key)) : null; } catch (_) { a.wake = null; }
+      }
       res.end(JSON.stringify(v));
+      return;
+    }
+
+    // Wake, Sleep or Restart one of this computer's agents, or Sleep all of them (wake.js). The request
+    // names an agent and nothing else: what runs comes from its own agent.json. The body is drained
+    // and never read.
+    const wakePath = /^\/api\/agents\/(?:([^/]+)\/(wake|sleep|restart)|(sleep-all))$/.exec(url.pathname);
+    if (wakePath) {
+      const action = wakePath[2] || 'sleep-all';
+      const key = wakePath[1] ? decode(wakePath[1]) : 'all';
+      const audit = (result) => auditControl(home, {
+        at: new Date().toISOString(), action: `AGENT_${action.toUpperCase().replace('-', '_')}`, target: key.slice(0, 40),
+        actor: 'owner@office', result, ip: req.socket.remoteAddress,
+      });
+      if (!ownerButton(req, res, audit)) return;
+      let drained = 0;
+      req.on('data', (c) => { drained += c.length; if (drained > 4096) req.destroy(); });
+      req.on('end', () => {
+        (action === 'wake' ? waker.wake(key) : action === 'restart' ? waker.restart(key)
+          : action === 'sleep-all' ? waker.sleepAll() : waker.sleep(key))
+          .catch((e) => ({ ok: false, status: 500, message: `Something went wrong: ${String(e && e.message).slice(0, 200)}` }))
+          .then((r) => {
+            audit(`${r.ok ? 'OK' : 'REFUSED'} ${r.status}: ${r.message}`);
+            const body = { ok: r.ok, message: r.message, state: r.state || null };
+            if (!r.ok) body.error = r.message;
+            sendJson(res, r.status, body);
+          });
+      });
+      return;
+    }
+
+    // Clear seats off the floor (seats.js): { keys: ["<machine>:<id>", ...] } or { idle: true }. It hides
+    // idle seats until they next do something; it stops nothing.
+    if (url.pathname === '/api/seats/clear') {
+      const audit = (result) => auditControl(home, { at: new Date().toISOString(), action: 'SEATS_CLEAR', actor: 'owner@office', result, ip: req.socket.remoteAddress });
+      if (!ownerButton(req, res, audit)) return;
+      let body = '';
+      req.on('data', (c) => { body += c; if (body.length > 16 * 1024) req.destroy(); });
+      req.on('end', () => {
+        let parsed;
+        try { parsed = JSON.parse(body || '{}'); } catch (_) { sendJson(res, 400, { ok: false, error: 'bad JSON' }); return; }
+        let r;
+        try { r = require('./seats').clear(home, sessionsNow(), parsed, Date.now()); } catch (e) { r = { ok: false, error: String(e && e.message).slice(0, 200) }; }
+        if (r.ok) {
+          r.message = r.cleared === 0
+            ? (r.busy ? 'That seat is busy, so it stays.' : 'There were no idle seats to clear.')
+            : `Cleared ${r.cleared === 1 ? '1 seat' : `${r.cleared} seats`} off the floor. ${r.cleared === 1 ? 'It comes' : 'They come'} back if ${r.cleared === 1 ? 'that session does' : 'those sessions do'} anything new.`;
+        }
+        audit(r.ok ? `OK ${r.cleared}` : `FAILED: ${r.error}`);
+        sendJson(res, r.ok ? 200 : 400, r);
+        lastSessions = null;
+        broadcast();
+      });
       return;
     }
 
@@ -834,10 +932,14 @@ if (require.main === module) {
   if (extraHost) opts.allowHosts = extraHost.split(',').map((s) => s.trim()).filter(Boolean);
   if (live) {
     opts.officeHome = home;
-    opts.projects = path.join(claudeHome(), 'projects');
+    // The sessions of the person whose office this is: the account its home belongs to, not whoever
+    // started it (home.js ownerClaudeHome). Started from another account on this computer, it still
+    // reads its owner's sessions.
+    const claude = ownerClaudeHome(home);
+    opts.projects = path.join(claude, 'projects');
     // The user-level comms bus, plus one per repo: one folder level under each
     // code root (workspace.config.json code_roots), where the org keeps its bus.
-    opts.commsPaths = [path.join(claudeHome(), 'comms.db')];
+    opts.commsPaths = [path.join(claude, 'comms.db')];
     opts.commsZones = config.codeRoots().filter((z) => fs.existsSync(z));
   }
 
