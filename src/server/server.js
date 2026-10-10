@@ -946,5 +946,7 @@ if (require.main === module) {
   const h = start(opts);
   process.stdout.write(`${config.brand().name} office listening on ${h.url}\n`);
   process.stdout.write(live ? 'watching: this machine (live)\n' : `watching: ${root}\n`);
-  process.stdout.write(`token: ${h.token}\n`);
+  // The page token is shown only to a person at a terminal. Started at login, this output goes to office.log, and the
+  // token has no business in a log. The office page carries its own copy.
+  process.stdout.write(process.stdout.isTTY ? `token: ${h.token}\n` : 'token: (hidden; the office page has it)\n');
 }
