@@ -1,0 +1,3 @@
+# Known false positive: the RFC 8291 Appendix A example auth secret (a published test vector) in the Web Push test.
+# Ignored by exact fingerprint only, so any new finding still fails a scan. Added in CAO1010 (2026-10-10).
+1239e58ac535b64f0441fa7ba7fcd0c8c337cd1e:tests/push.test.js:generic-api-key:34
