@@ -11,6 +11,11 @@
  * into the LOCAL inbox, where the delivery hook already looks, and are
  * acknowledged on the next feed.
  *
+ * Sessions the hub's page starts on this machine ride the same way (src/server/mesh-dispatch.js): the answer carries
+ * each start or Stop / Close the owner asked for, this machine's OWN office code does it (dispatch.createJob and
+ * startTurn, or dispatch.act, checked against its own config and places), and the next feed says how it went, with
+ * its jobs, what its New session sheet would offer, and each job's conversation when it has moved (never private work).
+ *
  * Rules:
  *   - It opens no port. Only the hub listens, and only through `tailscale serve`.
  *   - It never reads anything the local wall does not already show.
@@ -83,6 +88,16 @@ let seen = [];
 try { seen = JSON.parse(fs.readFileSync(seenFile, 'utf8')); } catch (_) { seen = []; }
 let acks = [];
 
+/* ---- sessions the hub's page starts here (mesh-dispatch.js) ---- */
+const MD = require('../src/server/mesh-dispatch');
+let dispatchAcks = [];
+// Each job's conversation the hub has acknowledged, by version, so a restart resends it once and no more.
+const talkAckedFile = path.join(home, 'mesh-talk-acked.json');
+let talkAcked = {};
+try { talkAcked = JSON.parse(fs.readFileSync(talkAckedFile, 'utf8')) || {}; } catch (_) { talkAcked = {}; }
+// Talk goes only to a hub that has answered with talk_acks: one on older code would take the same talk every feed.
+let hubKeepsTalk = false;
+
 // The office owner's sessions (home.js ownerClaudeHome), whichever account started this forwarder.
 function liveOptions() {
   return {
@@ -106,16 +121,48 @@ function flowsNow(opts, now) {
 function buildFeed() {
   const opts = liveOptions();
   const state = read(home, opts);
+  // This machine's office-started sessions, its New session choices, and the talk the hub has not got yet.
+  let parts = { jobs: [], dispatch_options: null, talk: {} };
+  try { parts = MD.spokeParts(home, hubKeepsTalk ? talkAcked : null, { hubRoot: config.hubRoot(), projects: opts.projects }); } catch (e) { note(`dispatch parts not read: ${String(e && e.message).slice(0, 160)}`); }
+  // A private project's session starts in the Hub, where the floor's own privacy test cannot see it: its job says so,
+  // so its desk goes out as private work and the hub keeps nothing it wrote.
+  const clientIds = new Set(parts.jobs.filter((j) => j.client_work).map((j) => j.session_id));
   const desks = (state.desks || [])
     .filter((d) => !d.remote)
-    .map((d) => mesh.flattenDesk(d, inbox.status(home, d.id)));
+    .map((d) => mesh.flattenDesk(clientIds.has(d.id) ? Object.assign({}, d, { client_work: true, title: null }) : d, inbox.status(home, d.id)));
   const alarms = (state.alarms || []).filter((a) => !a.machine);
   const flows = flowsNow(opts, state.asOf);
   const open = questions.openQuestions(home).slice(0, 30)
     .map((q) => ({ id: q.id, session_id: q.session_id, asked_at: q.asked_at, question: q.question, recommendation: q.recommendation }));
   // Group chat posts this machine's sessions made (bin/office-say.js); the hub keeps the thread.
   const channelPosts = channel.readLines(channel.file(home, 'outbox.jsonl')).slice(0, 20);
-  return { v: 1, machine: self, sent_at: Date.now(), interval_ms: interval, desks, alarms, flows, questions: open, acks, channel_posts: channelPosts };
+  return {
+    v: 1, machine: self, sent_at: Date.now(), interval_ms: interval, desks, alarms, flows, questions: open, acks, channel_posts: channelPosts,
+    jobs: parts.jobs, dispatch_options: parts.dispatch_options, dispatch_acks: dispatchAcks, talk: parts.talk,
+  };
+}
+
+/** The hub kept these versions of each job's talk. Only jobs still shown are remembered. */
+function takeTalkAcks(result, feed) {
+  const got = result.talk_acks && typeof result.talk_acks === 'object' ? result.talk_acks : null;
+  if (!got) return;
+  hubKeepsTalk = true;
+  const shown = new Set((feed.jobs || []).map((j) => j.id));
+  const next = {};
+  for (const id of shown) {
+    if (typeof got[id] === 'string') next[id] = got[id];
+    else if (talkAcked[id]) next[id] = talkAcked[id];
+  }
+  talkAcked = next;
+  try { fs.writeFileSync(talkAckedFile, JSON.stringify(talkAcked), 'utf8'); } catch (_) { /* resent once more after a restart */ }
+}
+
+/** Starts and acts the owner asked for on the hub's page, done by this machine's own office code. */
+async function takeDispatch(records) {
+  if (!Array.isArray(records) || !records.length) return [];
+  const got = await MD.handle(home, records, { machine: self, hubRoot: config.hubRoot() });
+  for (const a of got) note(`dispatch ${a.id}: ${a.ok ? `done${a.job_id ? ` (${a.job_id})` : ''}` : `refused: ${a.error}`}`);
+  return got;
 }
 
 function post(feed) {
@@ -187,24 +234,36 @@ function takeNotes(notes) {
 }
 
 let lastOk = null;
+// One feed at a time: a start waits for its runner's pid, and a second feed meanwhile would carry no acknowledgement.
+let ticking = false;
 async function tick() {
-  let result;
+  if (ticking) return { ok: false, error: 'the last feed is still going' };
+  ticking = true;
   try {
-    result = await post(buildFeed());
-  } catch (e) {
-    result = { ok: false, error: String(e && e.message) };
+    let result;
+    let feed = null;
+    try {
+      feed = buildFeed();
+      result = await post(feed);
+    } catch (e) {
+      result = { ok: false, error: String(e && e.message) };
+    }
+    if (result.ok) {
+      if (lastOk !== true) note(`feeding ${hub} as ${self} every ${interval} ms (${result.desks} desk(s) accepted)`);
+      lastOk = true;
+      acks = takeNotes(result.notes);
+      require('../src/server/avatars').takeFromHub(home, result.avatars, Date.now());
+      takeChannel(result);
+      takeTalkAcks(result, feed);
+      try { dispatchAcks = await takeDispatch(result.dispatch); } catch (e) { note(`dispatch not taken: ${String(e && e.message).slice(0, 160)}`); }
+    } else {
+      if (lastOk !== false) note(`hub unreachable: ${result.error} - will keep trying quietly`);
+      lastOk = false;
+    }
+    return result;
+  } finally {
+    ticking = false;
   }
-  if (result.ok) {
-    if (lastOk !== true) note(`feeding ${hub} as ${self} every ${interval} ms (${result.desks} desk(s) accepted)`);
-    lastOk = true;
-    acks = takeNotes(result.notes);
-    require('../src/server/avatars').takeFromHub(home, result.avatars, Date.now());
-    takeChannel(result);
-  } else {
-    if (lastOk !== false) note(`hub unreachable: ${result.error} - will keep trying quietly`);
-    lastOk = false;
-  }
-  return result;
 }
 
 (async () => {

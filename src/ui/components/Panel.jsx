@@ -9,6 +9,8 @@ import { QuestionCard } from './Questions.jsx';
 import { nowText, stepText, modelLabel } from '../words.js';
 import { formatClock } from '../useOfficeStream.js';
 import { clearSeats } from './Pulse.jsx';
+import DispatchCard, { Team, useTalk } from './DispatchCard.jsx';
+import Markdown from '../markdown.jsx';
 
 // Take this quiet seat off the floor (server seats.js). It stops nothing; the seat comes back the
 // moment the session does anything new.
@@ -58,7 +60,11 @@ function Composer({ s, token }) {
     }
   };
 
-  if (!s.deliverable) {
+  // A start sent to another computer is not a session yet (mesh-dispatch.js).
+  if (s.dispatch && s.dispatch.start) {
+    return <p className="composer-off">{s.dispatch.status === 'failed' ? 'It never started, so there is nobody to send a note to.' : `It takes notes once ${s.machine} has started it.`}</p>;
+  }
+  if (!s.deliverable && !s.dispatch) {
     return <p className="composer-off">This session can't receive notes: it isn't running the office's hooks.</p>;
   }
 
@@ -68,7 +74,7 @@ function Composer({ s, token }) {
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
-        placeholder={`Message ${s.display.person || s.callsign ? s.display.name : s.client_work ? 'this session' : s.name}…`}
+        placeholder={`Message ${s.display.person || s.callsign || s.dispatch ? s.display.name : s.client_work ? 'this session' : s.name}…`}
         rows={2}
         maxLength={1500}
         aria-label="message this session"
@@ -76,7 +82,11 @@ function Composer({ s, token }) {
       <button type="button" className="send" onClick={send} disabled={busy || !text.trim()}>
         {busy ? 'Sending' : 'Send'}
       </button>
-      <p className="composer-hint">{status || (s.waker ? 'It wakes and reads this now.' : 'It reads this the next time it uses a tool.')}</p>
+      <p className="composer-hint">{status || (s.dispatch
+        ? (s.dispatch.status === 'closed' ? 'It is closed: this waits until you reopen it.'
+          : s.dispatch.status === 'working' ? 'It reads this at its next step, or right after this turn.'
+            : 'This starts its next turn within seconds.')
+        : s.waker ? 'It wakes and reads this now.' : 'It reads this the next time it uses a tool.')}</p>
     </div>
   );
 }
@@ -137,8 +147,10 @@ function KeepAwake({ s, token }) {
   );
 }
 
-export default function Panel({ s, flows, token, ago, onClose, question }) {
+export default function Panel({ s, flows, token, ago, asOf, onClose, question, team, onOpen, onHandDown }) {
   const threadRef = useRef(null);
+  // A session the office started: its own conversation, read back from its transcript (dispatch.talk).
+  const talk = useTalk(s);
 
   // One conversation, oldest first: bus messages to or from this session, and
   // your notes to it.
@@ -149,8 +161,27 @@ export default function Panel({ s, flows, token, ago, onClose, question }) {
     if (!out && !inn) continue;
     items.push({ key: f.id, at: f.at, kind: out ? 'out' : 'in', who: out ? `to ${f.to.label}` : `from ${f.from.label}`, text: f.subject });
   }
+  const fromTalk = !!(s.dispatch && talk && talk.ok && !talk.client_work);
+  if (fromTalk) {
+    // Its prompts and replies as it saw them; your notes from the note log only until it has read them.
+    talk.items.forEach((t, i) => {
+      const report = /^report:/.test(t.who || '');
+      items.push(t.kind === 'reply'
+        ? { key: `t${i}`, at: t.at, kind: 'reply', who: `${s.display.name}${t.steps ? ` · ${t.steps} step${t.steps === 1 ? '' : 's'}` : ''}`, text: t.text }
+        : {
+          key: `t${i}`, at: t.at, kind: report ? 'in' : 'you', delivered: t.at,
+          who: t.who === 'brief' ? 'You asked' : report ? `Report from ${t.who.slice(7)}` : t.who === 'the owner' || t.who === 'owner' ? 'You' : `From ${t.who}`,
+          text: t.text,
+        });
+    });
+  }
   for (const n of s.notes || []) {
-    items.push({ key: n.id, at: n.at, kind: 'you', who: n.from === 'office' ? 'The office' : n.from === 'group' ? 'Group chat' : 'You', text: n.text, delivered: n.delivered_at });
+    if (fromTalk && n.delivered_at) continue;
+    items.push({
+      key: n.id, at: n.at, kind: n.from === 'helper' ? 'in' : 'you', delivered: n.delivered_at,
+      who: n.from === 'office' ? 'The office' : n.from === 'group' ? 'Group chat' : n.from === 'helper' ? `Report from ${n.from_name || 'a helper'}` : 'You',
+      text: n.text,
+    });
   }
   items.sort((a, b) => a.at - b.at);
 
@@ -167,9 +198,12 @@ export default function Panel({ s, flows, token, ago, onClose, question }) {
         <a className="avatar-link" href="#/avatars" title="All avatars"><Avatar avatar={s.avatar} family={s.family} state={s.state} size={44} /></a>
         <div className="panel-id">
           <h2>{s.display.label}</h2>
-          {s.display.label !== s.name && <p className="panel-title">{s.name}</p>}
+          {s.display.label !== s.name && !s.dispatch && <p className="panel-title">{s.name}</p>}
           <p>{modelLabel(s.model, s.family)} · {s.machine} · {s.room}{s.display.person && s.callsign && <> · callsign {s.callsign.name}</>}</p>
           {s.display.rename && <RenameButton c={s.display} />}
+          {onHandDown && (
+            <button type="button" className="hand-down" onClick={() => onHandDown(s)}>Hand work down <span aria-hidden="true">↘</span></button>
+          )}
           {s.state === 'idle' && token && !question && <ClearSeat s={s} token={token} onDone={onClose} />}
         </div>
         <Close onClose={onClose} sheet />
@@ -193,6 +227,9 @@ export default function Panel({ s, flows, token, ago, onClose, question }) {
             </p>
           )}
         </section>
+
+        {s.dispatch && <DispatchCard s={s} token={token} ago={ago} asOf={asOf} />}
+        <Team team={team} ago={ago} onOpen={onOpen} />
 
         {(s.helpers.length > 0 || s.returned.length > 0) && (
           <section className="helpers">
@@ -221,12 +258,14 @@ export default function Panel({ s, flows, token, ago, onClose, question }) {
         <section className="thread-wrap">
           <h3>Conversation</h3>
           <div className="thread" ref={threadRef}>
-            {items.length === 0 && <p className="thread-empty">Nothing said to or by this session in the last 45 minutes.</p>}
+            {items.length === 0 && <p className="thread-empty">{s.dispatch && talk && talk.client_work
+              ? 'Private work: its conversation stays in the session.'
+              : s.dispatch ? 'Its first reply shows here when its turn ends.' : 'Nothing said to or by this session in the last 45 minutes.'}</p>}
             {items.map((m) => (
               <div key={m.key} className={`msg msg-${m.kind}`}>
                 <span className="msg-who">{m.who} · {formatClock(m.at)}</span>
-                <p className="msg-text">{m.text}</p>
-                {m.kind === 'you' && (
+                {m.kind === 'reply' ? <div className="msg-text msg-md"><Markdown text={m.text} /></div> : <p className="msg-text">{m.text}</p>}
+                {m.kind === 'you' && !fromTalk && (
                   <span className="msg-state">{m.delivered ? `read at ${formatClock(m.delivered)}` : 'waiting to be read'}</span>
                 )}
               </div>

@@ -153,6 +153,29 @@ File a work order on the fleet board: <what needs doing>. Use templates/ in the 
 in board/backlog/, and sync the fleet.
 ```
 
+## Sessions on another computer
+
+Once a computer sends its floor to the hub (guide 2), the hub's **New session** sheet has a
+**Computer** choice. Pick the computer, say what it should do, and press Start: the session starts on
+that computer, in its own Hub, with its own Claude Code sign-in, and shows on the one floor like any
+other. Its card, its conversation, Stop, Close and the buzz all work from the hub's page and your
+phone. A good shape: an always-on computer (a mini PC, a desktop) for long builds, started from your
+phone; a laptop while it is open.
+
+How it travels, for the curious: nothing dials in to the other computer. The start waits on the hub
+until that computer's next report (every 15 seconds), rides back on the answer, and that computer's
+own office checks it against its own settings and starts it. Its next report says how it went.
+
+- A computer that is off or has stopped reporting is still offered, greyed, with the reason.
+- A helper always starts on its lead's computer. **Hand work down** on a desk on another computer
+  starts the helper there.
+- Each computer uses its own `config/dispatch.json` and its own projects; private work
+  (`privacy.private_work`) on that computer stays private on the hub too: no brief, no conversation.
+- Every computer needs Claude Code signed in and the Workspace installed. Update all of them to the
+  same version, or an older one says its office "can't start sessions yet".
+
+All of it: [guide 10](10-sessions-from-the-office.md).
+
 ## Seeing it on the office
 
 The office reads this computer's copy of the fleet repo, so every computer in the fleet is known to

@@ -2,9 +2,35 @@
 // and the last thing they said to another session.
 
 import Avatar from './Avatar.jsx';
-import { nowText, stepText, modelLabel } from '../words.js';
+import { nowText, stepText, modelLabel, statusOf } from '../words.js';
 
 export function keyOf(s) { return `${s.machine}:${s.id}`; }
+
+const EFFORT_SHORT = { low: 'low', medium: 'medium', high: 'high', xhigh: 'extra high', max: 'max' };
+
+/** Its status in a word, with a small dot and how long (no stripes: a dot and a word). */
+export function Status({ s, ago, compact }) {
+  const st = statusOf(s);
+  const age = st.since ? ago(st.since) : null;
+  return (
+    <span className={`status status-${st.key} ${compact ? 'status-compact' : ''}`} title={age ? `${st.word} for ${age}` : st.word}>
+      <span className="status-dot" aria-hidden="true" />
+      {st.word}{age && <span className="status-age"> {age}</span>}
+    </span>
+  );
+}
+
+/** Steps started in each 2 minutes over the last 30, oldest on the left, when the floor has them. */
+export function Pace({ pace }) {
+  if (!Array.isArray(pace) || !pace.some((n) => n > 0)) return null;
+  const max = Math.max(...pace);
+  const total = pace.reduce((a, b) => a + b, 0);
+  return (
+    <span className="pace" role="img" aria-label={`${total} ${total === 1 ? 'step' : 'steps'} in the last 30 minutes`} title={`${total} ${total === 1 ? 'step' : 'steps'} in the last 30 minutes`}>
+      {pace.map((n, i) => <i key={i} className={n ? '' : 'pace-none'} style={n ? { height: `${Math.round(25 + (75 * n) / max)}%` } : undefined} />)}
+    </span>
+  );
+}
 
 // The office nudged it in this idle stretch (nudge.js): a small bell.
 function Bell({ s }) {
@@ -16,11 +42,13 @@ function Bell({ s }) {
 export default function Desk({ s, ago, selected, onSelect, lastFlow, showMachine, asking }) {
   const pending = (s.notes || []).filter((n) => !n.delivered_at).length;
   const helpers = s.helpers || [];
+  // A session the office started (dispatch.js): a helper says whose work it carries; its effort shows beside its model.
+  const j = s.dispatch || null;
 
   return (
     <button
       type="button"
-      className={`desk state-${s.state} ${selected ? 'is-selected' : ''}`}
+      className={`desk state-${s.state} ${selected ? 'is-selected' : ''} ${j ? 'is-dispatched' : ''} ${s.arriving ? 'is-arriving' : ''}`}
       data-key={keyOf(s)}
       onClick={() => onSelect(keyOf(s))}
       aria-pressed={selected}
@@ -31,10 +59,15 @@ export default function Desk({ s, ago, selected, onSelect, lastFlow, showMachine
           {s.state === 'working' && <span className="typing" aria-hidden="true"><i /><i /><i /></span>}
         </span>
         <span className="desk-id">
-          <span className="desk-name">{s.display.label}</span>
-          {s.display.label !== s.name && <span className="desk-title">{s.name}</span>}
+          <span className="desk-name">
+            {s.display.label}
+            {j && <span className="desk-headless" title="Started by the office: it runs headless, with no chat window">{j.parent ? 'helper' : 'office'}</span>}
+          </span>
+          {j && j.parent ? <span className="desk-title">Helping {j.parent.name}</span>
+            : s.display.label !== s.name && <span className="desk-title">{s.name}</span>}
           <span className="desk-meta">
             {modelLabel(s.model, s.family)}
+            {j && <> · {EFFORT_SHORT[j.effort] || j.effort} effort</>}
             {showMachine && <> · {s.machine}</>}
             {s.lane && <> · lane {s.lane.toUpperCase()}</>}
           </span>

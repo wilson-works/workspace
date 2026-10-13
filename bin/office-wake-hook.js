@@ -17,6 +17,9 @@
  * pid-lock one note would wake the session twice. A hard-killed claude.exe
  * leaves its waiter running, so the waiter watches CLAUDE_PID itself.
  *
+ * A session the office started itself (WORKSPACE_DISPATCH set, dispatch.js) gets no waiter: the office runs its
+ * next turn when a note lands.
+ *
  * The waiter exits 0, delivering nothing, when any of these holds:
  *   - the turn marker is newer than the waiter (a new turn began, or SessionEnd);
  *   - the pid-lock <home>/wake/<session>.pid names another waiter (a later Stop
@@ -137,7 +140,9 @@ function wait(dir, sid) {
       fs.unlinkSync(claim);
     } catch (_) { /* best effort; the note is still delivered below */ }
 
-    process.stderr.write(notes.map((n) => `Note from the office (${n.from || 'owner'}, ${clock(n.queued_at || now)}): ${n.text}`).join('\n') + '\n');
+    process.stderr.write(notes.map((n) => (n.from === 'helper'
+      ? `Report from ${n.from_name || 'a helper'}, the helper you handed work to (${clock(n.queued_at || now)}): ${n.text}`
+      : `Note from the office (${n.from || 'owner'}, ${clock(n.queued_at || now)}): ${n.text}`)).join('\n') + '\n');
     leave(2);
   };
 
@@ -161,6 +166,9 @@ function main() {
     mark(dir, sid, event);
     process.exit(0);
   }
+  // A session the office started (dispatch.js) is woken by the office itself: its next note starts its next turn. A
+  // waiter here would claim that note inside a headless process that is ending (and hold it open while it waits).
+  if (process.env.WORKSPACE_DISPATCH) process.exit(0);
   wait(dir, sid);
 }
 

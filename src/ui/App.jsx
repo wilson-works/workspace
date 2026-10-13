@@ -1,9 +1,9 @@
 // App.jsx — the WorkSpace office.
 //
-// Five places: the Floor, Work, Agents, Questions and Chat, and a sixth, the Fleet, when this
-// computer has a fleet clone. On a desktop they are tabs
-// in the slim bar; on a phone (≤ 760 px) they are a bar along the bottom, and
-// the machine switch sits full width under the header on the Floor. Where you
+// The places: the Floor, the Team chart, Chat and Work always in reach, then Agents, Questions, and the Fleet when
+// this computer has a fleet clone. On a wide desktop they are all tabs in the slim bar; narrower, and on a phone
+// (≤ 760 px, a bar along the bottom), the first four show and the rest sit under More. The machine switch sits full
+// width under the header on the Floor. Where you
 // are lives in the address (route.js), so Back walks the office and every view
 // can be bookmarked.
 
@@ -21,6 +21,8 @@ import StepView from './components/StepView.jsx';
 import Pulse from './components/Pulse.jsx';
 import AgentsWing from './components/AgentsWing.jsx';
 import Fleet from './components/Fleet.jsx';
+import Network from './components/Network.jsx';
+import DispatchSheet from './components/Dispatch.jsx';
 import { keyOf } from './components/Desk.jsx';
 
 const STORE = 'workspace.machine.v1';
@@ -49,35 +51,68 @@ const START = (() => {
   return home;
 })();
 
+// The first four (primary) are always in reach; the rest live under More on a phone or a narrow window.
 const TABS = [
-  { key: 'floor', label: 'Floor', icon: 'M3 10.5 12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z' },
-  { key: 'work', label: 'Work', icon: 'M4 5h16M4 12h16M4 19h10' },
+  { key: 'floor', label: 'Floor', primary: true, icon: 'M3 10.5 12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z' },
+  { key: 'team', label: 'Team', primary: true, icon: 'M12 4.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM12 9.5v3M6 12.5h12M6 12.5v2.5M18 12.5v2.5M6 15a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM18 15a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z' },
+  { key: 'chat', label: 'Chat', primary: true, icon: 'M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-5A8 8 0 1 1 21 12z' },
+  { key: 'work', label: 'Work', primary: true, icon: 'M4 5h16M4 12h16M4 19h10' },
   { key: 'agents', label: 'Agents', icon: 'M6 21V4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21M3 21h18M14.5 12.5h.01' },
+  { key: 'questions', label: 'Questions', icon: 'M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z' },
   // Shown only when this computer has a fleet clone (frame.fleet).
   { key: 'fleet', label: 'Fleet', icon: 'M3 5h8v6H3zM13 5h8v6h-8zM8 15h8v5H8zM7 11v4M17 11v4', fleetOnly: true },
-  { key: 'questions', label: 'Questions', icon: 'M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z' },
-  { key: 'chat', label: 'Chat', icon: 'M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-5A8 8 0 1 1 21 12z' },
 ];
+const MORE_ICON = 'M5 12h.01M12 12h.01M19 12h.01';
+
+function TabButton({ t, current, onPick, badge, extra }) {
+  return (
+    <button
+      type="button"
+      className={`tab ${current === t.key ? 'on' : ''} ${extra || ''}`}
+      onClick={() => onPick(t.key)}
+      aria-current={current === t.key ? 'page' : undefined}
+    >
+      <svg className="tab-icon" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d={t.icon} />
+      </svg>
+      <span className="tab-label">{t.label}</span>
+      {badge > 0 && <span className="qcount tab-badge">{badge}</span>}
+    </button>
+  );
+}
 
 function Tabs({ where, current, onPick, badges, fleet }) {
+  const [open, setOpen] = useState(false);
   const tabs = TABS.filter((t) => !t.fleetOnly || fleet);
+  const rest = tabs.filter((t) => !t.primary);
+  const inMore = rest.some((t) => t.key === current);
+  const moreBadge = rest.reduce((n, t) => n + (badges[t.key] || 0), 0);
+  const pick = (k) => { setOpen(false); onPick(k); };
   return (
-    <nav className={`tabs tabs-${where} tabs-${tabs.length}`} aria-label="places">
-      {tabs.map((t) => (
-        <button
-          key={t.key}
-          type="button"
-          className={`tab ${current === t.key ? 'on' : ''}`}
-          onClick={() => onPick(t.key)}
-          aria-current={current === t.key ? 'page' : undefined}
-        >
-          <svg className="tab-icon" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d={t.icon} />
-          </svg>
-          <span className="tab-label">{t.label}</span>
-          {badges[t.key] > 0 && <span className="qcount tab-badge">{badges[t.key]}</span>}
+    <nav className={`tabs tabs-${where}`} aria-label="places">
+      {tabs.map((t) => (where === 'bottom' && !t.primary ? null
+        : <TabButton key={t.key} t={t} current={current} onPick={pick} badge={badges[t.key]} extra={t.primary ? '' : 'tab-secondary'} />))}
+      <span className="navmore">
+        <button type="button" className={`tab tab-more ${inMore ? 'on' : ''}`} aria-expanded={open} aria-haspopup="menu" onClick={() => setOpen(!open)}>
+          <svg className="tab-icon" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round"><path d={MORE_ICON} /></svg>
+          <span className="tab-label">{inMore ? rest.find((t) => t.key === current).label : 'More'}</span>
+          {moreBadge > 0 && <span className="qcount tab-badge">{moreBadge}</span>}
         </button>
-      ))}
+        {open && (
+          <>
+            <span className="navmore-scrim" onClick={() => setOpen(false)} aria-hidden="true" />
+            <span className="navmore-menu" role="menu">
+              {rest.map((t) => (
+                <button key={t.key} type="button" role="menuitem" className={`navmore-item ${current === t.key ? 'on' : ''}`} onClick={() => pick(t.key)}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d={t.icon} /></svg>
+                  <span>{t.label}</span>
+                  {badges[t.key] > 0 && <span className="qcount">{badges[t.key]}</span>}
+                </button>
+              ))}
+            </span>
+          </>
+        )}
+      </span>
     </nav>
   );
 }
@@ -141,6 +176,8 @@ export default function App() {
   const brandName = useBrand(frame && frame.brand);
   const [route, setRoute] = useState(START);
   const [chatRead, setChatRead] = useState(loadChatRead);
+  // The New session sheet (Dispatch.jsx): null, or { lead } (null lead: a session of your own).
+  const [sheet, setSheet] = useState(null);
   // Looking at the Chat tab reads everything in it.
   const newestChat = frame && frame.channel && frame.channel.length ? frame.channel[frame.channel.length - 1].at : 0;
   useEffect(() => {
@@ -200,6 +237,15 @@ export default function App() {
     return () => navigator.serviceWorker.removeEventListener('message', onMsg);
   }, []);
 
+  // A start sent to another computer sits on the floor as a stand-in until that computer has started it; an open
+  // stand-in follows it to the session it became (mesh-dispatch.js `handed`).
+  const handed = frame && frame.dispatch ? frame.dispatch.handed : null;
+  useEffect(() => {
+    const k = route.session;
+    const h = k && handed ? handed.find((x) => `${x.machine}:${x.id}` === k) : null;
+    if (h && h.session_id) go(Object.assign({}, route, { session: `${h.machine}:${h.session_id}` }), true);
+  }, [route.session, handed]);
+
   if (!frame) {
     return <div className="office loading"><p>Opening the office…</p></div>;
   }
@@ -210,7 +256,7 @@ export default function App() {
   const all = frame.sessions || [];
   const sessions = machine === 'all' ? all : all.filter((s) => s.machine === machine);
   const current = machines.find((m) => m.name === machine);
-  const selected = route.tab === 'floor' ? route.session : null;
+  const selected = route.tab === 'floor' || route.tab === 'team' ? route.session : null;
   const chosen = selected ? all.find((s) => keyOf(s) === selected) : null;
   const working = all.filter((s) => s.state === 'working').length;
   const offline = new Set(machines.filter((m) => !m.connected).map((m) => m.name));
@@ -225,6 +271,15 @@ export default function App() {
   // Chat's badge: group messages newer than the last one seen on the Chat tab, the owner's own excepted.
   const unread = (frame.channel || []).filter((m) => m.at > chatRead && m.from.kind !== 'owner').length;
   const tabs = (where) => <Tabs where={where} current={route.tab} onPick={pickTab} badges={{ questions: questions.length, chat: unread }} fleet={!!frame.fleet} />;
+  // Sessions the office starts (dispatch.js): on in the live office.
+  const canStart = !!(frame.dispatch && frame.dispatch.enabled && frame.token);
+  const openSession = (k, replace) => (route.tab === 'team' ? go({ tab: 'team', session: k }, replace) : go({ tab: 'floor', machine, session: k }, replace));
+  const started = (out) => {
+    setSheet(null);
+    // On another computer it is a stand-in desk until that computer starts it (session_key); here, the session itself.
+    if (out && out.session_key) openSession(out.session_key, !!selected);
+    else if (out && out.session_id) openSession(`${frame.machine}:${out.session_id}`, !!selected);
+  };
 
   let view = null;
   if (route.tab === 'work') {
@@ -263,7 +318,12 @@ export default function App() {
         flows={frame.flows || []}
         token={frame.token}
         ago={ago}
+        asOf={asOf}
         onClose={back}
+        team={all.filter((x) => x.lead_key === selected)}
+        onOpen={(k) => openSession(k, true)}
+        onHandDown={canStart && !chosen.arriving && (chosen.machine === frame.machine || machines.some((m) => m.name === chosen.machine && m.connected))
+          ? (s) => setSheet({ lead: s }) : null}
       />
     );
   }
@@ -283,6 +343,11 @@ export default function App() {
         <MachineTabs machines={machines} current={machine} onPick={pick} totals={working} where="bar" />
         {tabs('top')}
         <div className="bar-right">
+          {canStart && (
+            <button type="button" className="bar-new" onClick={() => setSheet({ lead: null })} title="Start a Claude Code session from the office">
+              <span aria-hidden="true">+</span> New session
+            </button>
+          )}
           <Notify token={frame.token} />
           <More />
           <span className={`live ${stale ? 'live-off' : ''}`}>{stale ? 'Reconnecting…' : 'Live'}</span>
@@ -292,7 +357,16 @@ export default function App() {
 
       <div className="stage">
         <main className="stage-floor">
-          {current && !current.connected ? (
+          {route.tab === 'team' ? (
+            <Network
+              sessions={all}
+              asOf={asOf}
+              ago={ago}
+              selected={selected}
+              onSelect={(k) => (k === selected ? back() : go({ tab: 'team', session: k }, !!selected))}
+              canStart={canStart}
+            />
+          ) : current && !current.connected ? (
             <div className="floor-empty">
               <p>
                 <strong>{current.name}</strong>{' '}
@@ -311,6 +385,7 @@ export default function App() {
               brand={frame.brand && frame.brand.company ? `${brandName} · ${frame.brand.company}` : brandName}
               owner={frame.brand && frame.brand.owner}
               token={frame.token}
+              onTeam={() => pickTab('team')}
             />
             <Floor
               sessions={sessions}
@@ -328,6 +403,12 @@ export default function App() {
         </main>
         {view}
       </div>
+      {canStart && (route.tab === 'floor' || route.tab === 'team') && !view && (
+        <button type="button" className="fab-new" onClick={() => setSheet({ lead: null })} aria-label="New session">
+          <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+        </button>
+      )}
+      {sheet && <DispatchSheet token={frame.token} lead={sheet.lead} initialBrief={sheet.brief || ''} onClose={() => setSheet(null)} onStarted={started} />}
       {tabs('bottom')}
     </div>
   );

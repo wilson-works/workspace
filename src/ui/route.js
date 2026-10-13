@@ -5,10 +5,11 @@
 //   #/floor/<machine>/<session-key>   a session's panel over that floor
 //   #/work   #/work/<project>   #/step/<project>/<id>
 //   #/agents   #/fleet   #/questions   #/chat
+//   #/team   #/team/<session-key>          the Team chart, and one session's chart over it
 // Opening a session, project or step pushes history, so the phone's Back
 // closes it instead of leaving the office.
 
-const TABS = new Set(['floor', 'work', 'step', 'agents', 'fleet', 'questions', 'chat']);
+const TABS = new Set(['floor', 'work', 'step', 'agents', 'fleet', 'questions', 'chat', 'team']);
 
 export function parseRoute(hash) {
   const parts = String(hash || '').replace(/^#\/?/, '').split('/').filter(Boolean).map((p) => {
@@ -18,6 +19,7 @@ export function parseRoute(hash) {
   if (!TABS.has(head)) return null;
   if (head === 'floor') return { tab: 'floor', machine: parts[1] || null, session: parts[2] || null };
   if (head === 'work') return { tab: 'work', project: parts[1] || null };
+  if (head === 'team') return parts[1] ? { tab: 'team', session: parts[1] } : { tab: 'team' };
   if (head === 'step') {
     if (!parts[1]) return { tab: 'work' };
     return parts[2] ? { tab: 'work', project: parts[1], step: parts[2] } : { tab: 'work', project: parts[1] };
@@ -34,6 +36,7 @@ export function formatRoute(r) {
     if (r.project && r.step) return `#/step/${e(r.project)}/${e(r.step)}`;
     return r.project ? `#/work/${e(r.project)}` : '#/work';
   }
+  if (r.tab === 'team' && r.session) return `#/team/${e(r.session)}`;
   return `#/${r.tab}`;
 }
 
@@ -43,6 +46,7 @@ export function parentRoute(r, machine) {
   if (r.tab === 'floor') return { tab: 'floor', machine: r.machine || machine };
   if (r.step) return { tab: 'work', project: r.project };
   if (r.project) return { tab: 'work' };
+  if (r.tab === 'team' && r.session) return { tab: 'team' };
   return { tab: 'floor', machine };
 }
 

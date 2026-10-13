@@ -1,0 +1,42 @@
+{
+  "_": "Sessions the office starts itself (src/server/dispatch.js, bin/office-turn.js, bin/office-spawn.js): Claude Code run headless from the office page, set up with a model, effort, hands and time cap before it starts. Every choice the page offers is in this file; a request naming anything else is refused. Change a model id here when a newer Claude model comes out.",
+
+  "models": [
+    { "key": "opus", "id": "claude-opus-5-5", "label": "Opus 5.5", "hint": "Building and most work" },
+    { "key": "fable", "id": "claude-fable-5-1", "label": "Fable 5.1", "hint": "Judgement: reviews and checks" },
+    { "key": "sonnet", "id": "claude-sonnet-5-5", "label": "Sonnet 5.5", "hint": "Steady helper work" },
+    { "key": "haiku", "id": "claude-haiku-5-5", "label": "Haiku 5.5", "hint": "Quick errands" }
+  ],
+  "efforts": ["low", "medium", "high", "xhigh", "max"],
+  "hands": [
+    { "key": "careful", "mode": "auto", "label": "Careful", "hint": "It works on its own; Claude Code turns down anything risky." },
+    { "key": "full", "mode": "bypassPermissions", "label": "Full", "hint": "Like your own chats with every permission allowed: nothing is asked. Your hooks and deny rules still apply." },
+    { "key": "plan", "mode": "plan", "label": "Plan only", "hint": "It reads and writes a plan. It changes nothing." }
+  ],
+  "caps_min": [15, 30, 60, 120, 240],
+  "_presets": "One tap on the New session sheet sets the model, effort, hands and cap together.",
+  "presets": [
+    { "key": "build", "label": "Build", "model": "opus", "effort": "medium", "hands": "careful", "cap_min": 120, "hint": "Opus 5.5: code and real work" },
+    { "key": "review", "label": "Review", "model": "fable", "effort": "medium", "hands": "plan", "cap_min": 60, "hint": "Fable 5.1 reads and judges; it changes nothing" },
+    { "key": "research", "label": "Research", "model": "sonnet", "effort": "medium", "hands": "careful", "cap_min": 60, "hint": "Sonnet 5.5: look things up and write it down" },
+    { "key": "errand", "label": "Quick errand", "model": "haiku", "effort": "medium", "hands": "careful", "cap_min": 15, "hint": "Haiku 5.5: a small, fast job" }
+  ],
+
+  "_effort": "Every default and every preset is medium effort; another effort is only ever the one picked on the New session sheet or named with office-spawn.js --effort.",
+  "defaults": { "model": "opus", "effort": "medium", "hands": "careful", "cap_min": 60 },
+  "_helper_defaults": "What bin/office-spawn.js gives a helper when the lead names nothing: Opus on medium. A helper never runs above its lead's effort, and a Fable helper runs on low only (dispatch.js createJob), so a chain of helpers can't run up your usage.",
+  "helper_defaults": { "model": "opus", "effort": "medium", "hands": "careful", "cap_min": 60 },
+
+  "limits": {
+    "max_running": 6,
+    "_max_running": "Turns running at once on this computer. A new session past it is refused in words; a note to an existing one waits until a turn ends.",
+    "max_helpers_per_lead": 6,
+    "max_depth": 3,
+    "_max_depth": "A helper of a helper of a helper is the deepest: 1 is a session you started or one a chat handed work to.",
+    "max_turns_per_hour": 20,
+    "_max_turns_per_hour": "Per session. Past it notes wait and its chart says why: the brake on two sessions talking each other round in circles.",
+    "brief_max_chars": 12000,
+    "report_max_chars": 6000,
+    "shown_days": 2
+  }
+}
