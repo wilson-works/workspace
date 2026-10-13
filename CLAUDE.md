@@ -41,7 +41,7 @@ where things go, and never search the whole Hub at once.
 | Work page progress | `node bin/work.js list`, `node bin/work.js show <project>`, `node bin/work.js mark <project> <step-id> <todo\|doing\|done>` |
 | Ask the owner a question on the office | `node bin/ask-owner.js "Plain question?" --recommend "What I would do"` |
 | Post in the office group chat | `node bin/office-say.js "text" [--to <callsign>]` |
-| Hand a piece of work to a helper session (from inside a session) | `node bin/office-spawn.js "what to do, with everything they need" --name "Short name" [--model opus\|sonnet\|haiku\|fable] [--effort low\|medium\|high]` |
+| Hand a piece of work to a helper session (from inside a session) | `node bin/office-spawn.js "what to do, with everything they need" --name "Short name" [--model opus\|sonnet\|haiku\|fable] [--effort low|medium|high|xhigh|max]\|medium\|high]` |
 | What the office can start (models, efforts, hands, limits) | `config/dispatch.json`; guide 10 |
 | Rebuild the page after editing `src/ui/` | `npm install` once, then `npm run build` |
 | What the office sees, as data | `node bin/office-read.js --live --summary` |
