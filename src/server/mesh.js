@@ -216,16 +216,27 @@ function ingest(home, body, now, self) {
     questions.push({ id: q.id, session_id: q.session_id, asked_at: num(q.asked_at) || now, question: v.question, recommendation: v.recommendation });
   }
   const interval = num(body.interval_ms);
+  // Sessions the spoke's office started, and what its New session sheet would offer (mesh-dispatch.js), re-checked.
+  const MD = require('./mesh-dispatch');
+  const dispatchOptions = MD.cleanOptions(body.dispatch_options);
+  const jobs = MD.cleanJobs(body.jobs, machine, dispatchOptions);
   const feed = {
     v: 1, machine, received_at: now, sent_at: num(body.sent_at),
     interval_ms: interval && interval >= 1000 ? interval : null,
     desks, alarms, flows, questions,
+    jobs, dispatch_options: dispatchOptions,
   };
   writeAtomic(path.join(meshDir(home, machine), 'feed.json'), JSON.stringify(feed));
 
   const acks = (Array.isArray(body.acks) ? body.acks : []).map(String).slice(0, 200);
   if (acks.length) ackNotes(home, machine, acks, now);
-  return { ok: true, status: 200, received_at: now, desks: desks.length, notes: pendingNotes(home, machine) };
+  MD.ack(home, machine, body.dispatch_acks, jobs, now);
+  const talk = MD.storeTalk(home, machine, body.talk, jobs, now);
+  // `replied` is the hub's own business (a buzz on the owner's phone, server.js), taken off before the answer goes.
+  return {
+    ok: true, status: 200, received_at: now, desks: desks.length, notes: pendingNotes(home, machine),
+    dispatch: MD.pending(home, machine), talk_acks: talk.acks, replied: talk.replied,
+  };
 }
 
 function readFeed(home, machine) {

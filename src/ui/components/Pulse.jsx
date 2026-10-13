@@ -36,7 +36,7 @@ export function greeting(t) {
 
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
-export default function Pulse({ sessions, flows, questions, asOf, onQuestions, brand, owner, token }) {
+export default function Pulse({ sessions, flows, questions, asOf, onQuestions, brand, owner, token, onTeam }) {
   const [said, setSaid] = useState(null);
   const [busy, setBusy] = useState(false);
   const here = sessions.length;
@@ -44,6 +44,9 @@ export default function Pulse({ sessions, flows, questions, asOf, onQuestions, b
   const waiting = sessions.filter((s) => s.state === 'waiting').length;
   const talked = (flows || []).filter((f) => f.at && asOf - f.at < TALK_MS).length;
   const asks = (questions || []).length;
+  // Sessions the office started (dispatch.js) that are at work now, and how many of them are helpers.
+  const headless = sessions.filter((s) => s.dispatch && ['working', 'waiting'].includes(s.state));
+  const helpers = headless.filter((s) => s.dispatch.parent).length;
   // A session with a question open for you keeps its seat, so it is not offered for clearing.
   const asking = new Set((questions || []).map((q) => `${q.machine}:${q.session_id}`));
   const idle = sessions.filter((s) => s.state === 'idle' && !asking.has(`${s.machine}:${s.id}`));
@@ -63,6 +66,13 @@ export default function Pulse({ sessions, flows, questions, asOf, onQuestions, b
         <li><strong>{here}</strong> at {here === 1 ? 'a desk' : 'their desks'}</li>
         <li className={working > 0 ? 'is-on' : ''}><strong>{working}</strong> heads down</li>
         {waiting > 0 && <li><strong>{waiting}</strong> waiting</li>}
+        {headless.length > 0 && (
+          <li className="pulse-ask">
+            <button type="button" onClick={onTeam} title="Started from the office, running headless: see them on the Team chart">
+              {headless.length} headless{helpers > 0 ? ` · ${plural(helpers, 'helper', 'helpers')}` : ''}
+            </button>
+          </li>
+        )}
         {talked > 0 && <li><strong>{talked}</strong> {talked === 1 ? 'conversation' : 'conversations'} lately</li>}
         {asks > 0 && (
           <li className="pulse-ask">

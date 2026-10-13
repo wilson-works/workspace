@@ -29,6 +29,7 @@ const work = require('./work');
 const config = require('./config');
 const { homeDir, ownerClaudeHome } = require('./home');
 const { rotateEvents } = require('./events-archive');
+const MD = require('./mesh-dispatch');
 
 const TOKEN = crypto.randomBytes(24).toString('hex');
 
@@ -114,6 +115,21 @@ function start(opts) {
   // computer, only by their own agent.json `start`.
   const waker = o.waker || require('./wake').createWaker(Object.assign(
     { agents, self, onChange: () => agents.refresh(true) }, o.wakeOpts));
+
+  // Sessions the office starts itself (dispatch.js): the New session sheet, a desk's "Hand work down", and the turn
+  // runner. Only an office started with dispatch on (the live one, or a test office with --dispatch) runs turns.
+  const dispatch = require('./dispatch');
+  const dispatchCtx = {
+    machine: self, hubRoot: o.hubRoot || null, codeRoots: o.codeRoots,
+    agentsDir: o.claudeHome ? path.join(o.claudeHome, 'agents') : undefined,
+  };
+  // Every job the page shows: this computer's, and on the hub every other computer's from its feed, with the starts on
+  // their way there or refused (mesh-dispatch.js). `handed`: starts the page can follow to the session they became.
+  function allJobs(now) {
+    const keep = dispatch.loadConfig().limits.shown_days * 24 * 3600 * 1000;
+    const r = MD.remote(home, now, cfg, self, keep);
+    return { jobs: dispatch.view(home, now).concat(r.jobs), handed: r.handed };
+  }
 
   const distDir = o.distDir || path.join(__dirname, '..', '..', 'dist');
   const staticDir = fs.existsSync(distDir) ? distDir : null;
@@ -222,6 +238,12 @@ function start(opts) {
     const v = buildView(state, { machine: self, home, flows });
     // Each live session's emblem and frame (avatars.js). On the hub this is the fleet-wide choice.
     try { require('./avatars').apply(home, v.sessions, state.asOf); } catch (_) { /* a wall without avatars still renders */ }
+    // Sessions the office started (dispatch.js): each on its desk with who handed it work, a helper in its lead's room.
+    v.dispatch = { jobs: [], handed: [], enabled: !!o.dispatch };
+    try {
+      Object.assign(v.dispatch, allJobs(state.asOf));
+      dispatch.decorate(v.sessions, v.dispatch.jobs);
+    } catch (_) { /* the floor still renders */ }
     // The group chat: take this machine's session posts, send every new message out, show the thread.
     v.channel_hub = channelHub;
     v.channel = [];
@@ -335,6 +357,10 @@ function start(opts) {
   const sessionsNow = () => lastSessions || fleetView().sessions || [];
 
   function broadcast() {
+    // A note waiting for a session the office started, and no turn running: start its turn (dispatch.tick).
+    if (o.dispatch) {
+      try { dispatch.tick(home, dispatchCtx); } catch (_) { /* the floor still renders */ }
+    }
     const frame = fleetView({ nudge: true });
     lastSessions = frame.sessions || [];
     if (notifier) {
@@ -483,6 +509,131 @@ function start(opts) {
       return;
     }
 
+    // Sessions the office starts (dispatch.js). GET /api/dispatch: what the New session sheet offers and every job.
+    // GET /api/dispatch/<id>/talk: one office-started session's prompts and replies, from its transcript, never for
+    // private work. POST /api/dispatch: start one. POST /api/dispatch/<id>/stop|close|reopen|notify|quiet. Every POST
+    // is an owner button (the page token, JSON, same origin). The choices are checked against config/dispatch.json;
+    // the brief goes to Claude Code on its stdin, never on a command line.
+    // On the hub the same routes reach the other computers (mesh-dispatch.js): `machine` on a start, or a job that is
+    // not this computer's, is queued for that computer's next feed; its talk is the copy its feed last brought.
+    const dispatchPath = /^\/api\/dispatch(?:\/([dq][0-9a-z]{6,24})\/(talk|stop|close|reopen|notify|quiet))?\/?$/.exec(url.pathname);
+    if (dispatchPath) {
+      const [, jobId, verb] = dispatchPath;
+      const local = jobId ? !!dispatch.readJob(home, jobId) : true;
+      if (req.method === 'GET' && !jobId) {
+        let v;
+        try {
+          const now = Date.now();
+          const opts = dispatch.options(home, dispatchCtx);
+          // Which computer a session starts on: this one, and on the hub every other computer in the settings.
+          opts.machines = [{
+            key: self, label: self, self: true, ok: !!o.dispatch && opts.claude,
+            why: !o.dispatch ? "This office doesn't start sessions." : !opts.claude ? "Claude Code isn't installed where the office can find it on this computer." : null,
+            places: opts.places, running: opts.running, max_running: opts.limits.max_running,
+          }].concat(MD.machines(home, now, cfg, self));
+          v = Object.assign({ ok: true, options: opts }, allJobs(now), { enabled: !!o.dispatch });
+        } catch (e) { v = { ok: false, error: String(e && e.message).slice(0, 200) }; }
+        sendJson(res, 200, v);
+        return;
+      }
+      if (req.method === 'GET' && verb === 'talk') {
+        let v;
+        try {
+          v = local ? dispatch.talk(home, jobId, o.projects || path.join(root, 'projects')) : MD.talk(home, jobId, Date.now(), cfg, self);
+        } catch (e) { v = { ok: false, error: 'its conversation could not be read' }; }
+        sendJson(res, v.status || 200, v);
+        return;
+      }
+      const action = jobId ? `DISPATCH_${verb.toUpperCase()}` : 'DISPATCH';
+      const audit = (result) => auditControl(home, { at: new Date().toISOString(), action, target: jobId || null, actor: 'owner@office', result, ip: req.socket.remoteAddress });
+      const refuse = (code, error, reason) => { audit(`REFUSED: ${reason}`); sendJson(res, code, { ok: false, error }); };
+      if (verb === 'talk') { sendJson(res, 405, { ok: false, error: 'Use GET.' }); return; }
+      if (!ownerButton(req, res, audit)) return;
+      if (!o.dispatch) { refuse(409, "This office doesn't start sessions.", 'dispatch off'); return; }
+      let body = '';
+      let tooBig = false;
+      req.on('data', (c) => { body += c; if (body.length > 64 * 1024) { tooBig = true; req.destroy(); } });
+      req.on('end', () => {
+        if (tooBig) return;
+        if (jobId && !local) {
+          // Another computer's job, or a start still on its way there: queued for its next feed.
+          let r;
+          try { r = MD.act(home, jobId, verb, Date.now(), cfg, self); } catch (e) { r = { ok: false, status: 500, message: `Something went wrong: ${String(e && e.message).slice(0, 200)}` }; }
+          auditControl(home, { at: new Date().toISOString(), action, target: jobId, via: r.machine || null, actor: 'owner@office', result: `${r.ok ? 'QUEUED' : 'REFUSED'} ${r.status}`, ip: req.socket.remoteAddress });
+          sendJson(res, r.status, { ok: r.ok, message: r.message, error: r.ok ? undefined : r.message });
+          broadcast();
+          return;
+        }
+        if (jobId) {
+          dispatch.act(home, jobId, verb)
+            .catch((e) => ({ ok: false, status: 500, message: `Something went wrong: ${String(e && e.message).slice(0, 200)}` }))
+            .then((r) => {
+              audit(`${r.ok ? 'OK' : 'REFUSED'} ${r.status}`);
+              sendJson(res, r.status, { ok: r.ok, message: r.message, error: r.ok ? undefined : r.message });
+              broadcast();
+            });
+          return;
+        }
+        let p;
+        try { p = JSON.parse(body || '{}'); } catch (_) { refuse(400, 'bad JSON', 'bad JSON'); return; }
+        // A lead the owner picked ("Hand work down" on a desk): a live session, named as the floor names it. A lead on
+        // another computer gets its helper there.
+        let parent = null;
+        if (p.parent && p.parent.session_id) {
+          const lead = sessionsNow().find((s) => s.id === p.parent.session_id && s.machine === String(p.parent.machine || self).toUpperCase());
+          if (!lead) { refuse(404, "That session isn't on the floor any more.", 'no such lead'); return; }
+          parent = { machine: lead.machine, session_id: lead.id, name: lead.display ? lead.display.name : null, client_work: !!lead.client_work };
+        }
+        const where = parent ? parent.machine : String(p.machine || self).toUpperCase();
+        if (where !== self) {
+          // A session on another computer (mesh-dispatch.js): checked here against the choices every computer shares,
+          // queued for its next feed; that computer's own office checks the rest and starts it.
+          if (!MD.MACHINES().includes(where)) { refuse(400, `There's no computer called ${where.slice(0, 20)} in the office.`, 'unknown machine'); return; }
+          const m = MD.machines(home, Date.now(), cfg, self).find((x) => x.key === where);
+          if (!m) { refuse(409, `${where} isn't reporting to this office, so it can't start a session now.`, `no route to ${where}`); return; }
+          if (!m.ok) { refuse(409, m.why, m.why); return; }
+          let q;
+          try { q = MD.startRequest(p, parent, (mesh.readFeed(home, where) || {}).dispatch_options, dispatchCtx); } catch (e) { q = { ok: false, status: 500, error: String(e && e.message).slice(0, 200) }; }
+          if (!q.ok) { refuse(q.status || 400, q.error, q.error); return; }
+          const rec = MD.queue(home, where, 'start', q.req, q.view, Date.now());
+          // The audit says who was started, how, where and for whom: never the brief.
+          auditControl(home, {
+            at: new Date().toISOString(), action, target: rec.id, via: where, actor: 'owner@office', ip: req.socket.remoteAddress,
+            result: `QUEUED ${q.req.model} ${q.req.effort} ${q.req.hands} ${q.req.cap_min}m${q.req.as ? ` as ${q.req.as}` : ''}${parent ? ' (helper)' : ''}`,
+            chars: String(p.brief || '').length,
+          });
+          sendJson(res, 200, {
+            ok: true, queued: rec.id, machine: where, session_key: `${where}:${rec.id}`, name: q.view.name,
+            message: `Starting on ${where}. It shows on the floor within a minute.`,
+          });
+          broadcast();
+          return;
+        }
+        let r;
+        try {
+          r = dispatch.createJob(home, {
+            brief: p.brief, model: p.model, effort: p.effort, hands: p.hands, cap_min: p.cap_min,
+            as: p.as, place: p.place, name: p.name, parent, origin: 'owner', notify: p.notify === true,
+          }, dispatchCtx);
+        } catch (e) { r = { ok: false, status: 500, error: String(e && e.message).slice(0, 200) }; }
+        if (!r.ok) { refuse(r.status || 400, r.error, r.error); return; }
+        // The audit says who was started, how and for whom: never the brief.
+        auditControl(home, {
+          at: new Date().toISOString(), action, target: r.job.id, actor: 'owner@office', ip: req.socket.remoteAddress,
+          result: `OK ${r.job.model} ${r.job.effort} ${r.job.hands} ${r.job.cap_min}m${r.job.as ? ` as ${r.job.as}` : ''}${parent ? ' (helper)' : ''}`,
+          chars: String(p.brief || '').length,
+        });
+        dispatch.startTurn(home, r.job.id, dispatchCtx)
+          .then((s) => {
+            sendJson(res, s.ok ? 200 : 500, s.ok
+              ? { ok: true, id: r.job.id, session_id: r.job.session_id, name: r.job.name, message: `${r.job.name} is starting. It appears on the floor in a few seconds.` }
+              : { ok: false, error: s.error });
+            broadcast();
+          });
+      });
+      return;
+    }
+
     // Clear seats off the floor (seats.js): { keys: ["<machine>:<id>", ...] } or { idle: true }. It hides
     // idle seats until they next do something; it stops nothing.
     if (url.pathname === '/api/seats/clear') {
@@ -605,7 +756,9 @@ function start(opts) {
         // A session on another machine gets its note through that machine's
         // next feed; a local one goes straight into the local inbox.
         const mesh = require('./mesh');
-        const owner = mesh.ownerOf(home, parsed.session_id, self);
+        // A session another computer's office started is that computer's by its job, even when its desk is not on the
+        // floor (it has not reached the floor yet, or has gone quiet): its next turn starts there from the note.
+        const owner = mesh.ownerOf(home, parsed.session_id, self) || MD.machineOf(home, parsed.session_id, self);
         const result = owner
           ? mesh.queueNote(home, owner, parsed.session_id, parsed.text, 'owner')
           : require('./inbox').enqueue(home, parsed.session_id, parsed.text, 'owner');
@@ -682,6 +835,19 @@ function start(opts) {
             : { ok: false, status: 400, error: 'bad JSON' };
         } catch (e) {
           result = { ok: false, status: 500, error: String(e && e.message) };
+        }
+        // "Buzz my phone when it replies" for a session on that computer: the same push bin/office-turn.js sends for one
+        // here, as its new reply arrives. It says THAT it replied, never what.
+        const replied = (result && result.replied) || [];
+        if (result) delete result.replied;
+        if (result && result.ok && o.push !== false) {
+          const m = String(parsed.machine).toUpperCase();
+          for (const j of replied) {
+            push.sendAll(home, {
+              title: `${j.name} replied`, body: 'Open the office to read it.',
+              tag: `workspace-reply-${j.id}`, url: `/#/team/${encodeURIComponent(`${m}:${j.session_id}`)}`,
+            }, { kind: 'reply', send: o.pushSend }).catch(() => null);
+          }
         }
         if (!result.ok) {
           auditControl(home, { at: new Date().toISOString(), action: 'MESH_REJECTED', reason: result.error, actor: String(who).slice(0, 120) });
@@ -928,6 +1094,8 @@ if (require.main === module) {
 
   const opts = { root: root || home, home, port: Number(arg('--port', config.officePort())) };
   if (args.includes('--channel-hub')) opts.channelHub = true;
+  // Sessions the office starts itself (dispatch.js): the live office, or a test office started with --dispatch.
+  if (live || args.includes('--dispatch')) opts.dispatch = true;
   const extraHost = arg('--allow-host', undefined);
   if (extraHost) opts.allowHosts = extraHost.split(',').map((s) => s.trim()).filter(Boolean);
   if (live) {
@@ -936,6 +1104,7 @@ if (require.main === module) {
     // started it (home.js ownerClaudeHome). Started from another account on this computer, it still
     // reads its owner's sessions.
     const claude = ownerClaudeHome(home);
+    opts.claudeHome = claude;
     opts.projects = path.join(claude, 'projects');
     // The user-level comms bus, plus one per repo: one folder level under each
     // code root (workspace.config.json code_roots), where the org keeps its bus.

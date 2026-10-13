@@ -131,8 +131,10 @@ spoke's chip on the hub's office turns green and its sessions appear. If it does
    the Home Screen is optional.
 4. Tap the **bell** in the bar and allow notifications. A test buzz arrives.
 
-You get one buzz per new question, and nothing else. Questions that arrive within two minutes of
-each other come together. The message is encrypted to your phone, so Apple or Google carry only
+You get one buzz per new question, and one when a session you started from the office replies to
+your own words (guide 10; you can turn that off per session). Nothing else: never a helper's report,
+the group chat or the office's own nudges. Questions that arrive within two minutes of each other
+come together. The message is encrypted to your phone, so Apple or Google carry only
 ciphertext.
 
 ## Keeping it private

@@ -604,6 +604,22 @@ function isClientWork(...cwds) {
   return config.isPrivate(...cwds);
 }
 
+/**
+ * A session's transcript by its id, in whichever projects folder holds it (a session the office started, read on
+ * request: dispatch.talk). A folder listed in privacy.never_read is never opened.
+ */
+function findTranscript(projectsDir, sessionId) {
+  if (!/^[0-9a-f-]{36}$/i.test(String(sessionId || ''))) return null;
+  let slugs = [];
+  try { slugs = fs.readdirSync(projectsDir); } catch (_) { return null; }
+  for (const slug of slugs) {
+    if (config.neverRead(slug)) continue;
+    const f = path.join(projectsDir, slug, `${sessionId}.jsonl`);
+    if (fs.existsSync(f)) return f;
+  }
+  return null;
+}
+
 /* --------------------------------------------------------------- comms DB */
 
 /**
@@ -717,6 +733,6 @@ function readFlows(dbPaths, sinceIso) {
 
 module.exports = {
   VERBS, verbFor, summaryFor, laneId, laneLabel,
-  readEvents, foldDesks, readReconstructed, transcriptMeta, transcriptHead, projectOf, isClientWork,
+  readEvents, foldDesks, readReconstructed, transcriptMeta, transcriptHead, projectOf, isClientWork, findTranscript,
   readComms, findCommsDbs, readFlows, repoOf, worktreeRepo,
 };

@@ -234,6 +234,12 @@ their desk on the Floor while the org builds; and an agent that does the practic
 
 ### Step 5. Where to go next
 
+- **Sessions from the office**: show them **New session** on the office (or the **+** on their phone).
+  Start one together with a small, safe job ("Read this project's README and tell me in three lines
+  what it does", Haiku or Sonnet, Plan only hands), so they see a session start, work and reply on the
+  page without a chat window. Then show **Hand work down** on its desk, and the **Team** tab. Tell them
+  the two helper rules in a sentence: a helper never thinks harder than the session that started it,
+  and Fable helpers run on low. Guide 10 has the rest; guide 7 has starting one on another computer.
 - The **Work** tab's **Get started** course: GS-01 to GS-11, from their first note to several computers.
 - Their phone on the office: guide 2.
 - Changing anything later: say "set up my WorkSpace" in a chat on the Hub, or use `prompts/README.md`.

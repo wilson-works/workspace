@@ -65,11 +65,18 @@ function main() {
   const now = Date.now();
   // Group-chat messages (channel.js) carry their own sender and guidance in the text.
   const group = notes.every((n) => n.from === 'group');
+  // A helper's report (dispatch.js: a session the office started for this one) says whose report it is.
+  const helpers = notes.every((n) => n.from === 'helper');
+  const line = (n) => (n.from === 'helper'
+    ? `- [${clock(n.queued_at || now)}] Report from ${n.from_name || 'a helper'}: ${n.text}`
+    : `- [${clock(n.queued_at || now)}] ${n.text}`);
   const text = [
     group
       ? `From the office group chat${notes.length > 1 ? ` (${notes.length} messages)` : ''}:`
-      : `A note from ${ownerName()}, sent through the office${notes.length > 1 ? ` (${notes.length} notes)` : ''}:`,
-    ...notes.map((n) => `- [${clock(n.queued_at || now)}] ${n.text}`),
+      : helpers
+        ? `From the helper${notes.length > 1 ? 's' : ''} you handed work to, through the office:`
+        : `A note from ${ownerName()}, sent through the office${notes.length > 1 ? ` (${notes.length} notes)` : ''}:`,
+    ...notes.map(line),
     group ? 'Carry on with your work unless one of these is for you.' : 'Read it, act on it if it asks you to, and carry on.',
   ].join('\n');
 

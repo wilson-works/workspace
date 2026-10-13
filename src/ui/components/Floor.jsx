@@ -6,6 +6,7 @@ import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Desk, { QuietDesk, keyOf } from './Desk.jsx';
 
 const LINE_MS = 15 * 60 * 1000;   // how long a conversation line stays drawn
+const PACKET_MS = 90 * 1000;      // a hand-down or a report this recent sends a dot along its team line
 const SAID_MS = 10 * 60 * 1000;   // how long a desk shows its last message
 const RANK = { working: 0, waiting: 1, idle: 2 };
 
@@ -45,6 +46,13 @@ export default function Floor({ sessions, flows, asOf, ago, selectedKey, onSelec
     return m;
   }, [flows, asOf]);
 
+  // Helpers the office started whose lead is on this floor too (dispatch.decorate sets lead_key), only while the
+  // helper is at work: a line between two quiet seats would cut across the quiet row.
+  const teamed = useMemo(() => {
+    const here = new Set(sessions.map(keyOf));
+    return sessions.filter((s) => s.lead_key && here.has(s.lead_key) && s.state !== 'idle');
+  }, [sessions]);
+
   // Lines between desks that talked, measured from the rendered desks.
   const drawable = useMemo(
     () => flows.filter((f) => f.at && asOf - f.at < LINE_MS && endpointKey(f.from) && endpointKey(f.to)),
@@ -62,6 +70,20 @@ export default function Floor({ sessions, flows, asOf, ago, selectedKey, onSelec
         return { x: r.left - box.left + r.width / 2, y: r.top - box.top + r.height / 2 };
       };
       const next = [];
+      // A team (dispatch.js): a line from a lead to each helper the office started for it. Work handed down runs a dot
+      // down the line once; a report coming back runs one up.
+      for (const s of teamed) {
+        const a = centre(s.lead_key);
+        const b = centre(keyOf(s));
+        if (!a || !b) continue;
+        const j = s.dispatch || {};
+        const packets = [];
+        if (j.created_at && asOf - j.created_at < PACKET_MS) packets.push({ id: `h:${j.id}`, up: false });
+        if (j.reported_at && asOf - j.reported_at < PACKET_MS) packets.push({ id: `r:${j.id}:${j.reported_at}`, up: true });
+        for (const p of packets) if (!seen.current.has(p.id)) seen.current.set(p.id, asOf);
+        const cy = Math.min(a.y, b.y) - Math.max(40, Math.abs(a.x - b.x) * 0.18);
+        next.push({ id: `team:${keyOf(s)}`, team: true, family: s.family, d: `M${a.x},${a.y} Q${(a.x + b.x) / 2},${cy} ${b.x},${b.y}`, fade: 1, packets: packets.filter((p) => seen.current.get(p.id) === asOf) });
+      }
       for (const f of drawable) {
         const a = centre(endpointKey(f.from));
         const b = centre(endpointKey(f.to));
@@ -79,7 +101,7 @@ export default function Floor({ sessions, flows, asOf, ago, selectedKey, onSelec
     const ro = new ResizeObserver(measure);
     ro.observe(wrap);
     return () => ro.disconnect();
-  }, [drawable, rooms, asOf]);
+  }, [drawable, teamed, rooms, asOf]);
 
   if (sessions.length === 0) {
     return <p className="floor-empty">No sessions are running right now.</p>;
@@ -88,7 +110,17 @@ export default function Floor({ sessions, flows, asOf, ago, selectedKey, onSelec
   return (
     <div className="floor" ref={wrapRef}>
       <svg className="flow-layer" aria-hidden="true">
-        {lines.map((l) => (
+        {lines.filter((l) => l.team).map((l) => (
+          <g key={l.id} className={`team-wire tone-${l.family || 'unknown'}`}>
+            <path className="team-line" d={l.d} />
+            {l.packets.map((p) => (
+              <circle key={p.id} className="team-dot" r="4.5">
+                <animateMotion dur="1.6s" repeatCount="1" fill="freeze" path={l.d} keyPoints={p.up ? '1;0' : '0;1'} keyTimes="0;1" calcMode="linear" />
+              </circle>
+            ))}
+          </g>
+        ))}
+        {lines.filter((l) => !l.team).map((l) => (
           <g key={l.id} style={{ opacity: Math.max(0.18, l.fade) }}>
             <path className="flow-line" d={l.d} />
             {l.fresh && (

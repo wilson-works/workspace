@@ -9,6 +9,10 @@ You see what each one is doing right now, the helpers it sends off and brings ba
 any of them a note, from your desk or your phone. Sessions ask you questions in plain English, and
 your phone buzzes when one does.
 
+And the office can **start sessions itself**: say what you want on the page (from your phone, too),
+pick the model and effort, and Claude works in the background, hands pieces of the job to helper
+sessions, and reports back on the page. One computer or several. [Guide 10](guides/10-sessions-from-the-office.md).
+
 ```
   ┌──────────────────────────────────────────────────────────────────────────┐
   │ ● WorkSpace · Example Co.    All 3   DESK 2   LAPTOP 1     Floor Work …  │
@@ -92,7 +96,7 @@ and introduce your first agents, paste `Carry on my Workspace setup from step 1 
 |---|---|
 | **The Hub** | One folder on each computer for all your work, in numbered zones (`00-Inbox` to `90-Archive`), with a constitution `CLAUDE.md` every session reads, a plain-English map (`NAV.md`) rebuilt from what is on disk, and a `CLAUDE.md` per project. Claude always knows where things go, on any drive, on Windows or macOS. [Guide 6](guides/06-the-hub.md). |
 | **The starter skills** | Twelve skills from the free [claude_skills](https://github.com/wilson-works/claude_skills) pack, such as `handoff`, `notetaker`, `file-organizer`, `backlog` and `scope-check`, pulled at a pinned commit so they never drift. [Why each one](skills/README.md). |
-| **The office** | A local web page (http://127.0.0.1:4316): the Floor, Work, Agents, Questions and Chat. Every session opened on your Hub shows up. Private by design: it reads session metadata only, never prompts or file contents, and binds to this computer alone. |
+| **The office** | A local web page (http://127.0.0.1:4316): the Floor, the Team chart, Chat, Work, Agents and Questions. Every session opened on your Hub shows up. Private by design: it reads session metadata only, never prompts or file contents, and binds to this computer alone. |
 | **Specialist agents** | An agent for one job you repeat, with its own rules, facts, memory and dashboard. Install one of ours (`install-agent louise`), or make your own with `new-agent`. Each gets an office in the Agents' wing, with a door into its dashboard, by itself. [Guide 8](guides/08-agents.md). |
 | **The fleet** (optional) | Your computers sharing work through your own private `fleet-ops` repo: a board of work orders, a message file per computer, and handoffs from a session on one to a session on another. The installer sets it up. [Guide 7](guides/07-several-computers.md). |
 
@@ -100,6 +104,8 @@ And inside the office:
 
 | | |
 |---|---|
+| **Sessions from the office** | **New session** starts a headless Claude Code session from the page: what it should do, the model, effort and hands (careful, full, or plan only), with one-tap presets. You talk to it on its card, and a note starts its next turn. Any session can hand work down to a helper (`bin/office-spawn.js`, or **Hand work down** on a desk); the helper's report comes back to its lead. Helpers never run above their lead's effort, and Fable helpers run on low only. [Guide 10](guides/10-sessions-from-the-office.md). |
+| **The Team chart** | Every lead and the helpers working under it, on wires: work runs down, reports run up. Each card opens that session's own chart. |
 | **Running now** | The Work page opens with what is being worked on right now: every session at work, what it is doing this minute, the helpers it sent off, and its repo and branch. A session waiting for its helpers to come back says so. |
 | **Agent controls** | Wake, Sleep and Restart on each agent's door, and Sleep all for every agent at once, from your desk or your phone. Sleep also stops the runs an agent started in the background. |
 | **A tidy floor** | Clear the idle seats in one tap, or Remove from floor on one quiet seat. Nothing is stopped: a seat comes back as soon as its session does something new. |
@@ -107,7 +113,7 @@ And inside the office:
 | **Demo app** | A tiny practice app with four work orders for your new team. |
 | **The CTO org** | 18 agents (CTO, Chief Engineer, exec assistant, five department heads, ten juniors) with a message bus and a department guard. The same team as `agent-org` in the free claude_skills pack. |
 | **Permissions** | Guard rails for working without babysitting: a deny list, an ask list, and walkaway mode for unattended sessions. |
-| **Many devices** | Your phone and your other computers on one office, over [Tailscale](https://tailscale.com). |
+| **Many devices** | Your phone and your other computers on one office, over [Tailscale](https://tailscale.com). From the hub's page you can start a session on any of them. Your phone buzzes only for a question, or a reply to your own words. |
 | **The prompt library** | Prompts for changing the office, the team and your specialists. |
 | **The avatars** | 103 emblems and 101 frames for the people at the desks, from [CreDub](https://credub.com), the team engagement platform where your crew levels up together. Browse them at `#/avatars` on your office. |
 
@@ -174,6 +180,7 @@ Setup help is $150 per seat; a one-job agent (a social media or sales assistant,
 7. [Several computers](guides/07-several-computers.md): the fleet, handoffs, a builder and a gate.
 8. [Specialist agents](guides/08-agents.md): the agent contract, `new-agent`, installing Louise or any agent.
 9. [Updates](guides/09-updates.md): how new features arrive, and why they never break your own pieces.
+10. [Sessions from the office](guides/10-sessions-from-the-office.md): start Claude from the page, hand work to helpers, one computer or several.
 
 And [the prompt library](prompts/README.md), with [the update procedure](prompts/update-my-workspace.md).
 
@@ -185,7 +192,11 @@ short line per event to a local file (which tool, which session, when; never wha
 session any note waiting for it, and wake an idle session when one arrives. The office server reads
 that file and the metadata of Claude Code's own session logs, and draws the floor. A second computer
 sends its floor to the first over your tailnet every 15 seconds; the first one answers with any notes
-for that computer's sessions. Everything stays on your devices and in your own private repos.
+for that computer's sessions. A session the office starts is Claude Code run headless (`claude -p`),
+one process per turn, resumed for the next; a note to it starts its next turn, and a helper's final
+reply goes back to its lead as a note. On another computer, the start rides back on the answer to
+that computer's own feed, and that computer's office starts it. Everything stays on your devices and
+in your own private repos.
 
 ## Privacy
 
@@ -215,6 +226,7 @@ node bin/install.js [part] [--apply|--remove]       extra parts: hooks, permissi
 node bin/work.js list | show | mark                 progress on the Work page
 node bin/ask-owner.js "question?" --recommend "..." a question for you, on the office
 node bin/office-say.js "text"                       post in the group chat
+node bin/office-spawn.js "what to do" --name "Name"   hand a piece of work to a helper session (from inside a session)
 npm run build                                       rebuild the page after editing src/ui/
 ```
 

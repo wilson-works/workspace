@@ -30,12 +30,18 @@ const SESSION_RE = /^[0-9a-f-]{8,64}$/i;
 function inboxDir(home) { return path.join(home, 'inbox'); }
 function deliveredDir(home) { return path.join(home, 'inbox', 'delivered'); }
 
-/** Queue one note. Returns {ok, id, queued_at} or {ok:false, error}. */
-function enqueue(home, sessionId, text, from) {
+/**
+ * Queue one note. Returns {ok, id, queued_at} or {ok:false, error}.
+ * opts (dispatch.js, a helper's report to its lead): { max: a longer cap, from_name: who sent it, ownerCopy: false to
+ * keep it out of the conversation the office shows (a private-work report goes to its lead and nowhere else) }.
+ */
+function enqueue(home, sessionId, text, from, opts) {
+  const o = opts || {};
   if (!SESSION_RE.test(String(sessionId || ''))) return { ok: false, error: 'not a session id' };
   const body = String(text || '').trim();
   if (!body) return { ok: false, error: 'empty note' };
-  if (body.length > MAX_CHARS) return { ok: false, error: `note is longer than ${MAX_CHARS} characters` };
+  const max = o.max || MAX_CHARS;
+  if (body.length > max) return { ok: false, error: `note is longer than ${max} characters` };
 
   fs.mkdirSync(inboxDir(home), { recursive: true });
   const rec = {
@@ -44,8 +50,9 @@ function enqueue(home, sessionId, text, from) {
     from: from || 'owner',
     text: body,
   };
+  if (o.from_name) rec.from_name = String(o.from_name).slice(0, 60);
   fs.appendFileSync(path.join(inboxDir(home), `${sessionId}.jsonl`), JSON.stringify(rec) + '\n', 'utf8');
-  recordSent(home, sessionId, rec);
+  if (o.ownerCopy !== false) recordSent(home, sessionId, rec);
   return { ok: true, id: rec.id, queued_at: rec.queued_at };
 }
 
@@ -60,8 +67,9 @@ function recordSent(home, sessionId, rec) {
   if (!SESSION_RE.test(String(sessionId || ''))) return;
   try {
     fs.mkdirSync(sentDir(home), { recursive: true });
-    fs.appendFileSync(path.join(sentDir(home), `${sessionId}.jsonl`),
-      JSON.stringify({ id: rec.id, queued_at: rec.queued_at, from: rec.from || 'owner', text: rec.text }) + '\n', 'utf8');
+    const copy = { id: rec.id, queued_at: rec.queued_at, from: rec.from || 'owner', text: rec.text };
+    if (rec.from_name) copy.from_name = rec.from_name;
+    fs.appendFileSync(path.join(sentDir(home), `${sessionId}.jsonl`), JSON.stringify(copy) + '\n', 'utf8');
   } catch (_) { /* the note is queued; only the owner's copy is missing */ }
 }
 
@@ -78,7 +86,7 @@ function thread(home, sessionId, limit = 6) {
   const sent = readJsonl(path.join(sentDir(home), `${sessionId}.jsonl`)).slice(-limit);
   if (!sent.length) return [];
   const delivered = new Map(readJsonl(path.join(deliveredDir(home), `${sessionId}.jsonl`)).map((d) => [d.id, d.delivered_at]));
-  return sent.map((n) => ({ id: n.id, from: n.from || 'owner', text: n.text, at: n.queued_at, delivered_at: delivered.get(n.id) || null }));
+  return sent.map((n) => ({ id: n.id, from: n.from || 'owner', from_name: n.from_name || null, text: n.text, at: n.queued_at, delivered_at: delivered.get(n.id) || null }));
 }
 
 function countLines(p) {
