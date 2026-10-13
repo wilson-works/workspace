@@ -59,7 +59,7 @@ export default function DispatchSheet({ token, lead, onClose, onStarted, initial
   const [data, setData] = useState(cached);
   const [brief, setBrief] = useState(initialBrief || '');
   const [preset, setPreset] = useState(null);
-  const [notify, setNotify] = useState(true);
+  const [notify, setNotify] = useState(false);
   const [model, setModel] = useState(null);
   const [effort, setEffort] = useState(null);
   const [hands, setHands] = useState(null);
