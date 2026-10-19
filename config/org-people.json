@@ -21,6 +21,114 @@
     "junior-qa-maya": "Maya",
     "junior-qa-owen": "Owen"
   },
+  "_people": "Your people: a small sample org. A session shows its person's name large with Department · Focus under it, and the same person live twice is numbered 2, 3, 4 in the order the sessions started. Rename anyone, change their department or focus, or add people (keep the names the roster, the runs and work_words use). A session you open yourself goes to the person whose work_words are in its title, else to everyone_else. Delete people to go back to callsigns.",
+  "people": {
+    "Sam": {
+      "department": "Front desk",
+      "focus": "Your own sessions"
+    },
+    "James": {
+      "department": "Leadership",
+      "focus": "Plans and priorities"
+    },
+    "John": {
+      "department": "Engineering",
+      "focus": "Reviews and checks"
+    },
+    "Cindy": {
+      "department": "Engineering",
+      "focus": "Behind the scenes"
+    },
+    "Gavin": {
+      "department": "Engineering",
+      "focus": "Screens and pages"
+    },
+    "Diana": {
+      "department": "Engineering",
+      "focus": "Data"
+    },
+    "Josh": {
+      "department": "Engineering",
+      "focus": "Connections"
+    },
+    "Rachel": {
+      "department": "Quality",
+      "focus": "Tests"
+    }
+  },
+  "everyone_else": "Sam",
+  "work_words": [
+    {
+      "person": "James",
+      "words": [
+        "plan",
+        "roadmap",
+        "priorit",
+        "strategy"
+      ]
+    },
+    {
+      "person": "John",
+      "words": [
+        "review",
+        "check",
+        "gate",
+        "verify"
+      ]
+    },
+    {
+      "person": "Rachel",
+      "words": [
+        "test",
+        "qa",
+        "regression"
+      ]
+    },
+    {
+      "person": "Gavin",
+      "words": [
+        "screen",
+        "page",
+        "ui",
+        "button",
+        "layout",
+        "css",
+        "design",
+        "mobile",
+        "frontend"
+      ]
+    },
+    {
+      "person": "Diana",
+      "words": [
+        "database",
+        "migration",
+        "schema",
+        "sql",
+        "table"
+      ]
+    },
+    {
+      "person": "Josh",
+      "words": [
+        "api",
+        "endpoint",
+        "webhook",
+        "integration",
+        "connect"
+      ]
+    },
+    {
+      "person": "Cindy",
+      "words": [
+        "backend",
+        "server",
+        "bug",
+        "fix",
+        "security"
+      ]
+    }
+  ],
   "_gate": "The gate is the last check before code reaches main: John, the Chief Engineer, in the CTO org.",
   "gate": "John",
   "_runs": "Parallel runs: a run's lanes, so each lane's session is named for the person running it. Empty until you run one. Example: {\"run\": \"Night 1\", \"match\": \"night-1\", \"lanes\": [{\"match\": \"lane A\", \"person\": \"Cindy\", \"scope\": \"API cleanup\"}, {\"match\": \"gate\", \"person\": \"John\", \"scope\": \"Merge gate\"}]}",
