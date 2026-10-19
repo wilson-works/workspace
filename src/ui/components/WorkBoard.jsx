@@ -1,7 +1,8 @@
 // WorkBoard.jsx — the Work tab (/api/work): Running now (the sessions at work this
 // minute, read off the floor), then every project in projects/ (and any
-// workspace.config.json work_folders), each with its % done ring and its steps as
-// a small kanban - To do, Doing, Done. A course reads as lessons, with the next
+// workspace.config.json work_folders), each with its % done ring, its count in each
+// of the eight boxes, and its steps as a small kanban - To do, Doing, Done. An order
+// in Build says Running only while a session is on it; otherwise Staged. A course reads as lessons, with the next
 // one to take; a project reads as orders. A project opens its page
 // (#/work/<project>), a card its step (#/step/<project>/<id>), a session its desk.
 
@@ -117,11 +118,48 @@ export const LISTS = [
 
 export const noun = (kind, n) => (kind === 'course' ? (n === 1 ? 'lesson' : 'lessons') : (n === 1 ? 'order' : 'orders'));
 
+// The eight boxes an order moves through (work.js STAGES), in plain words.
+export const BOXES = [
+  { key: 'new', label: 'New' },
+  { key: 'build', label: 'Build' },
+  { key: 'review', label: 'Review' },
+  { key: 'verify', label: 'Verify' },
+  { key: 'ready', label: 'Ready' },
+  { key: 'approved', label: 'Approved' },
+  { key: 'cicd', label: 'CI/CD' },
+  { key: 'shipped', label: 'Shipped' },
+];
+
+/** Where an order really stands, as a status word with a small dot (work.js truth): Running only with a live session. */
+export function TruthPill({ x }) {
+  if (x.truth === 'running') return <span className="pill pill-good"><span className="pill-dot" aria-hidden="true" />Running{x.live_name ? ` · ${x.live_name}` : ''}</span>;
+  if (x.truth === 'staged') return <span className="pill pill-quiet"><span className="pill-dot" aria-hidden="true" />Staged · waiting to start</span>;
+  if (x.truth === 'requeued') return <span className="pill pill-ask"><span className="pill-dot" aria-hidden="true" />Back in the queue</span>;
+  if (x.stage && !['new', 'build', 'shipped'].includes(x.stage)) return <span className="pill pill-step"><span className="pill-dot" aria-hidden="true" />{x.stage_label}</span>;
+  return null;
+}
+
+/** A project's (or every project's) count in each of the eight boxes. */
+export function Boxes({ b, label }) {
+  if (!b) return null;
+  return (
+    <ol className="boxes" aria-label={label || 'the eight boxes'}>
+      {BOXES.map((x) => (
+        <li key={x.key} className={`box box-${x.key} ${b[x.key] ? 'has' : ''}`}>
+          <span className="box-n">{b[x.key] || 0}</span>
+          <span className="box-k">{x.label}</span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 export function Card({ x, onStep }) {
   return (
     <li>
-      <button type="button" className="kcard" onClick={() => onStep(x.id)}>
+      <button type="button" className="kcard kcard-full" onClick={() => onStep(x.id)}>
         <span className="kcard-label">{x.label}</span>
+        <TruthPill x={x} />
         <span className="run-meta">{[x.id, x.who, x.minutes && `${x.minutes} min`].filter(Boolean).join(' · ')}</span>
       </button>
     </li>
@@ -172,6 +210,7 @@ function ProjectSection({ p, onProject, onStep }) {
         </button>
       )}
       {p.kind === 'course' && !p.next && c.total > 0 && <p className="wdone">Course complete. Well done.</p>}
+      {p.kind !== 'course' && c.total > 0 && <Boxes b={p.boxes} label={`${p.name}: the eight boxes`} />}
       {p.kind !== 'course' && c.total > 0 && (
         <div className="wproj-part">
           <MiniKanban p={p} onStep={(id) => onStep(id)} onProject={onProject} />
@@ -183,6 +222,10 @@ function ProjectSection({ p, onProject, onStep }) {
 
 function Totals({ projects }) {
   const sum = (f) => projects.reduce((n, p) => n + f(p), 0);
+  const work = projects.filter((p) => p.kind !== 'course' && p.boxes);
+  const all = work.length ? Object.fromEntries(BOXES.map((x) => [x.key, work.reduce((n, p) => n + (p.boxes[x.key] || 0), 0)])) : null;
+  const running = work.reduce((n, p) => n + (p.boxes.running || 0), 0);
+  const staged = work.reduce((n, p) => n + (p.boxes.staged || 0), 0);
   const total = sum((p) => p.counts.total);
   const done = sum((p) => p.counts.done);
   const pct = total > 0 ? Math.round((done / total) * 100) : null;
@@ -196,6 +239,15 @@ function Totals({ projects }) {
         <li><strong>{done}</strong> done</li>
         <li><strong>{projects.length}</strong> project{projects.length === 1 ? '' : 's'}</li>
       </ul>
+      {all && (
+        <div className="wtotals-boxes">
+          <Boxes b={all} label="every project: the eight boxes" />
+          <p className="wtotals-truth">
+            {running > 0 ? `${running} running now` : 'Nothing running now'}
+            {staged > 0 ? ` · ${staged} staged, waiting to start` : ''}
+          </p>
+        </div>
+      )}
     </div>
   );
 }

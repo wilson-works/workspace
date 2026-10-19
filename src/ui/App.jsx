@@ -19,6 +19,7 @@ import WorkBoard from './components/WorkBoard.jsx';
 import ProjectWork from './components/ProjectWork.jsx';
 import StepView from './components/StepView.jsx';
 import Pulse from './components/Pulse.jsx';
+import Today from './components/Today.jsx';
 import AgentsWing from './components/AgentsWing.jsx';
 import Fleet from './components/Fleet.jsx';
 import Network from './components/Network.jsx';
@@ -360,6 +361,7 @@ export default function App() {
           {route.tab === 'team' ? (
             <Network
               sessions={all}
+              people={frame.people || []}
               asOf={asOf}
               ago={ago}
               selected={selected}
@@ -386,6 +388,14 @@ export default function App() {
               owner={frame.brand && frame.brand.owner}
               token={frame.token}
               onTeam={() => pickTab('team')}
+            />
+            <Today
+              care={frame.care}
+              token={frame.token}
+              canStart={canStart}
+              onStart={(brief) => setSheet({ lead: null, brief })}
+              onStep={(project, id) => go({ tab: 'work', project, step: id })}
+              onQuestions={() => pickTab('questions')}
             />
             <Floor
               sessions={sessions}

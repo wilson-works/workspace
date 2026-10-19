@@ -24,6 +24,15 @@ sessions, and reports back on the page. One computer or several. [Guide 10](guid
   └──────────────────────────────────────────────────────────────────────────┘
 ```
 
+## What's new
+
+- **Work tells the truth.** Each order sits in one of eight boxes: New, Build, Review, Verify, Ready, Approved, CI/CD, Shipped. An order says Running only while a session is really on it; otherwise it is Staged, waiting to start. Work nobody has touched for three hours goes back to the queue, so nothing sits "stuck".
+- **Plan today.** One tap and the office drafts your day from your own open work: questions waiting on you, sites that need care, and the next order in each project. Start any line as a session.
+- **Your people.** The Team page lists people, with what each one is doing now. Sessions show a person's name large with "Department · Focus" under it; two of the same person are numbered 2, 3, 4. A small sample team ships in `config/org-people.json`; rename them freely.
+- **Care rounds.** List your own sites in `config/care.json` (copy `config/care.example.json`) and the office checks them at 6:30 AM and 1:00 PM, shows one Care line on the floor with Check now, and turns a broken page into one order.
+- **Calmer session sheets.** What it is doing, its job, helpers and the conversation each fold away and stay how you left them; the message box is always on screen.
+- **Always current.** An open page reloads itself when the office is updated.
+
 ## Install with Claude
 
 Make a folder called `Hub` in your user folder, open it in Claude Code (the VS Code extension, or the
