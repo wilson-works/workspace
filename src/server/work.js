@@ -21,6 +21,16 @@
  * The page opens with Running now (liveWork): the sessions at work this minute,
  * read off the floor, so the Work page shows what is actually being worked on,
  * not only what the projects' steps say.
+ *
+ * The eight boxes: an order in a project moves New, Build, Review, Verify, Ready,
+ * Approved, CI/CD, Shipped (STAGES). `todo`, `doing` and `done` still work and mean
+ * New, Build and Shipped. Each step also keeps its plain lane (todo, doing, done) for
+ * the course view and the command line.
+ *
+ * Told truthfully (truth): an order in Build is Running only while a live session
+ * (working or waiting) is in its project; otherwise it is Staged, waiting to start.
+ * One nobody has been on for STALE_MS goes back to the queue as New. There is no
+ * stalled state and no restart: you start it again like any new order.
  */
 
 const fs = require('fs');
@@ -31,7 +41,18 @@ const config = require('./config');
 const KEY_RE = /^[A-Za-z0-9][A-Za-z0-9_-]{0,60}$/;
 const ID_RE = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,40}$/;
 const STATES = ['todo', 'doing', 'done'];
+const STAGES = ['new', 'build', 'review', 'verify', 'ready', 'approved', 'cicd', 'shipped'];
+const STAGE_LABEL = { new: 'New', build: 'Build', review: 'Review', verify: 'Verify', ready: 'Ready', approved: 'Approved', cicd: 'CI/CD', shipped: 'Shipped' };
+const ALIAS = { todo: 'new', doing: 'build', done: 'shipped' };
+const STALE_MS = 3 * 3600 * 1000;   // Build with nobody on it this long: back to the queue
 const PEEK = 3;
+
+/** A stage from any spelling ("CI/CD", "doing", "Ready"), or null. */
+function stageOf(v) {
+  const s = String(v || '').toLowerCase().replace(/[^a-z]/g, '');
+  return STAGES.includes(s) ? s : ALIAS[s] || null;
+}
+const laneOf = (stage) => (stage === 'new' ? 'todo' : stage === 'shipped' ? 'done' : 'doing');
 // Read as numbers; everything else (an id like 007 included) stays text.
 const NUMERIC = new Set(['minutes', 'order']);
 
@@ -53,9 +74,11 @@ function parse(text) {
   return { meta, body: m ? src.slice(m[0].length) : src };
 }
 
-function folders() {
+/** Where projects are read from: projects/, work_folders, and the office's own care project (care.js) when home is given. */
+function folders(home) {
   const own = path.join(config.ROOT, 'projects');
-  return [own].concat(config.load().work_folders || []);
+  const care = home ? [path.join(home, 'care', 'projects')] : [];
+  return [own].concat(config.load().work_folders || [], care);
 }
 
 function readText(p) {
@@ -69,10 +92,10 @@ function readProgress(home) {
 }
 
 /** Every project folder: [{key, dir, meta, body}], first folder wins on a repeated key. */
-function projects() {
+function projects(home) {
   const out = [];
   const seen = new Set();
-  for (const root of folders()) {
+  for (const root of folders(home)) {
     let names = [];
     try { names = fs.readdirSync(root); } catch (_) { continue; }
     for (const name of names.sort()) {
@@ -97,30 +120,66 @@ function steps(p, progress) {
   const marks = (progress && progress[p.key]) || {};
   const out = [];
   for (const f of files) {
-    const text = readText(path.join(p.dir, 'steps', f));
+    const file = path.join(p.dir, 'steps', f);
+    const text = readText(file);
     if (text === null) continue;
     const { meta, body } = parse(text);
     const id = p.private ? `P${out.length + 1}`
       : ID_RE.test(String(meta.id || '')) ? String(meta.id) : f.replace(/\.md$/i, '');
     if (out.some((s) => s.id === id)) continue;
-    const own = STATES.includes(String(meta.status || '').toLowerCase()) ? String(meta.status).toLowerCase() : 'todo';
-    const mark = marks[id] && STATES.includes(marks[id].status) ? marks[id] : null;
+    const own = stageOf(meta.status) || 'new';
+    const m = marks[id];
+    const marked = m ? stageOf(m.stage) || stageOf(m.status) : null;
+    const stage = marked || own;
+    let since = marked ? m.at || null : null;
+    if (!since) { try { since = fs.statSync(file).mtimeMs; } catch (_) { since = null; } }
     out.push({
       id,
       title: p.private ? null : String(meta.title || id),
       minutes: typeof meta.minutes === 'number' ? meta.minutes : null,
       who: p.private ? null : (meta.who ? String(meta.who) : null),
-      status: mark ? mark.status : own,
-      marked_at: mark ? mark.at || null : null,
+      stage,
+      status: laneOf(stage),
+      since,
+      marked_at: marked ? m.at || null : null,
       body: p.private ? null : body,
     });
   }
   return out;
 }
 
+const norm = (x) => String(x || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+/** The live sessions (working or waiting) in a project: their repo or room is the project's folder or name. */
+function liveOn(p, sessions) {
+  const keys = new Set([norm(p.key), norm(p.meta && p.meta.name), norm(path.basename(p.dir))].filter(Boolean));
+  return (sessions || []).filter((s) => (s.state === 'working' || s.state === 'waiting')
+    && [s.repo, s.room].some((r) => r && keys.has(norm(r))));
+}
+
+/**
+ * The truth rules, for a project's orders (not a course's lessons). Build with a live session in its project is
+ * Running; Build with nobody on it is Staged (waiting to start); Build nobody has been on for STALE_MS is New again,
+ * back in the queue. Without the floor (sessions undefined: the command line) steps stay as marked.
+ */
+function truth(p, list, sessions, now) {
+  if (!Array.isArray(sessions) || p.meta.kind === 'course') return list;
+  const live = liveOn(p, sessions);
+  const who = live.length ? ((live[0].display && live[0].display.name) || live[0].name || null) : null;
+  return list.map((s) => {
+    if (s.stage !== 'build') return s;
+    if (live.length) return Object.assign({}, s, { truth: 'running', live_name: p.private ? null : who });
+    if (s.since && now - s.since > STALE_MS) return Object.assign({}, s, { stage: 'new', status: 'todo', truth: 'requeued' });
+    return Object.assign({}, s, { truth: 'staged' });
+  });
+}
+
 const pctOf = (done, total) => (total > 0 ? Math.round((done / total) * 100) : null);
 const label = (s) => (s.title ? s.title : /^P\d+$/.test(s.id) ? `Step ${s.id.slice(1)}` : `Step ${s.id}`);
-const card = (s) => ({ id: s.id, label: label(s), minutes: s.minutes, who: s.who });
+const card = (s) => ({
+  id: s.id, label: label(s), minutes: s.minutes, who: s.who,
+  stage: s.stage, stage_label: STAGE_LABEL[s.stage], truth: s.truth || null, live_name: s.live_name || null,
+});
 
 function head(p) {
   const kind = p.meta.kind === 'course' ? 'course' : 'project';
@@ -140,15 +199,24 @@ function countsOf(list) {
   return c;
 }
 
-/** GET /api/work */
-function list(home, now) {
+/** How many steps sit in each of the eight boxes, and how many are running, staged or back in the queue. */
+function boxesOf(list) {
+  const b = Object.fromEntries(STAGES.map((k) => [k, 0]));
+  const t = { running: 0, staged: 0, requeued: 0 };
+  for (const s of list) { b[s.stage] += 1; if (s.truth) t[s.truth] += 1; }
+  return Object.assign(b, t);
+}
+
+/** GET /api/work. sessions: the floor's sessions now (the truth rules); left out, steps stay as marked. */
+function list(home, now, sessions) {
   const progress = readProgress(home);
-  const out = projects().map((p) => {
-    const all = steps(p, progress);
+  const out = projects(home).map((p) => {
+    const all = truth(p, steps(p, progress), sessions, now);
     const c = countsOf(all);
     const next = all.find((s) => s.status === 'doing') || all.find((s) => s.status === 'todo') || null;
     return Object.assign(head(p), {
       counts: c,
+      boxes: boxesOf(all),
       pct: pctOf(c.done, c.total),
       next: next ? card(next) : null,
       kanban: Object.fromEntries(STATES.map((st) => {
@@ -161,32 +229,33 @@ function list(home, now) {
   return { ok: true, asOf: now, projects: out };
 }
 
-function find(key) {
+function find(key, home) {
   const want = String(key || '').toLowerCase();
-  return projects().find((p) => p.key.toLowerCase() === want) || null;
+  return projects(home).find((p) => p.key.toLowerCase() === want) || null;
 }
 
 /** GET /api/work/<project> */
-function project(home, key, now) {
-  const p = find(key);
+function project(home, key, now, sessions) {
+  const p = find(key, home);
   if (!p) return { ok: false, asOf: now, error: `There is no project called ${key}.` };
-  const all = steps(p, readProgress(home));
+  const all = truth(p, steps(p, readProgress(home)), sessions, now);
   const c = countsOf(all);
   return {
     ok: true,
     asOf: now,
     project: Object.assign(head(p), { body: p.private ? null : p.body }),
     counts: c,
+    boxes: boxesOf(all),
     pct: pctOf(c.done, c.total),
     steps: all.map((s) => Object.assign(card(s), { status: s.status })),
   };
 }
 
 /** GET /api/step/<project>/<id> */
-function step(home, key, id, now) {
-  const p = find(key);
+function step(home, key, id, now, sessions) {
+  const p = find(key, home);
   if (!p) return { ok: false, asOf: now, error: `There is no project called ${key}.` };
-  const all = steps(p, readProgress(home));
+  const all = truth(p, steps(p, readProgress(home)), sessions, now);
   const i = all.findIndex((s) => s.id.toLowerCase() === String(id || '').toLowerCase());
   if (i < 0) return { ok: false, asOf: now, error: `${head(p).name} has no step ${id}.` };
   const s = all[i];
@@ -195,6 +264,7 @@ function step(home, key, id, now) {
     asOf: now,
     project: head(p),
     id: s.id, title: label(s), minutes: s.minutes, who: s.who, status: s.status, marked_at: s.marked_at,
+    stage: s.stage, stage_label: STAGE_LABEL[s.stage], truth: s.truth || null, live_name: s.live_name || null,
     body: s.body,
     notice: p.private ? 'This is private work, so its text stays off the office. Open it in your editor on this computer.' : null,
     prev: i > 0 ? card(all[i - 1]) : null,
@@ -221,7 +291,7 @@ function liveWork(sessions, at) {
     if (!groups.has(project)) groups.set(project, []);
     groups.get(project).push({
       key: `${s.machine}:${s.id}`, machine: s.machine,
-      name: (s.display && s.display.label) || s.name || 'A session',
+      name: (s.display && (s.display.title ? s.display.name : s.display.label)) || s.name || 'A session',
       title: priv ? null : s.name || null,
       avatar: s.avatar || null, family: s.family || 'unknown', state: s.state,
       now: s.now || null, before: priv ? [] : (s.before || []).slice(0, 2), waiting: s.waiting || null,
@@ -242,20 +312,20 @@ function liveWork(sessions, at) {
 
 /** Mark a step To do, Doing or Done (the page's buttons and bin/work.js). */
 function mark(home, key, id, status, now) {
-  const st = String(status || '').toLowerCase();
-  if (!STATES.includes(st)) return { ok: false, error: 'The status must be todo, doing or done.' };
-  const p = find(key);
+  const stage = stageOf(status);
+  if (!stage) return { ok: false, error: `The status must be todo, doing or done, or one of the eight boxes: ${STAGES.join(', ')}.` };
+  const p = find(key, home);
   if (!p) return { ok: false, error: `There is no project called ${key}.` };
   const s = steps(p, {}).find((x) => x.id.toLowerCase() === String(id || '').toLowerCase());
   if (!s) return { ok: false, error: `${head(p).name} has no step ${id}.` };
   const all = readProgress(home);
   all[p.key] = all[p.key] || {};
-  all[p.key][s.id] = { status: st, at: now || Date.now() };
+  all[p.key][s.id] = { status: laneOf(stage), stage, at: now || Date.now() };
   fs.mkdirSync(path.dirname(progressFile(home)), { recursive: true });
   const tmp = `${progressFile(home)}.${process.pid}.tmp`;
   fs.writeFileSync(tmp, JSON.stringify(all, null, 2), 'utf8');
   fs.renameSync(tmp, progressFile(home));
-  return { ok: true, project: p.key, id: s.id, status: st };
+  return { ok: true, project: p.key, id: s.id, status: laneOf(stage), stage };
 }
 
-module.exports = { parse, list, project, step, mark, folders, liveWork, STATES };
+module.exports = { parse, list, project, step, mark, folders, liveWork, truth, stageOf, STATES, STAGES, STAGE_LABEL, STALE_MS };

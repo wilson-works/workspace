@@ -7,6 +7,7 @@
 // fresh server time to measure against.
 
 import { useEffect, useState } from 'react';
+import { createBuildWatch, startBuildCheck } from './build-stamp.js';
 
 /** Epoch ms -> local "HH:MM". */
 export function formatClock(epochMs) {
@@ -37,14 +38,19 @@ export function useOfficeStream() {
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
+    // When the office comes back on new code, this page reloads itself on its route (build-stamp.js).
+    const see = createBuildWatch(() => window.location.reload());
+    const stop = startBuildCheck(see, (u, o) => fetch(u, o), window);
     const es = new EventSource('/events');
     es.onmessage = (evt) => {
       try {
-        setFrame(JSON.parse(evt.data));
+        const f = JSON.parse(evt.data);
+        if (see(f && f.build)) return;
+        setFrame(f);
         setLastFrameAt(Date.now());
       } catch { /* keep the last good frame */ }
     };
-    return () => es.close();
+    return () => { es.close(); stop(); };
   }, []);
 
   useEffect(() => {

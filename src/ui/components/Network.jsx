@@ -10,13 +10,14 @@ import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Avatar from './Avatar.jsx';
 import { Status, Pace, keyOf } from './Desk.jsx';
 import { nowText, stepText, modelLabel } from '../words.js';
+import { peopleRows } from '../team-view.js';
 
 const PACKET_MS = 90 * 1000;
 const EFFORT = { low: 'low', medium: 'medium', high: 'high', xhigh: 'extra high', max: 'max' };
 
 function Card({ s, ago, selected, onSelect }) {
   const j = s.dispatch;
-  const role = j ? (j.role || (j.parent ? `Helping ${j.parent.name}` : 'Started from the office')) : (s.display.person ? null : s.room);
+  const role = s.display.title || (j ? (j.role || (j.parent ? `Helping ${j.parent.name}` : 'Started from the office')) : (s.display.person ? null : s.room));
   return (
     <button type="button" className={`net-card state-${s.state} ${selected ? 'is-selected' : ''} ${s.arriving ? 'is-arriving' : ''}`} data-net={keyOf(s)} onClick={() => onSelect(keyOf(s))}>
       <span className="net-card-top">
@@ -53,6 +54,44 @@ function SubCard({ h, owner }) {
   );
 }
 
+// Your people (config/org-people.json `people`): each person once, with what they are doing now or when they last
+// worked, a status dot and word, and a tap to their session. Not machines: people.
+function People({ people, sessions, ago, onSelect }) {
+  const rows = peopleRows(people, sessions);
+  if (!rows.length) return null;
+  return (
+    <section className="tm-sec" aria-label="your people">
+      <h2>Your people</h2>
+      <ul className="tm-list">
+        {rows.map((r) => {
+          const line = r.top && r.state !== 'free' ? nowText(r.top, ago) : r.last_at ? `Last worked at ${clock12(r.last_at)}` : 'Not on anything right now';
+          const body = (
+            <>
+              <span className="tm-main">
+                <span className="tm-name">{r.name}{r.count > 1 && <span className="tm-meta"> · {r.count} sessions</span>}</span>
+                {r.title && <span className="who-title">{r.title}</span>}
+                <span className="tm-sub">{line}</span>
+              </span>
+              <span className={`pill pill-${r.state === 'working' ? 'good' : r.state === 'waiting' ? 'ask' : 'quiet'}`}><span className="pill-dot" aria-hidden="true" />{r.word}</span>
+            </>
+          );
+          return (
+            <li key={r.name}>
+              {r.top ? <button type="button" className="tm-row" onClick={() => onSelect(keyOf(r.top))}>{body}</button>
+                : <div className="tm-row tm-row-still">{body}</div>}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+/** "2:05 PM", local time. */
+function clock12(ms) {
+  return new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit', hour12: true }).format(new Date(ms));
+}
+
 function Node({ s, kidsOf, ago, selected, onSelect }) {
   const kids = kidsOf(keyOf(s));
   const subs = s.helpers || [];
@@ -69,10 +108,13 @@ function Node({ s, kidsOf, ago, selected, onSelect }) {
   );
 }
 
-export default function Network({ sessions, asOf, ago, selected, onSelect, canStart }) {
+export default function Network({ sessions, people, asOf, ago, selected, onSelect, canStart }) {
   const wrapRef = useRef(null);
   const seen = useRef(new Map());
   const [wires, setWires] = useState([]);
+  // The chart of who handed work to whom folds under Your people; with no people list it is the page, open.
+  const hasPeople = (people || []).length > 0;
+  const [chartOpen, setChartOpen] = useState(!hasPeople);
 
   const { teams, quiet, kidsOf, edges } = useMemo(() => {
     const byKey = new Map(sessions.map((s) => [keyOf(s), s]));
@@ -101,6 +143,7 @@ export default function Network({ sessions, asOf, ago, selected, onSelect, canSt
     const wrap = wrapRef.current;
     if (!wrap) return undefined;
     const measure = () => {
+      if (!chartOpen) { setWires([]); return; }
       const box = wrap.getBoundingClientRect();
       const at = (key) => {
         const el = wrap.querySelector(`[data-net="${CSS.escape(key)}"]`);
@@ -134,7 +177,7 @@ export default function Network({ sessions, asOf, ago, selected, onSelect, canSt
     const ro = new ResizeObserver(measure);
     ro.observe(wrap);
     return () => ro.disconnect();
-  }, [edges, asOf]);
+  }, [edges, asOf, chartOpen]);
 
   const headless = sessions.filter((s) => s.dispatch);
   const helpers = headless.filter((s) => s.dispatch.parent).length;
@@ -155,6 +198,10 @@ export default function Network({ sessions, asOf, ago, selected, onSelect, canSt
         </div>
       </section>
 
+      <People people={people} sessions={sessions} ago={ago} onSelect={onSelect} />
+
+      <details className="net-chart" open={chartOpen} onToggle={(e) => setChartOpen(e.currentTarget.open)}>
+      <summary className="sfold-head"><span className="sfold-chev" aria-hidden="true">›</span><span className="sfold-title">How the work is passed down</span><span className="sfold-note">{teams.length} {teams.length === 1 ? 'lead' : 'leads'} at work</span></summary>
       {teams.length === 0 && (
         <div className="net-empty">
           <p>Nobody is at work right now.</p>
@@ -188,6 +235,7 @@ export default function Network({ sessions, asOf, ago, selected, onSelect, canSt
           </div>
         </section>
       )}
+      </details>
 
       <svg className="net-wires" aria-hidden="true">
         {wires.map((w) => (

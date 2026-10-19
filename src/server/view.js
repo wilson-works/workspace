@@ -47,9 +47,9 @@ function scopeOf(title) {
 }
 
 /**
- * Who runs this session, by config/org-people.json ("James-1-Planning" for the first of
- * James's sessions): a run's lane map, else an agent-org seat, else a gate. Null when no rule
- * names one.
+ * Who runs this session, by config/org-people.json: a run's lane map, else an agent-org seat, else a
+ * gate, else (with a `people` list) the person whose work words are in its title, else `everyone_else`.
+ * Null when no rule names one (the session keeps its callsign).
  */
 function personOf(d, cfg) {
   const seat = (d.callsign && d.callsign.seat) || '';
@@ -66,14 +66,37 @@ function personOf(d, cfg) {
   const agent = Object.keys(roster).find((k) => k === s || String(roster[k]).toLowerCase() === s);
   if (agent) return { person: roster[agent], scope: scope(null) };
   if (cfg.gate && (s === 'gate' || /\bgate\b/i.test(d.title || ''))) return { person: cfg.gate, scope: scope(null) };
+  // A session you opened yourself: the person whose kind of work its title names, else everyone_else.
+  // Private work is never read for words; it goes to everyone_else.
+  const people = cfg.people && typeof cfg.people === 'object' ? cfg.people : null;
+  if (people) {
+    // A word counts when a word of the title starts with it ("test" finds "tests" and "testing").
+    const words = d.client_work ? [] : String(d.title || '').toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+    for (const w of Array.isArray(cfg.work_words) ? cfg.work_words : []) {
+      if (!w || !people[w.person]) continue;
+      if ((w.words || []).some((x) => words.some((t) => t.startsWith(String(x).toLowerCase())))) {
+        return { person: w.person, scope: scope(null) };
+      }
+    }
+    if (cfg.everyone_else && people[cfg.everyone_else]) return { person: cfg.everyone_else, scope: scope(null) };
+  }
   return null;
 }
 
+/** "Engineering · Screens and pages" for a person on the `people` list, else null. */
+function titleOf(cfg, person) {
+  const p = cfg && cfg.people && cfg.people[person];
+  if (!p) return null;
+  return [p.department, p.focus].filter(Boolean).join(' · ') || null;
+}
+
 /**
- * Every session's one name, the same on its desk, its panel and the hub floor: <person>-<n>-<workscope>,
- * n counting that person's sessions in the order they started. Else its callsign, else its title.
+ * Every session's one name, the same on its desk, its panel and the hub floor: the person's name, large, with
+ * "Department · Focus" under it (title). The same person live more than once is numbered 2, 3, 4 in the order the
+ * sessions started ("Gavin", "Gavin 2"). A person not on the `people` list has the session's workscope as its title.
+ * A session no rule names keeps its callsign, else its title.
  */
-function nameSessions(sessions, whos) {
+function nameSessions(sessions, whos, cfg) {
   const byPerson = new Map();
   sessions.forEach((s, i) => {
     const w = whos[i];
@@ -84,18 +107,30 @@ function nameSessions(sessions, whos) {
   for (const [person, idx] of byPerson) {
     idx.sort((a, b) => (sessions[a].started_at || Infinity) - (sessions[b].started_at || Infinity)
       || `${sessions[a].machine}:${sessions[a].id}`.localeCompare(`${sessions[b].machine}:${sessions[b].id}`));
+    const title = titleOf(cfg, person);
     idx.forEach((i, k) => {
-      const name = `${person}-${k + 1}`;
-      const label = whos[i].scope ? `${name}-${whos[i].scope}` : name;
-      sessions[i].display = { name, label, rename: label.replace(/\s+/g, '-'), person };
+      const name = k === 0 ? person : `${person} ${k + 1}`;
+      const scope = whos[i].scope;
+      const sub = title || scope || null;
+      const label = sub ? `${name} · ${sub}` : name;
+      const rename = [name.replace(/\s+/g, ''), scope].filter(Boolean).join('-').replace(/\s+/g, '-');
+      sessions[i].display = { name, title: sub, label, rename, person };
     });
   }
   for (const s of sessions) {
     if (s.display) continue;
     const c = s.callsign;
-    s.display = c ? { name: c.name, label: c.label, rename: c.rename, person: null } : { name: s.name, label: s.name, rename: null, person: null };
+    s.display = c ? { name: c.name, title: null, label: c.label, rename: c.rename, person: null } : { name: s.name, title: null, label: s.name, rename: null, person: null };
   }
   return sessions;
+}
+
+/** The people on the `people` list, for the Team page: [{ name, department, focus, title }]. */
+function peopleList(cfg) {
+  const p = cfg && cfg.people && typeof cfg.people === 'object' ? cfg.people : {};
+  return Object.keys(p).filter((k) => !k.startsWith('_')).map((name) => ({
+    name, department: p[name].department || null, focus: p[name].focus || null, title: titleOf(cfg, name),
+  }));
 }
 
 function family(model) {
@@ -255,13 +290,14 @@ function buildView(state, opts) {
   const desks = state.desks || [];
   const sessions = desks.map((d) => sessionOf(d, machine, opts.home, now));
   const cfg = loadPeople(opts.peopleFile);
-  nameSessions(sessions, desks.map((d) => personOf(d, cfg)));
+  nameSessions(sessions, desks.map((d) => personOf(d, cfg)), cfg);
   return {
     asOf: now,
     machine,
     sessions,
+    people: peopleList(cfg),
     flows: mapFlows(opts.flows || [], sessions, now, machine),
   };
 }
 
-module.exports = { buildView, tagsOf, mapFlows, family, callsignOf, personOf, scopeOf, nameSessions, loadPeople };
+module.exports = { buildView, tagsOf, mapFlows, family, callsignOf, personOf, scopeOf, nameSessions, loadPeople, peopleList, titleOf };

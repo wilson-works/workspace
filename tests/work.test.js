@@ -104,7 +104,7 @@ test('list: each project with its counts, its pct and its next step; the repo\'s
   // Four steps: one done, one doing, two to do (one has no front matter; notes.txt is not a step).
   assert.deepStrictEqual(p.counts, { todo: 2, doing: 1, done: 1, total: 4 });
   assert.strictEqual(p.pct, 25);
-  assert.deepStrictEqual(p.next, { id: 'S-02', label: 'Second step', minutes: 15, who: 'Cindy (backend)' });
+  assert.deepStrictEqual(p.next, { id: 'S-02', label: 'Second step', minutes: 15, who: 'Cindy (backend)', stage: 'build', stage_label: 'Build', truth: null, live_name: null });
   assert.deepStrictEqual(p.kanban.done.cards.map((c) => c.id), ['S-01']);
   assert.deepStrictEqual(p.kanban.todo.cards.map((c) => c.id), ['S-03', '04-fourth']);
   assert.strictEqual(p.kanban.doing.count, 1);
@@ -140,8 +140,8 @@ test('step: its page, with prev, next and where it sits in the project', () => {
   assert.strictEqual(s.status, 'doing');
   assert.strictEqual(s.body, 'Body two.\n');
   assert.strictEqual(s.notice, null);
-  assert.deepStrictEqual(s.prev, { id: 'S-01', label: 'First step', minutes: 10, who: null });
-  assert.deepStrictEqual(s.next, { id: 'S-03', label: 'Third step', minutes: 5, who: null });
+  assert.deepStrictEqual(s.prev, { id: 'S-01', label: 'First step', minutes: 10, who: null, stage: 'shipped', stage_label: 'Shipped', truth: null, live_name: null });
+  assert.deepStrictEqual(s.next, { id: 'S-03', label: 'Third step', minutes: 5, who: null, stage: 'new', stage_label: 'New', truth: null, live_name: null });
   assert.deepStrictEqual(s.position, { at: 2, of: 4 });
 
   const first = W.step(h, 'TW-SAMPLE', 's-01', NOW);
@@ -158,8 +158,8 @@ test('step: its page, with prev, next and where it sits in the project', () => {
 test('mark: a step\'s status goes in <home>/work/progress.json, wins over the file, and never touches the project', () => {
   const h = home();
   const before = fs.readFileSync(THIRD, 'utf8');
-  assert.deepStrictEqual(W.mark(h, 'tw-sample', 's-03', 'Done', 1234), { ok: true, project: 'tw-sample', id: 'S-03', status: 'done' });
-  assert.deepStrictEqual(JSON.parse(fs.readFileSync(progressFile(h), 'utf8')), { 'tw-sample': { 'S-03': { status: 'done', at: 1234 } } });
+  assert.deepStrictEqual(W.mark(h, 'tw-sample', 's-03', 'Done', 1234), { ok: true, project: 'tw-sample', id: 'S-03', status: 'done', stage: 'shipped' });
+  assert.deepStrictEqual(JSON.parse(fs.readFileSync(progressFile(h), 'utf8')), { 'tw-sample': { 'S-03': { status: 'done', stage: 'shipped', at: 1234 } } });
   assert.strictEqual(fs.readFileSync(THIRD, 'utf8'), before, 'the step file is unchanged');
 
   const s = W.step(h, 'tw-sample', 'S-03', NOW);
@@ -194,7 +194,7 @@ test('private work: a project in a privacy.private_work folder shows no folder, 
   assert.match(listed.key, /^private-[0-9a-f]{8}$/, 'an opaque key');
   assert.strictEqual(listed.name, 'Private project');
   assert.strictEqual(listed.summary, 'Private work');
-  assert.deepStrictEqual(listed.next, { id: 'P1', label: 'Step 1', minutes: null, who: null });
+  assert.deepStrictEqual(listed.next, { id: 'P1', label: 'Step 1', minutes: null, who: null, stage: 'new', stage_label: 'New', truth: null, live_name: null });
   assert.ok(!leaks(listed));
 
   const proj = W.project(h, listed.key, NOW);

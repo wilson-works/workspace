@@ -1,12 +1,13 @@
 'use strict';
 
 /**
- * org-people.test.js — three James sessions are James-1-<workscope>,
- * James-2-<workscope> and so on. A session is named <person>-<n>-<workscope> by
- * config/org-people.json, numbered per person in the order the sessions
- * started, the same on a local desk and on a desk the hub took from another
- * machine; a session no rule names keeps its callsign, else its title; private
- * work never shows its title or its folder.
+ * org-people.test.js — three James sessions are James, James 2 and James 3. A
+ * session is named for its person by config/org-people.json, numbered per person
+ * in the order the sessions started, the same on a local desk and on a desk the
+ * hub took from another machine, with "Department · Focus" (from `people`) or its
+ * workscope as its title; a session no rule names keeps its callsign, else its
+ * title; with a `people` list it goes to the person its work words name, else to
+ * everyone_else; private work never shows its title or its folder.
  */
 
 const { test } = require('node:test');
@@ -41,11 +42,12 @@ test('three James sessions are James-1, -2 and -3 in the order they started, wha
   const b = desk({ title: 'run review', started_at: 100, callsign: { name: 'Aspen', seat: 'cto-james' } });
   const c = desk({ title: 'roadmap', started_at: 200, callsign: { name: 'Rowan', seat: 'James' } });
   const d = byId(view([a, b, c]));
-  assert.equal(d.get(b.id).label, 'James-1-Run review');
-  assert.equal(d.get(c.id).label, 'James-2-Roadmap');
-  assert.equal(d.get(a.id).label, 'James-3-Q4 planning');
-  assert.equal(d.get(a.id).name, 'James-3');
-  assert.equal(d.get(a.id).rename, 'James-3-Q4-planning');
+  assert.equal(d.get(b.id).label, 'James · Run review');
+  assert.equal(d.get(c.id).label, 'James 2 · Roadmap');
+  assert.equal(d.get(a.id).label, 'James 3 · Q4 planning');
+  assert.equal(d.get(a.id).name, 'James 3');
+  assert.equal(d.get(a.id).title, 'Q4 planning');
+  assert.equal(d.get(a.id).rename, 'James3-Q4-planning');
 });
 
 test("a run's lane map names the person and the workscope; a person's number counts only their own sessions", () => {
@@ -53,14 +55,14 @@ test("a run's lane map names the person and the workscope; a person's number cou
   const g = desk({ title: 'RUN0412-N lane G API run-31h cures', started_at: 20, callsign: { name: 'Birch' } });
   const h = desk({ title: 'RUN0412-N lane H database cures', started_at: 30, callsign: { name: 'Maple' } });
   const d = byId(view([h, g, gate]));
-  assert.equal(d.get(gate.id).label, 'John-1-Office gate');
-  assert.equal(d.get(g.id).label, 'Cindy-1-API cures');
-  assert.equal(d.get(h.id).label, 'Cindy-2-Database cures');
+  assert.equal(d.get(gate.id).label, 'John · Office gate');
+  assert.equal(d.get(g.id).label, 'Cindy · API cures');
+  assert.equal(d.get(h.id).label, 'Cindy 2 · Database cures');
 });
 
 test('a gate with no lane map is John, its workscope from its title without the run code', () => {
   const s = desk({ title: 'XY0101 product gate', callsign: { name: 'Holly', seat: 'gate' } });
-  assert.equal(byId(view([s])).get(s.id).label, 'John-1-Product gate');
+  assert.equal(byId(view([s])).get(s.id).label, 'John · Product gate');
   assert.equal(V.scopeOf('RUN0412-N lane I office upgrades'), 'Office upgrades');
 });
 
@@ -78,7 +80,7 @@ test('a session no rule names keeps its callsign, else its title', () => {
 test('private work is named by person and "Private work", never by anything its tree says', () => {
   const cw = desk({ client_work: true, title: null, project: 'C03-books', code_cwd: 'C:/Users/alex/clients/C03-books', callsign: { name: 'Elm', seat: 'gate' } });
   const s = view([cw])[0];
-  assert.equal(s.display.label, 'John-1-Private work');
+  assert.equal(s.display.label, 'John · Private work');
   assert.equal(s.room, 'Private work');
   assert.ok(!JSON.stringify(s.display).includes('C03'));
   assert.ok(!s.room.includes('C03'));
@@ -88,8 +90,8 @@ test('a desk the hub took from another machine is named and numbered with the lo
   const local = desk({ title: 'RUN0412-N lane G API cures', started_at: 50, callsign: { name: 'Birch' } });
   const remote = desk({ machine: 'MINI', remote: true, title: 'RUN0412-N lane H database cures', started_at: 40, callsign: { name: 'Vega', machine: 'MINI' } });
   const d = byId(view([local, remote]));
-  assert.equal(d.get(remote.id).label, 'Cindy-1-Database cures');
-  assert.equal(d.get(local.id).label, 'Cindy-2-API cures');
+  assert.equal(d.get(remote.id).label, 'Cindy · Database cures');
+  assert.equal(d.get(local.id).label, 'Cindy 2 · API cures');
 });
 
 test('config/org-people.json: the roster is the shipped CTO org, the gate is on it, and every lane names someone on it', () => {
@@ -101,4 +103,38 @@ test('config/org-people.json: the roster is the shipped CTO org, the gate is on 
   for (const run of cfg.runs) {
     for (const lane of run.lanes) assert.ok(names.has(lane.person), `${run.run} ${lane.match}: ${lane.person} is on the roster`);
   }
+});
+
+test('with a people list: a hand-opened session goes to the person its work words name, else to everyone_else, titled Department · Focus, numbered by launch order', () => {
+  const file = path.join(home, 'org-people-people.json');
+  fs.writeFileSync(file, JSON.stringify({
+    roster: { 'cto-james': 'James' },
+    people: { Sam: { department: 'Front desk', focus: 'Your own sessions' }, Gavin: { department: 'Engineering', focus: 'Screens and pages' } },
+    everyone_else: 'Sam',
+    work_words: [{ person: 'Gavin', words: ['page', 'button'] }],
+  }));
+  const at = (desks) => V.buildView({ asOf: 5000, desks }, { machine: 'DESK', home, peopleFile: file });
+  const g1 = desk({ title: 'Fix the pricing page buttons', started_at: 10, callsign: { name: 'Cedar' } });
+  const g2 = desk({ title: 'New landing page', started_at: 20, callsign: { name: 'Aspen' } });
+  const any = desk({ title: 'Ping pong', started_at: 30, callsign: { name: 'Rowan' } });
+  const priv = desk({ client_work: true, title: 'Acme page fix', started_at: 40, callsign: { name: 'Elm' } });
+  const v = at([g2, any, g1, priv]);
+  const d = byId(v.sessions);
+  assert.equal(d.get(g1.id).name, 'Gavin');
+  assert.equal(d.get(g1.id).title, 'Engineering · Screens and pages');
+  assert.equal(d.get(g2.id).name, 'Gavin 2');
+  assert.equal(d.get(any.id).name, 'Sam');
+  assert.equal(d.get(any.id).title, 'Front desk · Your own sessions');
+  assert.equal(d.get(priv.id).name, 'Sam 2', 'private work is never read for words');
+  assert.ok(!JSON.stringify(d.get(priv.id)).includes('Acme'));
+  assert.deepEqual(v.people.map((p) => p.name), ['Sam', 'Gavin']);
+});
+
+test('config/org-people.json ships a small sample org: at most eight people, everyone_else and every work_words person on it', () => {
+  const cfg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'config', 'org-people.json'), 'utf8'));
+  const names = Object.keys(cfg.people);
+  assert.ok(names.length > 0 && names.length <= 8, `${names.length} people`);
+  assert.ok(cfg.people[cfg.everyone_else], 'everyone_else is on the list');
+  for (const w of cfg.work_words) assert.ok(cfg.people[w.person], `${w.person} is on the list`);
+  for (const n of names) assert.ok(cfg.people[n].department && cfg.people[n].focus, `${n} has a department and a focus`);
 });

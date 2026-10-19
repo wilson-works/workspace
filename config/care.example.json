@@ -1,0 +1,8 @@
+{
+  "_": "Care rounds: the office checks your own web pages on a schedule and tells you on the floor when one is not working. To turn them on, copy this file to config/care.json (never committed) and put your own sites in it, or ask Claude: \"set up care rounds for my sites\". Each site: name (shown on the floor), url, and optional expect (words the page must show, so a blank or broken page is caught too). times: when the rounds run, 24-hour local time; the floor shows them as 6:30 AM and 1:00 PM. A page that fails becomes one order in the Site care project on the Work page, and that order closes by itself when the page works again. Sites on example.com are placeholders and are never checked.",
+  "times": ["06:30", "13:00"],
+  "sites": [
+    { "name": "My website", "url": "https://example.com/", "expect": "Example Domain" },
+    { "name": "My booking page", "url": "https://example.com/book" }
+  ]
+}

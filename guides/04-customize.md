@@ -41,7 +41,8 @@ These are part of the WorkSpace and tracked by git, so a change here is yours to
 
 | File | What it holds |
 |---|---|
-| `config/org-people.json` | The org roster the office uses to name sessions, the gate (the last check before code reaches main), and run lanes. A session launched with `WORKSPACE_SEAT=cto-james` shows as "James-1-<what it is doing>". Add every agent you create here. |
+| `config/org-people.json` | The org roster the office uses to name sessions, the gate (the last check before code reaches main), and run lanes. A session launched with `WORKSPACE_SEAT=cto-james` shows as "James", with his department and focus under the name (a second James is "James 2"). `people` is your small team, each with a department and a focus, shown on the Team page; `work_words` sends a session you open yourself to the person whose words are in its title, and `everyone_else` takes the rest. Add every agent you create here. |
+| `config/care.example.json` | The template for care rounds. Copy it to `config/care.json` (never committed) and list your own sites: a name, the address, and optional words the page must show. The office checks them at the `times` you set (6:30 AM and 1:00 PM unless you change them), and a page that fails becomes one order in the Site care project on the Work page, closed by itself when the page works again. |
 | `config/agents.json` | The Agents' wing: an office per specialist, in its colours, with a door into its dashboard (`door.local` on its machine, `door.phone` once published on your tailnet), and a probe that tells the office whether it is running (a port on its own machine, or its tailnet address so every machine and the phone can tell). The door stands open while it works and shows zzz while it rests; right-click to knock and it answers with one of its `jokes`; `art` puts a full figure inside the door. A bubble by its door counts the questions its sessions have asked you, and "Talk to" opens its busiest desk. Ships with one placeholder office for the specialist you build in lesson GS-09. |
 | `config/callsigns.json` | The session-name pools (trees, stars, rivers). Add a pool and name it on a machine. |
 | `config/avatars.json` | `retired`: emblems never handed out again (see them all at `#/avatars` on the office). `family_frames`: the frame for each model family, so you can tell Opus from Sonnet at a glance. |
@@ -55,7 +56,11 @@ A project is a folder in `projects/` (or in a `work_folders` folder) with a `PRO
 for a set of lessons and `kind: project` for work orders. Your own project folders are kept out of
 git by `.gitignore`; only the two that ship are tracked.
 
-Mark progress on the page, or `node bin/work.js mark <project> <step-id> <todo|doing|done>`.
+Mark progress on the page, or `node bin/work.js mark <project> <step-id> <todo|doing|done>`. An order
+can also sit in any of the eight boxes: `new`, `build`, `review`, `verify`, `ready`, `approved`,
+`cicd` or `shipped` (todo, doing and done mean New, Build and Shipped). An order in Build shows
+Running only while a session works in that project; otherwise it is Staged, and after three hours
+with nobody on it, it goes back to New.
 Progress is kept in the office's own folder, never written into the project.
 
 ## The page itself

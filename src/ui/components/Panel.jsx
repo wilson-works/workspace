@@ -11,6 +11,7 @@ import { formatClock } from '../useOfficeStream.js';
 import { clearSeats } from './Pulse.jsx';
 import DispatchCard, { Team, useTalk } from './DispatchCard.jsx';
 import Markdown from '../markdown.jsx';
+import SheetFold from './SheetFold.jsx';
 
 // Take this quiet seat off the floor (server seats.js). It stops nothing; the seat comes back the
 // moment the session does anything new.
@@ -197,8 +198,9 @@ export default function Panel({ s, flows, token, ago, asOf, onClose, question, t
       <header className="panel-head">
         <a className="avatar-link" href="#/avatars" title="All avatars"><Avatar avatar={s.avatar} family={s.family} state={s.state} size={44} /></a>
         <div className="panel-id">
-          <h2>{s.display.label}</h2>
-          {s.display.label !== s.name && !s.dispatch && <p className="panel-title">{s.name}</p>}
+          <h2>{s.display.title ? s.display.name : s.display.label}</h2>
+          {s.display.title && <p className="panel-title who-title">{s.display.title}</p>}
+          {s.display.label !== s.name && s.display.title !== s.name && !s.dispatch && !s.client_work && <p className="panel-title">{s.name}</p>}
           <p>{modelLabel(s.model, s.family)} · {s.machine} · {s.room}{s.display.person && s.callsign && <> · callsign {s.callsign.name}</>}</p>
           {s.display.rename && <RenameButton c={s.display} />}
           {onHandDown && (
@@ -216,8 +218,7 @@ export default function Panel({ s, flows, token, ago, asOf, onClose, question, t
             <QuestionCard q={question} token={token} ago={ago} showFrom={false} />
           </section>
         )}
-        <section className={`now now-${s.state}`}>
-          <span className="now-label">{s.state === 'working' ? 'Now' : s.state === 'waiting' ? 'Waiting' : 'Idle'}</span>
+        <SheetFold part="working" title="What it is doing" note={s.state === 'working' ? 'Now' : s.state === 'waiting' ? 'Waiting' : 'Idle'} className={`now now-${s.state}`}>
           <p className="now-text">{nowText(s, ago)}</p>
           {before.length > 0 && s.state !== 'idle' && (
             <p className="now-before">
@@ -226,14 +227,13 @@ export default function Panel({ s, flows, token, ago, asOf, onClose, question, t
               ))}
             </p>
           )}
-        </section>
+        </SheetFold>
 
-        {s.dispatch && <DispatchCard s={s} token={token} ago={ago} asOf={asOf} />}
+        {s.dispatch && <SheetFold part="job" title="Its job"><DispatchCard s={s} token={token} ago={ago} asOf={asOf} /></SheetFold>}
         <Team team={team} ago={ago} onOpen={onOpen} />
 
         {(s.helpers.length > 0 || s.returned.length > 0) && (
-          <section className="helpers">
-            <h3>Helpers</h3>
+          <SheetFold part="helpers" title="Helpers" note={s.helpers.length ? `${s.helpers.length} out` : null} className="helpers">
             {s.helpers.map((h) => (
               <div key={h.id} className="helper">
                 <Avatar avatar={s.avatar} family={h.family} state="working" size={28} faint />
@@ -252,11 +252,10 @@ export default function Panel({ s, flows, token, ago, asOf, onClose, question, t
                 </div>
               </div>
             ))}
-          </section>
+          </SheetFold>
         )}
 
-        <section className="thread-wrap">
-          <h3>Conversation</h3>
+        <SheetFold part="conversation" title="Conversation" note={items.length ? `${items.length}` : null} className="thread-wrap">
           <div className="thread" ref={threadRef}>
             {items.length === 0 && <p className="thread-empty">{s.dispatch && talk && talk.client_work
               ? 'Private work: its conversation stays in the session.'
@@ -271,7 +270,7 @@ export default function Panel({ s, flows, token, ago, asOf, onClose, question, t
               </div>
             ))}
           </div>
-        </section>
+        </SheetFold>
       </div>
 
       <KeepAwake s={s} token={token} />

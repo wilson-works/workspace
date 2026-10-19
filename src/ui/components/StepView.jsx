@@ -1,12 +1,13 @@
 // StepView.jsx — one step up close (#/step/<project>/<id>, /api/step/<project>/<id>):
 // a lesson of the Get started course, or an order of a project. Its text, with a
-// Copy button on every prompt block, buttons to mark it Doing or Done, and the
-// way to the step before and after.
+// Copy button on every prompt block, buttons to mark a lesson Doing or Done (an
+// order: which of the eight boxes it is in, and whether it is really running), and
+// the way to the step before and after.
 
 import { useState } from 'react';
 import Close from './Close.jsx';
 import Markdown from '../markdown.jsx';
-import { useJson } from './WorkBoard.jsx';
+import { useJson, BOXES, TruthPill } from './WorkBoard.jsx';
 
 const LABEL = { todo: 'To do', doing: 'Doing', done: 'Done' };
 
@@ -62,6 +63,21 @@ export default function StepView({ project, id, token, onClose, onStep }) {
         {!data && !readError && <p className="q-empty">Opening…</p>}
         {x && (
           <>
+            {!course && (
+              <section className="step-actions" aria-label="where this stands">
+                <label className="stage-pick">
+                  <span>Box</span>
+                  <select value={x.stage || 'new'} disabled={busy} onChange={(e) => mark(e.target.value)}>
+                    {BOXES.map((b) => <option key={b.key} value={b.key}>{b.label}</option>)}
+                  </select>
+                </label>
+                <TruthPill x={x} />
+                {x.stage !== 'shipped' && (
+                  <button type="button" className="q-btn q-go" disabled={busy} onClick={() => mark('shipped')}>Mark shipped</button>
+                )}
+              </section>
+            )}
+            {course && (
             <section className="step-actions" aria-label="where this stands">
               <span className={`order-chip order-chip-${x.status}`}>{LABEL[x.status] || x.status}</span>
               {x.status !== 'doing' && x.status !== 'done' && (
@@ -74,6 +90,7 @@ export default function StepView({ project, id, token, onClose, onStep }) {
                 <button type="button" className="q-btn" disabled={busy} onClick={() => mark('todo')}>Not done yet</button>
               )}
             </section>
+            )}
             {error && <p className="q-error">{error}</p>}
             {x.notice ? <p className="order-redacted">{x.notice}</p> : <section className="order-body"><Markdown text={x.body} /></section>}
             <nav className="step-nav" aria-label="steps">

@@ -60,11 +60,12 @@ export default function Desk({ s, ago, selected, onSelect, lastFlow, showMachine
         </span>
         <span className="desk-id">
           <span className="desk-name">
-            {s.display.label}
+            {s.display.title ? s.display.name : s.display.label}
             {j && <span className="desk-headless" title="Started by the office: it runs headless, with no chat window">{j.parent ? 'helper' : 'office'}</span>}
           </span>
-          {j && j.parent ? <span className="desk-title">Helping {j.parent.name}</span>
-            : s.display.label !== s.name && <span className="desk-title">{s.name}</span>}
+          {s.display.title && <span className="desk-title who-title">{s.display.title}{j && j.parent ? ` · helping ${j.parent.name}` : ''}</span>}
+          {!s.display.title && (j && j.parent ? <span className="desk-title">Helping {j.parent.name}</span>
+            : s.display.label !== s.name && <span className="desk-title">{s.name}</span>)}
           <span className="desk-meta">
             {modelLabel(s.model, s.family)}
             {j && <> · {EFFORT_SHORT[j.effort] || j.effort} effort</>}
