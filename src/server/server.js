@@ -89,6 +89,20 @@ function auditControl(home, entry) {
   } catch (_) { return false; }
 }
 
+/**
+ * A short hash of dist/app.js and dist/app.css, taken when the office starts. An open page (a phone too) compares it
+ * on every frame and every minute, and reloads itself when the office comes back on new code. null when neither file
+ * is there, so a page never reloads over a missing stamp.
+ */
+function buildStamp(distDir) {
+  const h = require('crypto').createHash('sha1');
+  let any = false;
+  for (const n of ['app.js', 'app.css']) {
+    try { h.update(n); h.update(fs.readFileSync(path.join(distDir, n))); any = true; } catch (_) { /* not built */ }
+  }
+  return any ? h.digest('hex').slice(0, 12) : null;
+}
+
 function start(opts) {
   const o = opts || {};
   const home = o.home || homeDir();
@@ -133,6 +147,18 @@ function start(opts) {
 
   const distDir = o.distDir || path.join(__dirname, '..', '..', 'dist');
   const staticDir = fs.existsSync(distDir) ? distDir : null;
+  // The build this office serves, read once at start; an open page reloads itself when it changes.
+  const BUILD = buildStamp(distDir);
+  // Care rounds (care.js): your own sites, checked on a schedule. Off until config/care.json lists them.
+  const care = require('./care');
+  const careCfg = () => care.load(o.careFile);
+  const plan = require('./plan');
+  let careBusy = false;
+  async function careRound(c) {
+    if (careBusy) return null;
+    careBusy = true;
+    try { return await care.round(home, c, Date.now()); } finally { careBusy = false; }
+  }
 
   function buildFrame() {
     let state;
@@ -294,6 +320,8 @@ function start(opts) {
     v.brand = config.brand();
     v.fleet = !!fleetDir();
     v.token = TOKEN;
+    v.build = BUILD;
+    try { v.care = care.status(home, careCfg()); } catch (_) { v.care = null; }
     return v;
   }
 
@@ -442,10 +470,13 @@ function start(opts) {
       res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
       let v;
       try {
-        if (stepPath) v = work.step(home, decode(stepPath[1]), decode(stepPath[2]), Date.now());
-        else if (workPath[1]) v = work.project(home, decode(workPath[1]), Date.now());
+        // The floor's sessions tell the truth about Build: Running, Staged, or back in the queue (work.js truth).
+        let live;
+        try { live = sessionsNow(); } catch (_) { live = []; }
+        if (stepPath) v = work.step(home, decode(stepPath[1]), decode(stepPath[2]), Date.now(), live);
+        else if (workPath[1]) v = work.project(home, decode(workPath[1]), Date.now(), live);
         else {
-          v = work.list(home, Date.now());
+          v = work.list(home, Date.now(), live);
           // Running now: the sessions at work this minute, off the floor (work.js liveWork).
           try { v.live_work = work.liveWork(sessionsNow(), v.asOf); } catch (_) { v.live_work = []; }
         }
@@ -676,6 +707,42 @@ function start(opts) {
         'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; sandbox",
       });
       res.end(fs.readFileSync(f));
+      return;
+    }
+
+    // The build stamp of the code this office serves (null when there is no dist): open pages reload on new code.
+    if (url.pathname === '/api/build') {
+      sendJson(res, 200, { build: BUILD });
+      return;
+    }
+
+    // Care rounds (care.js): GET the status; POST /api/care/check runs a round now (Check now).
+    if (url.pathname === '/api/care' && req.method === 'GET') {
+      sendJson(res, 200, Object.assign({ ok: true }, care.status(home, careCfg())));
+      return;
+    }
+    if (url.pathname === '/api/care/check') {
+      if (!ownerButton(req, res, (r) => auditControl(home, { at: new Date().toISOString(), action: 'CARE_CHECK', result: r }))) return;
+      const c = careCfg();
+      if (!c.on) { sendJson(res, 400, { ok: false, error: 'Care rounds are off. List your sites in the care file first (guide 04).' }); return; }
+      careRound(c).then(() => sendJson(res, 200, Object.assign({ ok: true }, care.status(home, c))))
+        .catch((e) => sendJson(res, 500, { ok: false, error: String(e && e.message).slice(0, 200) }));
+      return;
+    }
+
+    // Plan today (plan.js): GET today's draft; POST /api/plan/draft drafts the day again from your open work.
+    if (url.pathname === '/api/plan' && req.method === 'GET') {
+      sendJson(res, 200, { ok: true, plan: plan.read(home, Date.now()) });
+      return;
+    }
+    if (url.pathname === '/api/plan/draft') {
+      if (!ownerButton(req, res, (r) => auditControl(home, { at: new Date().toISOString(), action: 'PLAN_DRAFT', result: r }))) return;
+      let out;
+      try {
+        const live = sessionsNow();
+        out = { ok: true, plan: plan.draft(home, Date.now(), live, openQuestionsEverywhere(live)) };
+      } catch (e) { out = { ok: false, error: String(e && e.message).slice(0, 200) }; }
+      sendJson(res, out.ok ? 200 : 500, out);
       return;
     }
 
@@ -1067,6 +1134,17 @@ function start(opts) {
   const aliveTimer = setInterval(stamp, 30000);
   aliveTimer.unref && aliveTimer.unref();
 
+  // Care rounds on their schedule (default 6:30 AM and 1:00 PM local time): the live office only (o.care).
+  let careTimer = null;
+  if (o.care) {
+    const tick = () => {
+      const c = careCfg();
+      if (!careBusy && care.due(c, (care.readState(home) || {}).last_at, Date.now())) careRound(c).catch(() => null);
+    };
+    careTimer = setInterval(tick, 60000);
+    careTimer.unref && careTimer.unref();
+  }
+
   // Keep the hook stream from growing forever (events-archive.js).
   const rotateTimer = setInterval(() => rotateEvents(home), 3600000);
   rotateTimer.unref && rotateTimer.unref();
@@ -1075,12 +1153,12 @@ function start(opts) {
   return {
     server, port, token: TOKEN, home, root,
     url: `http://127.0.0.1:${port}/`,
-    stop() { clearInterval(timer); clearInterval(aliveTimer); clearInterval(rotateTimer); for (const c of clients) { try { c.end(); } catch (_) {} } server.close(); },
+    stop() { clearInterval(timer); clearInterval(aliveTimer); clearInterval(rotateTimer); if (careTimer) clearInterval(careTimer); for (const c of clients) { try { c.end(); } catch (_) {} } server.close(); },
     buildFrame,
   };
 }
 
-module.exports = { start, AlarmLog, homeDir };
+module.exports = { start, AlarmLog, homeDir, buildStamp };
 
 if (require.main === module) {
   const args = process.argv.slice(2);
@@ -1096,6 +1174,8 @@ if (require.main === module) {
   if (args.includes('--channel-hub')) opts.channelHub = true;
   // Sessions the office starts itself (dispatch.js): the live office, or a test office started with --dispatch.
   if (live || args.includes('--dispatch')) opts.dispatch = true;
+  // Care rounds run on their schedule in the live office only (a test office never fetches anything).
+  if (live) opts.care = true;
   const extraHost = arg('--allow-host', undefined);
   if (extraHost) opts.allowHosts = extraHost.split(',').map((s) => s.trim()).filter(Boolean);
   if (live) {

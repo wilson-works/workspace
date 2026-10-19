@@ -56,7 +56,7 @@ The step itself, in Markdown.
 - `title`: the step's name.
 - `minutes`: roughly how long it takes. Courses only; leave it out of orders.
 - `who` (optional): who owns the step, shown on its card. Handy for orders, like `who: Gavin (frontend)`.
-- `status` (optional): where the step starts, `todo`, `doing` or `done`. Leave it out and the step starts in To do.
+- `status` (optional): where the step starts, `todo`, `doing` or `done`, or for an order one of the eight boxes (`new`, `build`, `review`, `verify`, `ready`, `approved`, `cicd`, `shipped`). Leave it out and the step starts in To do.
 
 Steps are listed in file-name order, so start each file name with a two-digit number (`01-`, `02-` and so on).
 

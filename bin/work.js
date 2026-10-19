@@ -6,7 +6,7 @@
  *
  *   node bin/work.js list                                   every project and where it stands
  *   node bin/work.js show <project>                         one project's steps
- *   node bin/work.js mark <project> <step-id> <todo|doing|done>
+ *   node bin/work.js mark <project> <step-id> <todo|doing|done>   (or a box: new, build, review, verify, ready, approved, cicd, shipped)
  *
  * A mark is kept in the office home (src/server/work.js), the same place the
  * page's buttons write, so the page shows it on its next refresh.
@@ -41,9 +41,9 @@ if (cmd === 'show') {
 if (cmd === 'mark') {
   const r = W.mark(home, a, b, c);
   if (!r.ok) { out(`NOT MARKED: ${r.error}`); process.exit(2); }
-  out(`MARKED ${r.project} ${r.id} ${r.status}. The Work page shows it on its next refresh.`);
+  out(`MARKED ${r.project} ${r.id} ${r.stage}. The Work page shows it on its next refresh.`);
   process.exit(0);
 }
 
-out('usage: node bin/work.js list | show <project> | mark <project> <step-id> <todo|doing|done>');
+out('usage: node bin/work.js list | show <project> | mark <project> <step-id> <todo|doing|done|new|build|review|verify|ready|approved|cicd|shipped>');
 process.exit(2);
