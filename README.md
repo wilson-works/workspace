@@ -191,6 +191,8 @@ Setup help is $150 per seat; a one-job agent (a social media or sales assistant,
 9. [Updates](guides/09-updates.md): how new features arrive, and why they never break your own pieces.
 10. [Sessions from the office](guides/10-sessions-from-the-office.md): start Claude from the page, hand work to helpers, one computer or several.
 
+Department packs (finance first) are separate repos you can add on or use on their own: [Department packs](docs/department-packs.md).
+
 And [the prompt library](prompts/README.md), with [the update procedure](prompts/update-my-workspace.md).
 
 ## How it works, in one paragraph
