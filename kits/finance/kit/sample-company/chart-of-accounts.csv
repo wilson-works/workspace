@@ -1,0 +1,25 @@
+AccountNumber,AccountName,AccountType
+1000,Checking - Harbor Community Bank,Bank
+1100,Accounts Receivable,Accounts receivable
+1200,Inventory - Coffee & Supplies,Other current asset
+1500,Espresso Equipment,Fixed asset
+2000,Accounts Payable,Accounts payable
+2100,Payroll Liabilities,Other current liability
+3000,Owner Equity,Equity
+3100,Owner Draws,Equity
+4000,Coffee & Food Sales,Income
+4100,Wholesale Bean Sales,Income
+4200,Catering Sales,Income
+5000,Cost of Goods - Coffee Beans,Cost of goods sold
+5100,Cost of Goods - Dairy & Bakery,Cost of goods sold
+6000,Rent,Expense
+6100,Payroll - Wages,Expense
+6150,Payroll - Employer Taxes,Expense
+6200,Utilities,Expense
+6250,Internet & Phone,Expense
+6300,Insurance,Expense
+6400,Repairs & Maintenance,Expense
+6500,Merchant Processing Fees,Expense
+6600,Supplies,Expense
+6700,Bank Fees,Expense
+6800,Uncategorized Expense,Expense

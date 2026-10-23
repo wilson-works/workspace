@@ -1,0 +1,43 @@
+TxnID,TxnDate,TxnType,Account,Name,Memo,Amount,AttachmentCount
+T101,2026-09-01,Deposit,Coffee & Food Sales,Square,Square payout SQP-2609-01,2184.50,0
+T101,2026-09-01,Deposit,Merchant Processing Fees,Square,Square fees SQP-2609-01,-60.80,0
+T116,2026-09-01,Expense,Rent,Harbor Lane Properties,September rent,-3200.00,1
+T117,2026-09-03,Expense,Cost of Goods - Coffee Beans,Ridgeline Roasters,Bill RR-8812 paid,-1940.00,1
+T102,2026-09-04,Deposit,Coffee & Food Sales,Square,Square payout SQP-2609-02,3011.25,0
+T102,2026-09-04,Deposit,Merchant Processing Fees,Square,Square fees SQP-2609-02,-82.29,0
+T118,2026-09-04,Expense,Cost of Goods - Dairy & Bakery,Valley Dairy Co,Weekly dairy,-612.40,1
+T119,2026-09-05,Expense,Supplies,Corner Hardware,"Mop heads, zip ties",-38.20,0
+T103,2026-09-08,Deposit,Coffee & Food Sales,Square,Square payout SQP-2609-03,2690.00,0
+T103,2026-09-08,Deposit,Merchant Processing Fees,Square,Square fees SQP-2609-03,-73.94,0
+T120,2026-09-08,Expense,Insurance,Tidewater Mutual,Business owner policy,-265.00,1
+T110,2026-09-09,Payment,Accounts Receivable,Maple Street Bakery,Payment INV-1041 wholesale beans,1450.00,0
+T104,2026-09-11,Deposit,Coffee & Food Sales,Square,Square payout SQP-2609-04,3142.75,0
+T104,2026-09-11,Deposit,Merchant Processing Fees,Square,Square fees SQP-2609-04,-85.71,0
+T121,2026-09-11,Expense,Cost of Goods - Dairy & Bakery,Valley Dairy Co,Weekly dairy,-588.15,1
+T122,2026-09-12,Expense,Repairs & Maintenance,Espresso Tech Services,"Group head rebuild, machine 2",-412.00,0
+T112,2026-09-14,Invoice,Wholesale Bean Sales,Maple Street Bakery,INV-1046 wholesale beans 25 lb,1525.00,1
+T105,2026-09-15,Deposit,Coffee & Food Sales,Square,Square payout SQP-2609-05,2577.40,0
+T105,2026-09-15,Deposit,Merchant Processing Fees,Square,Square fees SQP-2609-05,-71.01,0
+T123,2026-09-15,Expense,Payroll - Wages,Gusto,Payroll 9/1-9/15,-4850.00,1
+T124,2026-09-15,Expense,Payroll - Employer Taxes,Gusto,Employer taxes 9/1-9/15,-371.03,1
+T125,2026-09-17,Expense,Utilities,City Power & Light,"Electric, August usage",-418.62,1
+T106,2026-09-18,Deposit,Coffee & Food Sales,Square,Square payout SQP-2609-06,3260.10,0
+T106,2026-09-18,Deposit,Merchant Processing Fees,Square,Square fees SQP-2609-06,-88.76,0
+T115,2026-09-18,Deposit,Catering Sales,,Mobile check deposit,640.00,0
+T126,2026-09-18,Expense,Cost of Goods - Dairy & Bakery,Valley Dairy Co,Weekly dairy,-640.30,1
+T127,2026-09-19,Expense,Internet & Phone,Coastline Fiber,Internet + phone,-89.99,1
+T113,2026-09-21,Invoice,Catering Sales,Northside Coworking,INV-1047 members breakfast,960.00,1
+T107,2026-09-22,Deposit,Coffee & Food Sales,Square,Square payout SQP-2609-07,2815.65,0
+T107,2026-09-22,Deposit,Merchant Processing Fees,Square,Square fees SQP-2609-07,-77.21,0
+T128,2026-09-22,Expense,Uncategorized Expense,AMZN Mktp US,,-186.43,1
+T111,2026-09-24,Payment,Accounts Receivable,Northside Coworking,Payment INV-1043 catering,880.00,0
+T129,2026-09-24,Expense,Cost of Goods - Coffee Beans,Ridgeline Roasters,Bill RR-8840 paid,-2115.00,1
+T108,2026-09-25,Deposit,Coffee & Food Sales,Square,Square payout SQP-2609-08,3388.90,0
+T108,2026-09-25,Deposit,Merchant Processing Fees,Square,Square fees SQP-2609-08,-92.11,0
+T130,2026-09-25,Expense,Cost of Goods - Dairy & Bakery,Valley Dairy Co,Weekly dairy,-601.75,1
+T114,2026-09-28,Invoice,Catering Sales,Bayview Dental Group,INV-1048 office coffee service,420.00,1
+T109,2026-09-29,Deposit,Coffee & Food Sales,Square,Square payout SQP-2609-09,2734.20,0
+T109,2026-09-29,Deposit,Merchant Processing Fees,Square,Square fees SQP-2609-09,-75.09,0
+T131,2026-09-30,Expense,Payroll - Wages,Gusto,Payroll 9/16-9/30,-4850.00,1
+T132,2026-09-30,Expense,Payroll - Employer Taxes,Gusto,Employer taxes 9/16-9/30,-371.03,1
+T133,2026-09-30,Expense,Bank Fees,Harbor Community Bank,Monthly service fee,-15.00,0
