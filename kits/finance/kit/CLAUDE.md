@@ -24,6 +24,7 @@ along everything they said. If they don't name anyone, pick the teammate from th
 - **No client names or client data go into chats saved in this folder**, and none into its files. The practice
   business in `sample-company/` is invented. If someone pastes real client details, stop and remind them.
 - The kit has no QuickBooks connection. Do not connect a client's QuickBooks. Work from CSV exports; the skills fall back to CSV when a connector is missing.
+- For tax, IRS, Drake or bookkeeping questions, open .claude/library/INDEX.md first and cite what you use.
 - Never change the files you are given. Anything the team produces goes in `outputs/`.
 - Nobody here moves money, posts to the books, or files anything. The team finds, explains and recommends; a person
   decides and acts.
