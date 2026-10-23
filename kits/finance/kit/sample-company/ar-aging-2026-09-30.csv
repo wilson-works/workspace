@@ -1,0 +1,5 @@
+Customer,Invoice,InvoiceDate,DueDate,Current,1-30,31-60,61-90,Over90,OpenBalance,LastPaymentDate
+Maple Street Bakery,INV-1046,2026-09-14,2026-10-14,1525.00,0.00,0.00,0.00,0.00,1525.00,2026-09-09
+Northside Coworking,INV-1047,2026-09-21,2026-10-21,960.00,0.00,0.00,0.00,0.00,960.00,2026-09-24
+Bayview Dental Group,INV-1048,2026-09-28,2026-10-28,420.00,0.00,0.00,0.00,0.00,420.00,
+Bayview Dental Group,INV-1039,2026-07-30,2026-08-29,0.00,0.00,310.00,0.00,0.00,310.00,
