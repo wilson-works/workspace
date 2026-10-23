@@ -71,6 +71,23 @@ COMMS_PATCHES = [
     ),
 ]
 
+# Skills copied in from ~/.claude: this kit has no QuickBooks connection, so a skill may not tell the
+# person to connect one.
+SKILL_PATCHES = [
+    (
+        "month-end-prep/SKILL.md",
+        "Connect QuickBooks and at least one payment processor (PayPal, Square, or Stripe),\n",
+        "Export your QuickBooks reports and at least one payment processor's settlements (PayPal, Square, or Stripe) as CSV,\n",
+    ),
+    (
+        "cash-flow-snapshot/SKILL.md",
+        "ask the user to either connect\n"
+        "a source or upload a CSV (income/expense tabular data, any reasonable format).\n",
+        "ask the user to upload a CSV export\n"
+        "(income/expense tabular data, any reasonable format). Never ask them to connect a client's QuickBooks.\n",
+    ),
+]
+
 LEAK_PATTERNS = [
     ("drive path", re.compile(r"(?<![A-Za-z])[A-Za-z]:[\\/]")),
     ("Hub path", re.compile(r"[\\/]Hub[\\/]", re.IGNORECASE)),
@@ -116,6 +133,12 @@ def assemble(source: Path, stage: Path) -> None:
     for skill in SKILLS:
         shutil.copytree(source / "skills" / skill, stage / ".claude" / "skills" / skill,
                         ignore=shutil.ignore_patterns("__pycache__"))
+    for rel, old, new in SKILL_PATCHES:
+        path = stage / ".claude" / "skills" / rel
+        text = path.read_text(encoding="utf-8")
+        if text.count(old) != 1:
+            die(f"skills/{rel} changed upstream; the QuickBooks wording patch no longer applies")
+        path.write_text(text.replace(old, new), encoding="utf-8", newline="\n")
 
     comms_dir = stage / ".claude" / "comms"
     comms_dir.mkdir(parents=True, exist_ok=True)
