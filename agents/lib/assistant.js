@@ -113,7 +113,7 @@ async function interview(opts) {
     const look = { key, name, skin, hair, glasses, outfit };
     return {
       key, name, title: 'Executive Assistant',
-      line: /[.!?]$/.test(line) ? line : `${line}.`,
+      line: (/[.!?]$/.test(line) ? line : `${line}.`).replace(/^./, (c) => c.toUpperCase()),
       color: figure.OUTFIT[outfit].accent,
       voice: t.voice,
       jokes: t.jokes,

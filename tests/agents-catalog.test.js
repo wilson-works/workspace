@@ -75,7 +75,14 @@ test('the shipped catalog: Louise first, free, from her git address, with the in
     for (const a of list) {
       assert.ok(lib.KEY_RE.test(a.key), a.key);
       assert.ok(!a.line || a.line.length <= 200, `${a.key}: its line fits an agent.json line`);
-      assert.ok(lib.GIT_URL_RE.test(a.source), `${a.key}: a shipped source is a git address`);
+      // A shipped source is a git address, or a basic setup that ships in this repo (agents/packages/<key>)
+      // whose agent.json passes the contract under the same key.
+      if (!lib.GIT_URL_RE.test(a.source)) {
+        assert.equal(a.source, path.join(REPO, 'agents', 'packages', a.key), `${a.key}: a shipped source is a git address or agents/packages/${a.key}`);
+        const m = JSON.parse(fs.readFileSync(path.join(a.source, 'agent.json'), 'utf8'));
+        assert.equal(m.key, a.key, `${a.key}: its package's agent.json has the same key`);
+        assert.ok(lib.validateManifest(m).ok, `${a.key}: its package's agent.json passes the contract`);
+      }
     }
     assert.equal(catalog.resolve('louise').source, 'https://github.com/wilson-works/louise.git');
   } finally {
