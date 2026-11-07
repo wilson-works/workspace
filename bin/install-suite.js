@@ -91,8 +91,8 @@ Options:
   --create-repo              make the private fleet repo on your GitHub account
   --no-start                 do not start the office
   --startup                  start the office when you log in
-  --agent <key>              install one of our agents without asking, such as louise
-                             (node agents/bin/agent.js catalog lists them)
+  --agent <key,key>          install our agents without asking: louise, or several,
+                             louise,tony,cbfc (node agents/bin/agent.js catalog lists them)
   --skip <parts>             leave out parts: check,hub,office,skills,agents,fleet
 
 Marks: + add  ~ change  = already there  ! yours differs (kept)  - remove`;
@@ -169,12 +169,14 @@ function parseArgs(argv, opts) {
   const interactive = opts && opts.interactive;
   if (o.fleet === 'join' && !o.fleetRepo && !interactive) throw new Refusal('--fleet join needs --fleet-repo <owner/name>.');
   if (o.agent !== undefined) {
-    o.agent = o.agent.toLowerCase();
+    o.agents = o.agent.toLowerCase().split(',').map((k) => k.trim()).filter(Boolean);
     if (o.skip.has('agents')) throw new Refusal('--agent installs the agent in the agents part, so it cannot go with --skip agents.');
     if (o.remove) throw new Refusal('--agent goes with an install, not with --remove. To take an agent out: node agents/bin/agent.js remove <key>.');
-    let entry;
-    try { entry = catalogLib().find(o.agent); } catch (e) { throw new Refusal(e.message); }
-    if (!entry) throw new Refusal(`--agent: there is no agent called "${o.agent}" in the catalog.\n${catalogLib().lines().join('\n')}`);
+    for (const k of o.agents) {
+      let entry;
+      try { entry = catalogLib().find(k); } catch (e) { throw new Refusal(e.message); }
+      if (!entry) throw new Refusal(`--agent: there is no agent called "${k}" in the catalog.\n${catalogLib().lines().join('\n')}`);
+    }
   }
   return o;
 }
@@ -876,18 +878,19 @@ async function partAgents(ctx) {
       ctx.changes += 1;
     }
   }
-  await offerAgent(ctx, dir);
+  if (ctx.o.agents) { for (const k of ctx.o.agents) await offerAgent(ctx, dir, k); } else await offerAgent(ctx, dir, null);
 }
 
 /**
- * One of our agents (agents/catalog.json): the one named with --agent, installed without asking, or
- * the first with an offer line, installed after a yes. --yes alone never installs one. An agent that
- * is already installed is "=", and only the skills it requires are checked.
+ * One of our agents (agents/catalog.json): `key`, named with --agent, installed without asking, or
+ * (key null) the first with an offer line, installed after a yes. --yes alone never installs one. An
+ * agent that is already installed is "=", and only the skills it requires are checked. Then the part
+ * of it that is private (catalog "private") is checked and named plainly: privateNote.
  */
-async function offerAgent(ctx, dir) {
+async function offerAgent(ctx, dir, key) {
   const { o } = ctx;
   let entry;
-  try { entry = o.agent ? catalogLib().find(o.agent) : catalogLib().read().find((a) => a.offer); } catch (e) {
+  try { entry = key ? catalogLib().find(key) : catalogLib().read().find((a) => a.offer); } catch (e) {
     out(`  ! ${e.message}`);
     ctx.failed.push('agents');
     return;
@@ -899,6 +902,7 @@ async function offerAgent(ctx, dir) {
 
   if (have) {
     out(`  = ${show(ctx, have.dir)}: ${entry.name} is in your office`);
+    await privateNote(entry);
     if (!have.ok) return;
     const p = skillsLib().plan(ctx.hub, skillsLib().needs(have.manifest), entry.name, { packLater: ctx.dry && !!ctx.packPending, starterInHub: o.skillsScope === 'hub' });
     if (!p.ok) { for (const e of p.errors) out(`  ! ${e}`); ctx.failed.push('agents'); return; }
@@ -911,7 +915,7 @@ async function offerAgent(ctx, dir) {
     return;
   }
 
-  if (!o.agent) {
+  if (!key) {
     if (!ctx.asker.interactive) {
       const why = o.yes ? '--yes installs an agent only when you name it with --agent' : 'there is nobody at the keyboard to ask';
       out(`  ${entry.name}, ${entry.title || 'one of our agents'}, is on offer, and was not installed: ${why}.`);
@@ -943,10 +947,40 @@ async function offerAgent(ctx, dir) {
     return;
   }
   const n = r.lines.filter(isChange).length;
-  if (ctx.dry) { ctx.planned += n; ctx.agentPlanned = entry.name; return; }
+  await privateNote(entry);
+  if (ctx.dry) { ctx.planned += n; ctx.agentPlanned = (ctx.agentPlanned || []).concat(entry.name); return; }
   ctx.record = readRecord(ctx.hub); // installPackage recorded the skills it copied; keep that record
   ctx.changes += n;
   if (r.startFailed) ctx.failed.push('agents');
+}
+
+/**
+ * The private part of one of our agents (catalog "private": { what, repo | url, how, ask }), checked
+ * and named plainly. It is never installed from here: it comes from its own repo or install file, for
+ * people who have access. `repo`: can this computer read that git repository, without a password
+ * prompt? `url`: does it answer on this computer? Read-only either way.
+ */
+async function privateNote(entry) {
+  const p = entry && entry.private;
+  if (!p || !p.what) return;
+  if (p.repo) {
+    const r = spawnSync('git', ['ls-remote', '--heads', p.repo], {
+      timeout: 20000, stdio: 'ignore', windowsHide: true,
+      env: Object.assign({}, process.env, { GIT_TERMINAL_PROMPT: '0', GCM_INTERACTIVE: 'never' }),
+    });
+    if (r.status === 0) out(`    = You have access to ${p.what}. ${p.how || ''}`.trimEnd());
+    else out(`    ! ${p.what} is private, and this computer has no access to it (${p.repo}), so it was left out. ${entry.name}'s basic setup works without it. ${p.ask || ''}`.trimEnd());
+    return;
+  }
+  if (p.url) {
+    const up = await new Promise((resolve) => {
+      const req = http.get(p.url, { timeout: 2000 }, (res) => { res.resume(); resolve(res.statusCode < 500); });
+      req.on('timeout', () => { req.destroy(); resolve(false); });
+      req.on('error', () => resolve(false));
+    });
+    if (up) out(`    = ${p.what} is running on this computer.`);
+    else out(`    ! ${p.what} is not on this computer yet, or not running. It is private and installed on its own. ${p.how || ''}`.trimEnd());
+  }
 }
 
 /* -------------------------------------------------------------------- fleet */
@@ -1136,7 +1170,7 @@ function summary(ctx) {
   if (ctx.packDir) out(`  The skills pack       ${ctx.packDir}`);
   const agentsDir = path.join(ctx.hub, '50-AI', 'agents');
   const named = agentsLib().listAgents([agentsDir]).filter((a) => a.ok).map((a) => a.manifest.name);
-  if (ctx.agentPlanned) named.push(`${ctx.agentPlanned} (once installed)`);
+  for (const a of ctx.agentPlanned || []) named.push(`${a} (once installed)`);
   out(`  Your agents           ${agentsDir}${named.length ? `: ${named.join(', ')}` : ' (none yet)'}`);
   out(`  The install record    ${recordFile(ctx.hub)}`);
   out();

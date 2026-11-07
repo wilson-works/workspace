@@ -8,6 +8,10 @@
  *                                [--hub <root>] [--port <n>] [--no-start] [--dry-run] [--yes]
  *
  *   node agents/bin/new-agent.js <key> --name "<Name>" --title "<what it does>" --line "<its job, in one line>"
+ *   node agents/bin/new-agent.js --ask     make your own executive assistant: seven short questions (name,
+ *                                          what they help with, how they talk, their look), then the agent,
+ *                                          with its figure drawn in Kody's and Louise's style. With no key at
+ *                                          a keyboard it asks the same questions.
  *
  * It finds the Hub (--hub, else hub/lib/root.js), and writes the agent from agents/template/ into
  * <Hub>/50-AI/agents/<key>/ (or the office's first agents folder): agent.json, CLAUDE.md, brains/,
@@ -29,8 +33,26 @@ const cli = require('../lib/cli');
 
 const { out, fwd, refuse, fail } = cli;
 
+/** True when a key is already an agent's: in an agents folder the office reads, or in config/agents.json. */
+function keyTaken(key, target, dirs) {
+  if (fs.existsSync(target)) return true;
+  if (lib.listAgents(dirs).some((a) => a.key === key)) return true;
+  return require('../../src/server/agents').loadAgents().some((a) => a.key === key);
+}
+
 (async () => {
   const { _: pos, flags } = cli.parseArgs(process.argv.slice(2), ['name', 'title', 'line', 'color', 'hub', 'port']);
+  // Make your own executive assistant: --ask, or no key at a keyboard, asks a few questions first.
+  let made1 = null;
+  if (flags.ask || (!pos[0] && process.stdin.isTTY)) {
+    const h = cli.hubFrom(flags);
+    const ad = cli.agentsDirFor(flags, h);
+    try {
+      made1 = await require('../lib/assistant').interview({ taken: (k) => keyTaken(k, path.join(ad, k), cli.allDirs(ad)) });
+    } catch (e) { if (e.refused) refuse(e.message); throw e; }
+    pos[0] = made1.key;
+    Object.assign(flags, { name: made1.name, title: made1.title, line: made1.line, color: made1.color });
+  }
   const key = pos[0];
   const usage = 'node agents/bin/new-agent.js <key> --name <Name> --title <Title>';
   if (!key) refuse(`Name the new agent: ${usage}. A key is short and lower-case, with dashes: research-desk.`);
@@ -66,7 +88,10 @@ const { out, fwd, refuse, fail } = cli;
   out(dry ? `Plan for ${name} (dry run: nothing is written):` : `Making ${name}, ${flags.title.trim()}:`);
   let made;
   try {
-    made = lib.scaffold(target, { key, name, title: flags.title, line: typeof flags.line === 'string' ? flags.line : '', color: flags.color, port, dryRun: dry });
+    made = lib.scaffold(target, {
+      key, name, title: flags.title, line: typeof flags.line === 'string' ? flags.line : '', color: flags.color, port, dryRun: dry,
+      voice: made1 && made1.voice, jokes: made1 && made1.jokes, files: made1 && made1.files,
+    });
   } catch (e) {
     refuse(e.message);
   }

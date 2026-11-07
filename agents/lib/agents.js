@@ -310,12 +310,14 @@ function templateValues(o) {
   return Object.assign({
     key: o.key, name, title, line, port: o.port, initial, date: o.date || today(),
     match_word: matchWord, description_yaml: JSON.stringify(description),
+    voice: String(o.voice || '').trim() || 'I speak plainly and I keep my answers short.',
   }, pal);
 }
 
 /**
  * A new agent in `dir` (its own folder, which must not exist yet) from agents/template/.
- * opts { key, name, title, line, color, port, date, dryRun }. Returns { lines, manifest }.
+ * opts { key, name, title, line, color, voice, jokes, port, date, dryRun, files }. `files` replaces whole template
+ * files by their relative name (the drawn art.svg and mark.svg). Returns { lines, manifest }.
  * Everything is checked before the first file is written.
  */
 function scaffold(dir, opts) {
@@ -324,8 +326,12 @@ function scaffold(dir, opts) {
   if (!portOk(o.port)) throw new Error('A port from 1024 to 65535 is needed.');
   if (fs.existsSync(dir)) throw new Error(`${dir} already exists.`);
   const values = templateValues(o);
-  const files = walk(TEMPLATE).map((rel) => ({ rel, text: fill(fs.readFileSync(path.join(TEMPLATE, rel), 'utf8'), values, kindOf(rel)) }));
-  const manifest = JSON.parse(files.find((f) => f.rel === MANIFEST).text);
+  const own = o.files || {};
+  const files = walk(TEMPLATE).map((rel) => ({ rel, text: own[rel] != null ? own[rel] : fill(fs.readFileSync(path.join(TEMPLATE, rel), 'utf8'), values, kindOf(rel)) }));
+  const mf = files.find((f) => f.rel === MANIFEST);
+  if (Array.isArray(o.jokes) && o.jokes.length) mf.text = `${JSON.stringify(Object.assign(JSON.parse(mf.text), { jokes: o.jokes }), null, 2)}
+`;
+  const manifest = JSON.parse(mf.text);
   const v = validateManifest(manifest);
   if (!v.ok) throw new Error(`The new agent.json would not pass the contract: ${v.errors.join(' ')}`);
   const lines = files.map((f) => `+ ${fwd(path.join(dir, f.rel))}`);
