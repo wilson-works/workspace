@@ -15,13 +15,18 @@
  *   resolve(src)      { source, entry }: a folder, a .zip file or a git address stays as it is (entry
  *                     null); a catalog key becomes its source; anything else throws { refused: true },
  *                     with the catalog listed so the person sees what they can install
+ *   privateLines(entry)  what is private about an agent (its "private": { what, repo | url, how, ask }),
+ *                     checked read-only and said plainly: can this computer read that git repository
+ *                     (never a password prompt), or does that address answer on this computer? It is
+ *                     never installed from here. [] when the entry has no "private".
  *   lines(installed)  the catalog as plain lines. With `installed` (a Set of keys), each agent is
  *                     marked installed or not installed.
  */
 
 const fs = require('fs');
 const path = require('path');
-const { KEY_RE, GIT_URL_RE } = require('./agents');
+const { spawnSync } = require('child_process');
+const { KEY_RE, GIT_URL_RE, probeLocal } = require('./agents');
 
 const isStr = (v) => typeof v === 'string' && v.trim().length > 0;
 const isDir = (p) => { try { return fs.statSync(p).isDirectory(); } catch (_) { return false; } };
@@ -77,4 +82,27 @@ function resolve(src) {
   throw Object.assign(new Error(`"${s}" is not a folder, a .zip file, a git address or one of our agents.\n${lines().join('\n')}`), { refused: true });
 }
 
-module.exports = { file, read, find, resolve, lines };
+async function privateLines(entry) {
+  const p = entry && entry.private;
+  if (!p || !p.what) return [];
+  if (p.repo) {
+    const r = spawnSync('git', ['ls-remote', '--heads', p.repo], {
+      timeout: 10000, stdio: 'ignore', windowsHide: true,
+      env: Object.assign({}, process.env, { GIT_TERMINAL_PROMPT: '0', GCM_INTERACTIVE: 'never' }),
+    });
+    return [r.status === 0
+      ? `= You have access to ${p.what}. ${p.how || ''}`.trimEnd()
+      : `! ${p.what} is private, and this computer has no access to it (${p.repo}), so it was left out. ${entry.name}'s basic setup works without it. ${p.ask || ''}`.trimEnd()];
+  }
+  if (p.url) {
+    let u;
+    try { u = new URL(p.url); } catch (_) { return []; }
+    const up = await probeLocal({ port: Number(u.port), path: u.pathname }, 2000);
+    return [up
+      ? `= ${p.what} is running on this computer.`
+      : `! ${p.what} is not on this computer yet, or not running. It is private and installed on its own. ${p.how || ''}`.trimEnd()];
+  }
+  return [];
+}
+
+module.exports = { file, read, find, resolve, lines, privateLines };

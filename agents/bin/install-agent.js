@@ -71,6 +71,7 @@ const { out, refuse, fail } = cli;
   const m = JSON.parse(fs.readFileSync(path.join(r.target, 'agent.json'), 'utf8').replace(/^﻿/, ''));
   out('');
   if (m.door && m.door.local) out(`${m.name}'s door: ${m.door.local}${r.started ? '' : `  (start it with: node agents/bin/agent.js start ${r.key})`}`);
+  if (found.entry) for (const l of await catalog.privateLines(found.entry)) out(l);
   if (cli.officeReads(agentsDir)) out(`${m.name} now has an office in the Agents' wing.`);
   else out(`To give ${m.name} an office, add "${cli.fwd(agentsDir)}" to agents_dirs in workspace.config.json.`);
   if (r.startFailed) process.exit(1);

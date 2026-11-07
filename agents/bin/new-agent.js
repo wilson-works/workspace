@@ -33,11 +33,16 @@ const cli = require('../lib/cli');
 
 const { out, fwd, refuse, fail } = cli;
 
-/** True when a key is already an agent's: in an agents folder the office reads, or in config/agents.json. */
-function keyTaken(key, target, dirs) {
-  if (fs.existsSync(target)) return true;
-  if (lib.listAgents(dirs).some((a) => a.key === key)) return true;
-  return require('../../src/server/agents').loadAgents().some((a) => a.key === key);
+/** Why a key cannot be used (it is already an agent's), or null when it is free. */
+function whyTaken(key, agentsDir, dirs) {
+  const target = path.join(agentsDir, key);
+  if (fs.existsSync(target)) return `There is already an agent called ${key} at ${target}. Pick another key, or remove that one first: node agents/bin/agent.js remove ${key}`;
+  const dup = lib.listAgents(dirs).find((a) => a.key === key);
+  if (dup) return `An agent called ${key} is already in ${path.dirname(dup.dir)}. Pick another key.`;
+  if (require('../../src/server/agents').loadAgents().some((a) => a.key === key)) {
+    return `config/agents.json already has an agent called ${key}, and it would hide this one in the office. Pick another key.`;
+  }
+  return null;
 }
 
 (async () => {
@@ -48,7 +53,7 @@ function keyTaken(key, target, dirs) {
     const h = cli.hubFrom(flags);
     const ad = cli.agentsDirFor(flags, h);
     try {
-      made1 = await require('../lib/assistant').interview({ taken: (k) => keyTaken(k, path.join(ad, k), cli.allDirs(ad)) });
+      made1 = await require('../lib/assistant').interview({ taken: (k) => !!whyTaken(k, ad, cli.allDirs(ad)) });
     } catch (e) { if (e.refused) refuse(e.message); throw e; }
     pos[0] = made1.key;
     Object.assign(flags, { name: made1.name, title: made1.title, line: made1.line, color: made1.color });
@@ -67,12 +72,8 @@ function keyTaken(key, target, dirs) {
   const dirs = cli.allDirs(agentsDir);
   const target = path.join(agentsDir, key);
 
-  if (fs.existsSync(target)) refuse(`There is already an agent called ${key} at ${target}. Pick another key, or remove that one first: node agents/bin/agent.js remove ${key}`);
-  const dup = lib.listAgents(dirs).find((a) => a.key === key);
-  if (dup) refuse(`An agent called ${key} is already in ${path.dirname(dup.dir)}. Pick another key.`);
-  if (require('../../src/server/agents').loadAgents().some((a) => a.key === key)) {
-    refuse(`config/agents.json already has an agent called ${key}, and it would hide this one in the office. Pick another key.`);
-  }
+  const taken = whyTaken(key, agentsDir, dirs);
+  if (taken) refuse(taken);
 
   let port;
   if (flags.port !== undefined) {

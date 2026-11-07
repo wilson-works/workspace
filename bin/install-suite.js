@@ -878,14 +878,14 @@ async function partAgents(ctx) {
       ctx.changes += 1;
     }
   }
-  if (ctx.o.agents) { for (const k of ctx.o.agents) await offerAgent(ctx, dir, k); } else await offerAgent(ctx, dir, null);
+  for (const k of ctx.o.agents || [null]) await offerAgent(ctx, dir, k);
 }
 
 /**
  * One of our agents (agents/catalog.json): `key`, named with --agent, installed without asking, or
  * (key null) the first with an offer line, installed after a yes. --yes alone never installs one. An
  * agent that is already installed is "=", and only the skills it requires are checked. Then the part
- * of it that is private (catalog "private") is checked and named plainly: privateNote.
+ * of it that is private (catalog "private") is checked and named plainly: catalog.privateLines.
  */
 async function offerAgent(ctx, dir, key) {
   const { o } = ctx;
@@ -902,7 +902,7 @@ async function offerAgent(ctx, dir, key) {
 
   if (have) {
     out(`  = ${show(ctx, have.dir)}: ${entry.name} is in your office`);
-    await privateNote(entry);
+    for (const l of await catalogLib().privateLines(entry)) out(`    ${l}`);
     if (!have.ok) return;
     const p = skillsLib().plan(ctx.hub, skillsLib().needs(have.manifest), entry.name, { packLater: ctx.dry && !!ctx.packPending, starterInHub: o.skillsScope === 'hub' });
     if (!p.ok) { for (const e of p.errors) out(`  ! ${e}`); ctx.failed.push('agents'); return; }
@@ -947,40 +947,11 @@ async function offerAgent(ctx, dir, key) {
     return;
   }
   const n = r.lines.filter(isChange).length;
-  await privateNote(entry);
+  for (const l of await catalogLib().privateLines(entry)) out(`    ${l}`);
   if (ctx.dry) { ctx.planned += n; ctx.agentPlanned = (ctx.agentPlanned || []).concat(entry.name); return; }
   ctx.record = readRecord(ctx.hub); // installPackage recorded the skills it copied; keep that record
   ctx.changes += n;
   if (r.startFailed) ctx.failed.push('agents');
-}
-
-/**
- * The private part of one of our agents (catalog "private": { what, repo | url, how, ask }), checked
- * and named plainly. It is never installed from here: it comes from its own repo or install file, for
- * people who have access. `repo`: can this computer read that git repository, without a password
- * prompt? `url`: does it answer on this computer? Read-only either way.
- */
-async function privateNote(entry) {
-  const p = entry && entry.private;
-  if (!p || !p.what) return;
-  if (p.repo) {
-    const r = spawnSync('git', ['ls-remote', '--heads', p.repo], {
-      timeout: 20000, stdio: 'ignore', windowsHide: true,
-      env: Object.assign({}, process.env, { GIT_TERMINAL_PROMPT: '0', GCM_INTERACTIVE: 'never' }),
-    });
-    if (r.status === 0) out(`    = You have access to ${p.what}. ${p.how || ''}`.trimEnd());
-    else out(`    ! ${p.what} is private, and this computer has no access to it (${p.repo}), so it was left out. ${entry.name}'s basic setup works without it. ${p.ask || ''}`.trimEnd());
-    return;
-  }
-  if (p.url) {
-    const up = await new Promise((resolve) => {
-      const req = http.get(p.url, { timeout: 2000 }, (res) => { res.resume(); resolve(res.statusCode < 500); });
-      req.on('timeout', () => { req.destroy(); resolve(false); });
-      req.on('error', () => resolve(false));
-    });
-    if (up) out(`    = ${p.what} is running on this computer.`);
-    else out(`    ! ${p.what} is not on this computer yet, or not running. It is private and installed on its own. ${p.how || ''}`.trimEnd());
-  }
 }
 
 /* -------------------------------------------------------------------- fleet */

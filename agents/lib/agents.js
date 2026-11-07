@@ -329,9 +329,8 @@ function scaffold(dir, opts) {
   const own = o.files || {};
   const files = walk(TEMPLATE).map((rel) => ({ rel, text: own[rel] != null ? own[rel] : fill(fs.readFileSync(path.join(TEMPLATE, rel), 'utf8'), values, kindOf(rel)) }));
   const mf = files.find((f) => f.rel === MANIFEST);
-  if (Array.isArray(o.jokes) && o.jokes.length) mf.text = `${JSON.stringify(Object.assign(JSON.parse(mf.text), { jokes: o.jokes }), null, 2)}
-`;
   const manifest = JSON.parse(mf.text);
+  if (Array.isArray(o.jokes) && o.jokes.length) { manifest.jokes = o.jokes; mf.text = `${JSON.stringify(manifest, null, 2)}\n`; }
   const v = validateManifest(manifest);
   if (!v.ok) throw new Error(`The new agent.json would not pass the contract: ${v.errors.join(' ')}`);
   const lines = files.map((f) => `+ ${fwd(path.join(dir, f.rel))}`);
@@ -738,5 +737,5 @@ module.exports = {
   validateManifest, listAgents, freePort, scaffold, installPackage,
   isImageName, doorPort, usedPorts, listening, withPort, palette, fill, templateValues,
   subagentText, registerSubagent, splitCommand, startAgent, stopAgent, runningPid, probeLocal, waitUp,
-  autostart, moveToDumpQueue, ask, today,
+  autostart, moveToDumpQueue, ask, today, xmlEscape: ESCAPE.xml,
 };

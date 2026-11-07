@@ -36,6 +36,9 @@ const TONES = {
   },
 };
 
+/** A yes/no answer: y or yes, n or no, Enter for the default; null for anything else. */
+const yesNo = (def) => (a) => (!a ? def : /^y(es)?$/i.test(a) ? true : /^no?$/i.test(a) ? false : null);
+
 const list = (table) => Object.keys(table).map((k, i) => `  ${i + 1}  ${table[k].label}`).join('\n');
 
 /** An answer to a numbered question: its number, its key, or the default on Enter. null when it is neither. */
@@ -100,14 +103,14 @@ async function interview(opts) {
     const tone = await ask(`3. How should ${name} talk to you?\n${list(TONES)}\n   [1]`, (a) => choose(TONES, a, 'warm'));
     const skin = await ask(`4. ${name}'s skin tone?\n${list(figure.SKIN)}\n   [3]`, (a) => choose(figure.SKIN, a, 'medium'));
     const hair = await ask(`5. ${name}'s hair?\n${list(figure.HAIR)}\n   [1]`, (a) => choose(figure.HAIR, a, 'short'));
-    const glasses = await ask(`6. Glasses, like Louise? (y/n) [n]`, (a) => (/^(y|yes)$/i.test(a) ? true : /^(n|no|)$/i.test(a) ? false : null));
+    const glasses = await ask(`6. Glasses, like Louise? (y/n) [n]`, yesNo(false));
     const outfit = await ask(`7. The colour of ${name}'s suit (it also paints their office)?\n${list(figure.OUTFIT)}\n   [1]`, (a) => choose(figure.OUTFIT, a, 'navy'));
 
     const key = keyFor(name, taken);
     const t = TONES[tone];
     say('');
     say(`${name}, your executive assistant (key ${key}): ${t.label}; ${figure.SKIN[skin].label} skin, ${figure.HAIR[hair].label} hair${glasses ? ', glasses' : ''}, a ${figure.OUTFIT[outfit].label} suit.`);
-    const go = await ask(`Make ${name}? (y/n) [y]`, (a) => (/^(y|yes|)$/i.test(a) ? true : /^(n|no)$/i.test(a) ? false : null));
+    const go = await ask(`Make ${name}? (y/n) [y]`, yesNo(true));
     if (!go) throw Object.assign(new Error(`${name} was not made. Run it again any time.`), { refused: true });
 
     const look = { key, name, skin, hair, glasses, outfit };
@@ -124,4 +127,4 @@ async function interview(opts) {
   }
 }
 
-module.exports = { interview, keyFor, choose, TONES };
+module.exports = { interview };

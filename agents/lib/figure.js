@@ -29,7 +29,7 @@ const HAIR = {
   curly: { label: 'curly' },
 };
 
-const HAIR_COLOUR = { base: '#2A1E17', light: '#3F2F26' };
+const HAIR_COLOUR = { base: '#2A1E17', light: '#3F2F26' }; // Kody's hair and its highlight, for every style
 
 // Outfits: Kody's navy and Louise's bottle green, then four more in the same main / shadow / light steps.
 // accent is the brighter tone the agent's room and dashboard are painted from (agent.json brand).
@@ -43,10 +43,11 @@ const OUTFIT = {
 };
 
 const HEAD = 'M82 22H118A34 34 0 0 1 152 56V88A30 30 0 0 1 122 118H78A30 30 0 0 1 48 88V56A34 34 0 0 1 82 22Z';
-const BRASS = { base: '#C9A24A', light: '#E3C277', shadow: '#9E7B2F', contour: '#7C5E1E' };
+const BRASS = { base: '#C9A24A', light: '#E3C277', shadow: '#9E7B2F' };
 
 const pick = (table, k, d) => table[k] || table[d];
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' }[c]));
+const esc = (s) => require('./agents').xmlEscape(s);
+const idFor = (key) => `ea-${String(key || 'assistant').replace(/[^a-z0-9-]/g, '')}`;
 
 /** Kody's mitt hand: a palm, three fingers and a thumb, in skin and its shadow. */
 function hand(transform, s) {
@@ -92,7 +93,7 @@ function clipboard(o) {
 
 function figureSvg(opts) {
   const o = opts || {};
-  const id = `ea-${String(o.key || 'assistant').replace(/[^a-z0-9-]/g, '')}`;
+  const id = idFor(o.key);
   const s = pick(SKIN, o.skin, 'medium');
   const style = HAIR[o.hair] ? o.hair : 'short';
   const h = HAIR_COLOUR;
@@ -129,7 +130,7 @@ ${hand('translate(177.500 103) rotate(20) scale(1.200)', s)}
 /** Kody's seal: a rounded square in the outfit's colour, a lit plane, two brass hairlines, the initial, a small diamond. */
 function markSvg(opts) {
   const o = opts || {};
-  const id = `ea-${String(o.key || 'assistant').replace(/[^a-z0-9-]/g, '')}-mark`;
+  const id = `${idFor(o.key)}-mark`;
   const f = pick(OUTFIT, o.outfit, 'navy');
   const initial = esc(((/[A-Za-z0-9]/.exec(String(o.name || '')) || ['A'])[0]).toUpperCase());
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="${esc(o.name || 'Assistant')}">
