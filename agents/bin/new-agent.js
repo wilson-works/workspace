@@ -8,6 +8,10 @@
  *                                [--hub <root>] [--port <n>] [--no-start] [--dry-run] [--yes]
  *
  *   node agents/bin/new-agent.js <key> --name "<Name>" --title "<what it does>" --line "<its job, in one line>"
+ *   node agents/bin/new-agent.js --ask     make your own executive assistant: seven short questions (name,
+ *                                          what they help with, how they talk, their look), then the agent,
+ *                                          with its figure drawn in Kody's and Louise's style. With no key at
+ *                                          a keyboard it asks the same questions.
  *
  * It finds the Hub (--hub, else hub/lib/root.js), and writes the agent from agents/template/ into
  * <Hub>/50-AI/agents/<key>/ (or the office's first agents folder): agent.json, CLAUDE.md, brains/,
@@ -29,8 +33,31 @@ const cli = require('../lib/cli');
 
 const { out, fwd, refuse, fail } = cli;
 
+/** Why a key cannot be used (it is already an agent's), or null when it is free. */
+function whyTaken(key, agentsDir, dirs) {
+  const target = path.join(agentsDir, key);
+  if (fs.existsSync(target)) return `There is already an agent called ${key} at ${target}. Pick another key, or remove that one first: node agents/bin/agent.js remove ${key}`;
+  const dup = lib.listAgents(dirs).find((a) => a.key === key);
+  if (dup) return `An agent called ${key} is already in ${path.dirname(dup.dir)}. Pick another key.`;
+  if (require('../../src/server/agents').loadAgents().some((a) => a.key === key)) {
+    return `config/agents.json already has an agent called ${key}, and it would hide this one in the office. Pick another key.`;
+  }
+  return null;
+}
+
 (async () => {
   const { _: pos, flags } = cli.parseArgs(process.argv.slice(2), ['name', 'title', 'line', 'color', 'hub', 'port']);
+  // Make your own executive assistant: --ask, or no key at a keyboard, asks a few questions first.
+  let made1 = null;
+  if (flags.ask || (!pos[0] && process.stdin.isTTY)) {
+    const h = cli.hubFrom(flags);
+    const ad = cli.agentsDirFor(flags, h);
+    try {
+      made1 = await require('../lib/assistant').interview({ taken: (k) => !!whyTaken(k, ad, cli.allDirs(ad)) });
+    } catch (e) { if (e.refused) refuse(e.message); throw e; }
+    pos[0] = made1.key;
+    Object.assign(flags, { name: made1.name, title: made1.title, line: made1.line, color: made1.color });
+  }
   const key = pos[0];
   const usage = 'node agents/bin/new-agent.js <key> --name <Name> --title <Title>';
   if (!key) refuse(`Name the new agent: ${usage}. A key is short and lower-case, with dashes: research-desk.`);
@@ -45,12 +72,8 @@ const { out, fwd, refuse, fail } = cli;
   const dirs = cli.allDirs(agentsDir);
   const target = path.join(agentsDir, key);
 
-  if (fs.existsSync(target)) refuse(`There is already an agent called ${key} at ${target}. Pick another key, or remove that one first: node agents/bin/agent.js remove ${key}`);
-  const dup = lib.listAgents(dirs).find((a) => a.key === key);
-  if (dup) refuse(`An agent called ${key} is already in ${path.dirname(dup.dir)}. Pick another key.`);
-  if (require('../../src/server/agents').loadAgents().some((a) => a.key === key)) {
-    refuse(`config/agents.json already has an agent called ${key}, and it would hide this one in the office. Pick another key.`);
-  }
+  const taken = whyTaken(key, agentsDir, dirs);
+  if (taken) refuse(taken);
 
   let port;
   if (flags.port !== undefined) {
@@ -66,7 +89,10 @@ const { out, fwd, refuse, fail } = cli;
   out(dry ? `Plan for ${name} (dry run: nothing is written):` : `Making ${name}, ${flags.title.trim()}:`);
   let made;
   try {
-    made = lib.scaffold(target, { key, name, title: flags.title, line: typeof flags.line === 'string' ? flags.line : '', color: flags.color, port, dryRun: dry });
+    made = lib.scaffold(target, {
+      key, name, title: flags.title, line: typeof flags.line === 'string' ? flags.line : '', color: flags.color, port, dryRun: dry,
+      voice: made1 && made1.voice, jokes: made1 && made1.jokes, files: made1 && made1.files,
+    });
   } catch (e) {
     refuse(e.message);
   }

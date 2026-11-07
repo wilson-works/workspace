@@ -122,6 +122,10 @@ When the agent is installed, `install-agent`:
 | `source` | Its package: a git address (or a folder or a `.zip` file). |
 | `price` | What it costs. |
 | `offer` | The question the installer asks about it (optional). The installer offers the first agent that has one. |
+| `private` | The part of it that is not in this public repo (optional): `{ "what", "repo" or "url", "how", "ask" }`. The installer never installs it. It checks, read-only, whether this computer can read `repo` (a private git repository) or whether `url` answers (a program installed on its own), and says plainly either way. |
+
+A `source` that is a relative folder is read from the catalog file's own folder: Tony's and CBFC's
+basic setups ship in `agents/packages/`. `--agent` takes several keys: `--agent louise,tony,cbfc`.
 
 `install-agent` takes a key when its argument is not a folder, a `.zip` file or a git address; any
 other name is refused, with the catalog listed. `node agents/bin/agent.js catalog` lists the catalog

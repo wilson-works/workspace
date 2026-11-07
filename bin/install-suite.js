@@ -91,8 +91,8 @@ Options:
   --create-repo              make the private fleet repo on your GitHub account
   --no-start                 do not start the office
   --startup                  start the office when you log in
-  --agent <key>              install one of our agents without asking, such as louise
-                             (node agents/bin/agent.js catalog lists them)
+  --agent <key,key>          install our agents without asking: louise, or several,
+                             louise,tony,cbfc (node agents/bin/agent.js catalog lists them)
   --skip <parts>             leave out parts: check,hub,office,skills,agents,fleet
 
 Marks: + add  ~ change  = already there  ! yours differs (kept)  - remove`;
@@ -169,12 +169,14 @@ function parseArgs(argv, opts) {
   const interactive = opts && opts.interactive;
   if (o.fleet === 'join' && !o.fleetRepo && !interactive) throw new Refusal('--fleet join needs --fleet-repo <owner/name>.');
   if (o.agent !== undefined) {
-    o.agent = o.agent.toLowerCase();
+    o.agents = o.agent.toLowerCase().split(',').map((k) => k.trim()).filter(Boolean);
     if (o.skip.has('agents')) throw new Refusal('--agent installs the agent in the agents part, so it cannot go with --skip agents.');
     if (o.remove) throw new Refusal('--agent goes with an install, not with --remove. To take an agent out: node agents/bin/agent.js remove <key>.');
-    let entry;
-    try { entry = catalogLib().find(o.agent); } catch (e) { throw new Refusal(e.message); }
-    if (!entry) throw new Refusal(`--agent: there is no agent called "${o.agent}" in the catalog.\n${catalogLib().lines().join('\n')}`);
+    for (const k of o.agents) {
+      let entry;
+      try { entry = catalogLib().find(k); } catch (e) { throw new Refusal(e.message); }
+      if (!entry) throw new Refusal(`--agent: there is no agent called "${k}" in the catalog.\n${catalogLib().lines().join('\n')}`);
+    }
   }
   return o;
 }
@@ -876,18 +878,19 @@ async function partAgents(ctx) {
       ctx.changes += 1;
     }
   }
-  await offerAgent(ctx, dir);
+  for (const k of ctx.o.agents || [null]) await offerAgent(ctx, dir, k);
 }
 
 /**
- * One of our agents (agents/catalog.json): the one named with --agent, installed without asking, or
- * the first with an offer line, installed after a yes. --yes alone never installs one. An agent that
- * is already installed is "=", and only the skills it requires are checked.
+ * One of our agents (agents/catalog.json): `key`, named with --agent, installed without asking, or
+ * (key null) the first with an offer line, installed after a yes. --yes alone never installs one. An
+ * agent that is already installed is "=", and only the skills it requires are checked. Then the part
+ * of it that is private (catalog "private") is checked and named plainly: catalog.privateLines.
  */
-async function offerAgent(ctx, dir) {
+async function offerAgent(ctx, dir, key) {
   const { o } = ctx;
   let entry;
-  try { entry = o.agent ? catalogLib().find(o.agent) : catalogLib().read().find((a) => a.offer); } catch (e) {
+  try { entry = key ? catalogLib().find(key) : catalogLib().read().find((a) => a.offer); } catch (e) {
     out(`  ! ${e.message}`);
     ctx.failed.push('agents');
     return;
@@ -899,6 +902,7 @@ async function offerAgent(ctx, dir) {
 
   if (have) {
     out(`  = ${show(ctx, have.dir)}: ${entry.name} is in your office`);
+    for (const l of await catalogLib().privateLines(entry)) out(`    ${l}`);
     if (!have.ok) return;
     const p = skillsLib().plan(ctx.hub, skillsLib().needs(have.manifest), entry.name, { packLater: ctx.dry && !!ctx.packPending, starterInHub: o.skillsScope === 'hub' });
     if (!p.ok) { for (const e of p.errors) out(`  ! ${e}`); ctx.failed.push('agents'); return; }
@@ -911,7 +915,7 @@ async function offerAgent(ctx, dir) {
     return;
   }
 
-  if (!o.agent) {
+  if (!key) {
     if (!ctx.asker.interactive) {
       const why = o.yes ? '--yes installs an agent only when you name it with --agent' : 'there is nobody at the keyboard to ask';
       out(`  ${entry.name}, ${entry.title || 'one of our agents'}, is on offer, and was not installed: ${why}.`);
@@ -943,7 +947,8 @@ async function offerAgent(ctx, dir) {
     return;
   }
   const n = r.lines.filter(isChange).length;
-  if (ctx.dry) { ctx.planned += n; ctx.agentPlanned = entry.name; return; }
+  for (const l of await catalogLib().privateLines(entry)) out(`    ${l}`);
+  if (ctx.dry) { ctx.planned += n; ctx.agentPlanned = (ctx.agentPlanned || []).concat(entry.name); return; }
   ctx.record = readRecord(ctx.hub); // installPackage recorded the skills it copied; keep that record
   ctx.changes += n;
   if (r.startFailed) ctx.failed.push('agents');
@@ -1136,7 +1141,7 @@ function summary(ctx) {
   if (ctx.packDir) out(`  The skills pack       ${ctx.packDir}`);
   const agentsDir = path.join(ctx.hub, '50-AI', 'agents');
   const named = agentsLib().listAgents([agentsDir]).filter((a) => a.ok).map((a) => a.manifest.name);
-  if (ctx.agentPlanned) named.push(`${ctx.agentPlanned} (once installed)`);
+  for (const a of ctx.agentPlanned || []) named.push(`${a} (once installed)`);
   out(`  Your agents           ${agentsDir}${named.length ? `: ${named.join(', ')}` : ' (none yet)'}`);
   out(`  The install record    ${recordFile(ctx.hub)}`);
   out();

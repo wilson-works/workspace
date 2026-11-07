@@ -1,5 +1,5 @@
 {
-  "_readme": "The WilsonWorks agents anyone can install, with: node agents/bin/install-agent.js <key>. node agents/bin/agent.js catalog lists them and says which are installed. The installer (install.js) offers the first one that has an offer line, and installs any of them without asking with --agent <key>. Each source is the agent's package: a git address, a folder or a .zip file. agents/lib/catalog.js reads this file; WW_AGENT_CATALOG points at another one (for tests and drills), where a relative source is read from that file's own folder.",
+  "_readme": "The WilsonWorks agents anyone can install, with: node agents/bin/install-agent.js <key>. node agents/bin/agent.js catalog lists them and says which are installed. The installer (install.js) offers the first one that has an offer line, and installs any of them without asking with --agent <key>, or several with --agent louise,tony,cbfc. An optional \"private\" names the part of an agent that is not in this public repo (a private repo, or a program installed on its own): the installer checks it, says plainly when it is missing, and never installs it. Each source is the agent's package: a git address, a folder or a .zip file. agents/lib/catalog.js reads this file; WW_AGENT_CATALOG points at another one (for tests and drills), where a relative source is read from that file's own folder.",
   "agents": [
     {
       "key": "louise",
@@ -9,6 +9,33 @@
       "source": "https://github.com/wilson-works/louise.git",
       "price": "free",
       "offer": "Louise, the research librarian, can move into your office now. Install her?"
+    },
+    {
+      "key": "tony",
+      "name": "Tony",
+      "title": "The Accountant",
+      "line": "Keeps the books with you: sorts bank lines, codes them, closes the month, and leaves the live money to a person. This is his basic setup; his full training is private.",
+      "source": "packages/tony",
+      "price": "free",
+      "private": {
+        "what": "Tony's full training (the accountant-tony plugin)",
+        "repo": "https://github.com/wilson-works/accountant-tony.git",
+        "how": "Add it in Claude Code: claude plugin marketplace add wilson-works/accountant-tony, then claude plugin install the-accountant-tony@the-accountant-jev",
+        "ask": "Ask the firm's office manager for access if you need it."
+      }
+    },
+    {
+      "key": "cbfc",
+      "name": "CBFC",
+      "title": "The Academy",
+      "line": "A door in your office that opens the CBFC Academy on this computer. The Academy itself is private to the firm and installed on its own.",
+      "source": "packages/cbfc",
+      "price": "free",
+      "private": {
+        "what": "The CBFC Academy",
+        "url": "http://127.0.0.1:7650/api/health",
+        "how": "Install it with the CBFC Academy install guide and its ZIP in the firm's Google Drive (ask the firm's office manager). CBFC's door opens it after that."
+      }
     },
     {
       "key": "bryn",

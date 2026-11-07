@@ -1,0 +1,36 @@
+{
+  "key": "tony",
+  "name": "Tony",
+  "title": "The Accountant",
+  "line": "Keeps the books with you: sorts bank lines, codes them, closes the month, and leaves the live money to a person.",
+  "status": "live",
+  "door": {
+    "local": "http://127.0.0.1:7560/",
+    "phone": null
+  },
+  "probe": {
+    "port": 7560,
+    "path": "/health"
+  },
+  "start": "node dashboard/server.js",
+  "autostart": true,
+  "match": [
+    "tony",
+    "accountant"
+  ],
+  "brand": {
+    "bg": "#15181F",
+    "panel": "#30343E",
+    "ink": "#EEF2F8",
+    "accent": "#8A93A6",
+    "accent2": "#B3B9C5",
+    "font": "Inter, system-ui, sans-serif",
+    "mark": "mark.svg"
+  },
+  "art": "art.svg",
+  "jokes": [
+    "Tony here. Debits on the left, as always.",
+    "Every line has a home. I just have to find it.",
+    "Live money is yours. Everything else, hand it here."
+  ]
+}
