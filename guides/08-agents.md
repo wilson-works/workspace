@@ -66,6 +66,14 @@ office appears in the Agents wing.
 Then fill it in. Lesson GS-09 of the course does this with you: an interview about the job, its
 rules and its facts, a practice run, and one fix from what the practice showed.
 
+### Make your own executive assistant
+
+`node 50-AI/workspace/agents/bin/new-agent.js --ask` (or `new-agent.js` with nothing after it, at a
+keyboard) asks seven short questions: their name, what they help you with, how they talk to you, and
+their look (skin tone, hair, glasses, the colour of their suit). It then makes the agent as above,
+with its figure and door sign drawn in the same style as Louise and Kody (`agents/lib/figure.js`), and
+how they talk written into their `CLAUDE.md`.
+
 ## Install one of ours
 
 The installer offers Louise, the research librarian, after it sets up your agents folder. To install
@@ -108,6 +116,8 @@ These are the agents of ours anyone can install, from `agents/catalog.json`:
 | Agent | What it does | Price | Install |
 |---|---|---|---|
 | **Louise**, The Research Librarian | Researches your questions with a source for every fact, and keeps what she finds on shelves you can browse. | free | `install-agent louise` |
+| **Tony**, The Accountant | Keeps the books with you and leaves the live money to a person. His basic setup; his full training is a private package, added only by people with access ([guide 11](11-team-install.md)). | free | `install-agent tony` |
+| **CBFC**, The Academy | A door that opens the CBFC Academy on this computer. The Academy is private to the firm and installed on its own. | free | `install-agent cbfc` |
 | **Bryn**, The Trail Guide | Helps you think a decision through. Five scouts weigh it on their own, she looks for where the plan could fail, and she keeps your call so you never argue it twice. | free | `install-agent bryn` |
 
 `node 50-AI/workspace/agents/bin/agent.js catalog` lists them on your computer and says which ones

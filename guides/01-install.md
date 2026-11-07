@@ -4,6 +4,9 @@ About 20 minutes, most of it downloads. You need a computer running Windows or m
 the same way as macOS). You don't need to be a developer: you paste one line, answer a few
 questions, and the installer shows you what it will do before it does it.
 
+Setting up a firm's staff with Louise, Tony and CBFC? Use the team steps in
+[guide 11](11-team-install.md) instead.
+
 Rather have Claude do it all with you, starting with how you want your office to look and feel? Open an
 empty `Hub` folder in Claude Code and paste the one line at the top of [SETUP.md](../SETUP.md).
 
