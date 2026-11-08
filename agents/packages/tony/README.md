@@ -22,6 +22,14 @@ A basic setup for the WilsonWorks Workspace (2026-11-06). The contract it follow
 - Start its dashboard: `node agents/bin/agent.js start tony` from the Workspace folder.
 - Stop it: `node agents/bin/agent.js stop tony`.
 
+## His work log (for checking his accuracy)
+
+Each time Tony finishes a piece of work in a chat on your Hub, one line goes to
+`50-AI/logs/tony/<YYYY-MM>.jsonl`: the time, the client code (C01, never a name), the kind of task,
+the tools he used, any step you refused, the model and how long it took. Your next message adds
+one word on how it went: accepted, corrected or rejected. Never names, amounts, memos, bank text,
+file contents or your words. The office's hooks write it (`.claude/hooks/tony-log.js`).
+
 ## Teach it
 
 Tell it what it got wrong. It writes the lesson to `memory/`, and a mistake that must never happen
