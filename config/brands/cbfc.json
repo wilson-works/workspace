@@ -11,6 +11,7 @@
     "_ds/*/tokens/typography.css",
     "_ds/*/tokens/spacing.css"
   ],
+  "without": ["office-world"],
   "look": "academy",
   "scheme": "light"
 }
