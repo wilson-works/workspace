@@ -16,7 +16,7 @@ When you finish, this computer has:
   private to the firm and is installed on its own (step 7);
 - the way to **make your own executive assistant** by answering seven short questions (step 8);
 - **today's office in CBFC's look** (step 10): Today with Kody as your own assistant, your boards on Work,
-  Learn, the Calendar, and the Agents wing with Kody, Louise, Tony and Nick, plus Ask CBFC and the CBFC Tax
+  Learn, the Calendar, and the Agents wing with Kody, Louise and Tony, plus Ask CBFC and the CBFC Tax
   Planner from your Academy. It comes as a ZIP from the firm, because it is private to the firm.
 
 ## Read this first
@@ -255,7 +255,7 @@ address and bookmark, http://127.0.0.1:4316/. It needs steps 5 and 7 done first.
 2. Paste the one line from that guide (PC in PowerShell, Mac in Terminal). It asks
    `What should Kody call you?`: type your first name and press Return (Enter).
 
-**You should see** five parts (`check`, `assistant`, `agents`, `login`, `office`) and, at the end,
+**You should see** a few parts, starting with `check` and ending with `office`, and, at the end,
 `... change(s) made. Open http://127.0.0.1:4316/ (reload it if it was open).` Reload the office page: it
 says `Good morning, <your name>`, with the **Morning with Kody** box. The firm's guide says what each door
 opens and what to do if something goes wrong.
