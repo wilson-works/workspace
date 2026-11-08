@@ -11,6 +11,7 @@
     "_ds/*/tokens/typography.css",
     "_ds/*/tokens/spacing.css"
   ],
+  "universe": "org-chart",
   "without": ["office-world"],
   "without_agents": ["bert", "bryn", "nick", "avo", "steady", "tumble"],
   "look": "academy",
