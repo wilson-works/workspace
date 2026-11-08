@@ -157,11 +157,23 @@ function More() {
   );
 }
 
+// A white-label theme (brand.theme, checked by the server: token names and plain colours only) as
+// CSS that comes after office.css, so it re-themes the whole office, light and dark.
+function themeCss(theme) {
+  if (!theme) return '';
+  const decl = (m) => Object.entries(m || {}).map(([k, v]) => `--${k}: ${v};`).join(' ');
+  let css = '';
+  if (theme.light) css += `:root { ${decl(theme.light)} }\n`;
+  if (theme.dark) css += `@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { ${decl(theme.dark)} } }\n`;
+  return css;
+}
+
 // Whose office this is (workspace.config.json): the name in the bar and the tab,
-// and the orb's two colours.
+// the orb's two colours, and a white-label theme when there is one.
 function useBrand(brand) {
   const name = (brand && brand.name) || 'WorkSpace';
   const colors = brand && brand.colors;
+  const css = themeCss(brand && brand.theme);
   useEffect(() => {
     document.title = brand && brand.company ? `${name} · ${brand.company}` : name;
     if (colors && colors.length >= 2) {
@@ -169,6 +181,12 @@ function useBrand(brand) {
       document.documentElement.style.setProperty('--brand-2', colors[1]);
     }
   }, [name, brand && brand.company, colors && colors.join()]);
+  useEffect(() => {
+    let el = document.getElementById('brand-theme');
+    if (!css) { if (el) el.remove(); return; }
+    if (!el) { el = document.createElement('style'); el.id = 'brand-theme'; document.head.appendChild(el); }
+    el.textContent = css;
+  }, [css]);
   return name;
 }
 

@@ -65,6 +65,7 @@ function page(m, installed) {
   const panel = colour(b.panel, '#16213E');
   const ink = colour(b.ink, '#E6EDF7');
   const accent = colour(b.accent, '#38BDF8');
+  const onAccent = colour(b.on_accent, bg);
   const body = installed
     ? `<h2>The Academy is installed, but it is not running right now.</h2>
 <ol><li>Double-click <strong>CBFC Academy</strong> on your Desktop.</li>
@@ -74,7 +75,8 @@ function page(m, installed) {
 <p>The Academy is the firm's private library, with Ask CBFC and Planning. It does not come with the Workspace, so it is installed on its own.</p>
 <ol><li>Ask the firm's office manager for the <strong>CBFC Academy install guide</strong> and its install file (a <strong>CBFC-Academy</strong> ZIP in the firm's Google Drive).</li>
 <li>Follow the guide's steps for a Mac or a PC. It takes about 20 minutes.</li>
-<li>Come back to this door and press <strong>Try again</strong>. It opens the Academy at ${esc(ACADEMY)}.</li></ol>`;
+<li>Come back to this door and press <strong>Try again</strong>. It opens the Academy at ${esc(ACADEMY)}.</li></ol>
+<p class="also">Already installed it? Double-click <strong>CBFC Academy</strong> on your Desktop, wait about ten seconds, then press <strong>Try again</strong>.</p>`;
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(m.name)} · ${installed ? 'Academy not running' : 'Academy not installed'}</title>
@@ -87,14 +89,15 @@ function page(m, installed) {
   header { display: flex; gap: 16px; align-items: center; }
   header img { width: 64px; height: 64px; border-radius: 16px; }
   h1 { margin: 0; font-size: 28px; }
-  .title { margin: 2px 0 0; color: ${accent}; font-weight: 600; }
+  .title { margin: 2px 0 0; color: ${ink}; opacity: .8; font-weight: 600; }
+  .also { margin: 14px 0 0; }
   .note { margin-top: 24px; background: color-mix(in srgb, ${panel} 80%, transparent); border: 1px solid color-mix(in srgb, ${accent} 30%, transparent);
           border-radius: 16px; padding: 20px; line-height: 1.6; }
   h2 { margin: 0 0 8px; font-size: 19px; }
   ol { padding-left: 22px; margin: 8px 0 0; }
   li { margin: 6px 0; }
   a.again { display: inline-block; margin-top: 20px; min-height: 44px; padding: 11px 20px; border-radius: 12px; background: ${accent};
-            color: ${bg}; font-weight: 700; text-decoration: none; }
+            color: ${onAccent}; font-weight: 700; text-decoration: none; }
   a.again:focus-visible { outline: 3px solid ${ink}; outline-offset: 3px; }
   footer { margin-top: 24px; font-size: 13px; opacity: .7; }
 </style></head>

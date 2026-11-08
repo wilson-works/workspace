@@ -98,7 +98,7 @@ h2, h3, p { margin: 0; }
   background-image: radial-gradient(circle at 30% 30%, var(--brand-1, #A855F7), var(--brand-2, #6D28D9));
   box-shadow: 0 0 0 5px color-mix(in srgb, var(--brand-2, #6D28D9) 14%, transparent), 0 0 10px color-mix(in srgb, var(--brand-2, #6D28D9) 35%, transparent);
 }
-.brand-logo { width: 22px; height: 22px; object-fit: contain; flex: none; }
+.brand-logo { width: auto; height: 22px; max-width: 96px; object-fit: contain; flex: none; border-radius: 3px; }
 .brand-company { font-weight: 500; color: var(--muted); }
 .machines { display: flex; gap: 4px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
 .machine {
@@ -822,10 +822,10 @@ body::after {
   opacity: var(--stars);
   background-image:
     radial-gradient(1px 1px at 10% 20%, #e0e7ff, transparent),
-    radial-gradient(1px 1px at 30% 52%, #c4b5fd, transparent),
-    radial-gradient(1.5px 1.5px at 50% 12%, #a855f7, transparent),
+    radial-gradient(1px 1px at 30% 52%, var(--flow), transparent),
+    radial-gradient(1.5px 1.5px at 50% 12%, var(--brand-1, #a855f7), transparent),
     radial-gradient(1px 1px at 72% 80%, #c7d2fe, transparent),
-    radial-gradient(2px 2px at 90% 40%, #7c3aed, transparent),
+    radial-gradient(2px 2px at 90% 40%, var(--brand-2, #7c3aed), transparent),
     radial-gradient(1px 1px at 18% 86%, #e0e7ff, transparent),
     radial-gradient(1px 1px at 62% 66%, #a5b4fc, transparent);
   background-size: 520px 520px;
@@ -857,7 +857,7 @@ body::after {
 /* The bar: the wordmark, and the place you are in the brand's orb gradient. */
 .brand-name { font-weight: 800; letter-spacing: -0.035em; font-size: 15.5px; }
 .tabs-top .tab.on, .machine.on {
-  background-image: radial-gradient(circle at 30% 30%, #a855f7, #6d28d9); color: #fff;
+  background-image: radial-gradient(circle at 30% 30%, var(--brand-1, #a855f7), var(--brand-2, #6d28d9)); color: #fff;
   box-shadow: 0 6px 18px -8px var(--glow);
 }
 .flow-line { stroke: var(--flow); }
@@ -876,11 +876,11 @@ body::after {
 }
 .pulse-dot {
   width: 12px; height: 12px; border-radius: 50%;
-  background-image: radial-gradient(circle at 30% 30%, #a855f7, #6d28d9);
-  box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.14), 0 0 12px var(--glow);
+  background-image: radial-gradient(circle at 30% 30%, var(--brand-1, #a855f7), var(--brand-2, #6d28d9));
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand-2, #7c3aed) 14%, transparent), 0 0 12px var(--glow);
 }
 .pulse.is-busy .pulse-dot { animation: orbpulse 2.4s ease-in-out infinite; }
-@keyframes orbpulse { 50% { box-shadow: 0 0 0 7px rgba(124, 58, 237, 0.08), 0 0 22px var(--glow); transform: scale(1.08); } }
+@keyframes orbpulse { 50% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--brand-2, #7c3aed) 8%, transparent), 0 0 22px var(--glow); transform: scale(1.08); } }
 .pulse-stats { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .pulse-stats li {
   display: inline-flex; align-items: baseline; gap: 6px; padding: 6px 12px; border-radius: 999px;
@@ -916,7 +916,7 @@ body::after {
 .ring-sparks { position: absolute; inset: 0; pointer-events: none; }
 .ring-sparks i {
   position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; margin: -3.5px; border-radius: 50%;
-  background-image: radial-gradient(circle at 30% 30%, #c4b5fd, #7c3aed);
+  background-image: radial-gradient(circle at 30% 30%, var(--flow), var(--accent));
   animation: spark 1.2s ease-out 1 forwards;
 }
 .ring-sparks i:nth-child(1) { --dx: 0px; --dy: -34px; }
@@ -1009,7 +1009,7 @@ body::after {
 .aplaque-desks { opacity: 0.85; }
 .aenter {
   margin-top: 4px; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 22px; border-radius: 999px;
-  background: var(--a-accent); color: var(--a-bg); font-weight: 750; text-decoration: none;
+  background: var(--a-accent); color: var(--a-on-accent, var(--a-bg)); font-weight: 750; text-decoration: none;
   box-shadow: 0 10px 26px -12px var(--a-accent); transition: transform 0.15s;
 }
 .aenter:hover { transform: translateY(-1px); }
@@ -1326,8 +1326,8 @@ button.atalk:disabled { cursor: progress; }
 .net-top { display: flex; align-items: center; gap: 14px; }
 .net-you-orb {
   width: 40px; height: 40px; border-radius: 50%; flex: none;
-  background-image: radial-gradient(circle at 30% 30%, #A855F7, #6D28D9);
-  box-shadow: 0 0 0 7px rgba(124, 58, 237, 0.12), 0 0 18px rgba(124, 58, 237, 0.4);
+  background-image: radial-gradient(circle at 30% 30%, var(--brand-1, #A855F7), var(--brand-2, #6D28D9));
+  box-shadow: 0 0 0 7px color-mix(in srgb, var(--brand-2, #7c3aed) 12%, transparent), 0 0 18px color-mix(in srgb, var(--brand-2, #7c3aed) 40%, transparent);
 }
 .net-you { flex: 1; min-width: 0; }
 .net-you h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
@@ -1386,7 +1386,7 @@ button.atalk:disabled { cursor: progress; }
     position: fixed; right: 16px; bottom: calc(72px + env(safe-area-inset-bottom)); z-index: 45;
     display: inline-flex; align-items: center; justify-content: center; width: 54px; height: 54px; border-radius: 50%;
     border: 0; background: var(--you); color: var(--you-ink); cursor: pointer;
-    box-shadow: 0 10px 24px -8px rgba(109, 40, 217, 0.7), 0 0 0 6px rgba(124, 58, 237, 0.12);
+    box-shadow: 0 10px 24px -8px color-mix(in srgb, var(--brand-2, #6d28d9) 70%, transparent), 0 0 0 6px color-mix(in srgb, var(--brand-2, #7c3aed) 12%, transparent);
   }
   .dsheet-wrap { padding: 0; align-items: stretch; }
   .dsheet { width: 100%; max-height: none; height: 100%; border-radius: 0; border: 0; }

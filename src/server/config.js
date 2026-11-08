@@ -24,6 +24,22 @@ const DEFAULT_COLORS = ['#A855F7', '#6D28D9'];
 const POOLS = ['trees', 'stars', 'rivers'];
 const NAME_RE = /^[A-Z0-9][A-Z0-9-]{0,23}$/;
 const HEX_RE = /^#[0-9a-f]{6}$/i;
+// brand.theme: the office's own colour tokens (office.css :root), light and dark, for a white-label
+// office such as config/brands/cbfc.json. Only these names, and only plain colours, reach the page.
+const THEME_KEYS = ['bg', 'room', 'card', 'card-hover', 'line', 'ink', 'ink-2', 'muted', 'accent', 'accent-soft',
+  'said', 'you', 'you-ink', 'glow', 'progress', 'aurora-1', 'aurora-2', 'aurora-3', 'flow'];
+const COLOUR_RE = /^(#[0-9a-f]{3,8}|rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(,\s*(0|1|0?\.\d+)\s*)?\))$/i;
+function themeOf(t) {
+  if (!t || typeof t !== 'object') return null;
+  const out = {};
+  for (const mode of ['light', 'dark']) {
+    const src = t[mode] && typeof t[mode] === 'object' ? t[mode] : {};
+    const m = {};
+    for (const k of THEME_KEYS) if (typeof src[k] === 'string' && COLOUR_RE.test(src[k].trim())) m[k] = src[k].trim();
+    if (Object.keys(m).length) out[mode] = m;
+  }
+  return Object.keys(out).length ? out : null;
+}
 
 function file() {
   return process.env.WORKSPACE_CONFIG || path.join(ROOT, 'workspace.config.json');
@@ -102,7 +118,8 @@ function normalize(raw) {
     : DEFAULT_COLORS;
   let logo = str(brand.logo);
   if (logo) {
-    logo = path.resolve(ROOT, logo);
+    // "~/..." is the user's home, so one brand file works on every computer (and on a Mac and a PC).
+    logo = path.resolve(ROOT, logo.replace(/^~(?=[\\/])/, os.homedir()));
     if (!/\.(svg|png)$/i.test(logo) || !fs.existsSync(logo)) logo = null;
   }
   const hubUrl = str(r.hub_url);
@@ -115,7 +132,7 @@ function normalize(raw) {
   return {
     use: str(r.use) === 'company' ? 'company' : 'personal',
     owner: { name: str(owner.name) },
-    brand: { office_name: str(brand.office_name) || 'WorkSpace', company: str(brand.company), colors, logo },
+    brand: { office_name: str(brand.office_name) || 'WorkSpace', company: str(brand.company), colors, logo, theme: themeOf(brand.theme) },
     machines,
     hub_url: hubUrl && /^https?:\/\//i.test(hubUrl) ? hubUrl.replace(/\/+$/, '') : null,
     code_roots: list(r.code_roots),
@@ -304,6 +321,7 @@ function brand() {
     owner: c.owner.name,
     colors: c.brand.colors,
     logo: !!c.brand.logo,
+    theme: c.brand.theme,
   };
 }
 

@@ -19,11 +19,12 @@
     "academy"
   ],
   "brand": {
-    "bg": "#0C1A20",
-    "panel": "#183A40",
-    "ink": "#EEF2F8",
-    "accent": "#3FA7AC",
-    "accent2": "#82C6C9",
+    "bg": "#1C1C20",
+    "panel": "#2E2E34",
+    "ink": "#F2F2F3",
+    "accent": "#D40032",
+    "accent2": "#FF003B",
+    "on_accent": "#FFFFFF",
     "font": "Inter, system-ui, sans-serif",
     "mark": "mark.svg"
   },

@@ -9,7 +9,7 @@
  *                   [--owner <name>] [--office-port <n>] [--skills-scope hub|user]
  *                   [--skills-source <git url or path>] [--fleet none|create|join]
  *                   [--fleet-repo <owner/name|url>] [--create-repo] [--no-start] [--startup]
- *                   [--agent <key>] [--skip <part,part>] [--remove]
+ *                   [--agent <key>] [--brand <name>] [--skip <part,part>] [--remove]
  *
  * The parts, in order. Each prints its plan first, then does it after a yes (or at once under --yes):
  *   check   Node 20+ and git are required; Python 3, gh, Claude Code and Tailscale are optional and
@@ -68,7 +68,7 @@ const PARTS = ['check', 'hub', 'office', 'skills', 'agents', 'fleet'];
 const ROLES = ['command', 'builder', 'mobile'];
 const DEFAULT_PORT = 4316;
 const VALUE_FLAGS = new Set(['--hub', '--machine', '--role', '--owner', '--office-port', '--skills-scope',
-  '--skills-source', '--fleet', '--fleet-repo', '--skip', '--agent']);
+  '--skills-source', '--fleet', '--fleet-repo', '--skip', '--agent', '--brand']);
 const BOOL_FLAGS = new Set(['--dry-run', '--yes', '--create-repo', '--no-start', '--startup', '--remove', '--help']);
 
 const HELP = `The WilsonWorks Workspace installer: your Hub, the starter skills and the office, in one go.
@@ -93,6 +93,8 @@ Options:
   --startup                  start the office when you log in
   --agent <key,key>          install our agents without asking: louise, or several,
                              louise,tony,cbfc (node agents/bin/agent.js catalog lists them)
+  --brand <name>             a firm's own look for the office, from config/brands/<name>.json
+                             (cbfc). Added only when your settings have no brand yet
   --skip <parts>             leave out parts: check,hub,office,skills,agents,fleet
 
 Marks: + add  ~ change  = already there  ! yours differs (kept)  - remove`;
@@ -168,6 +170,16 @@ function parseArgs(argv, opts) {
   }
   const interactive = opts && opts.interactive;
   if (o.fleet === 'join' && !o.fleetRepo && !interactive) throw new Refusal('--fleet join needs --fleet-repo <owner/name>.');
+  if (o.brand !== undefined) {
+    const dir = path.join(ROOT, 'config', 'brands');
+    const names = (() => { try { return fs.readdirSync(dir).filter((f) => /\.json$/i.test(f)).map((f) => f.replace(/\.json$/i, '')).sort(); } catch (_) { return []; } })();
+    const key = o.brand.toLowerCase();
+    if (!names.includes(key)) throw new Refusal(`--brand: there is no brand called "${o.brand}". There is: ${names.join(', ') || 'none'}.`);
+    const preset = JSON.parse(fs.readFileSync(path.join(dir, `${key}.json`), 'utf8'));
+    delete preset._readme;
+    o.brand = key;
+    o.brandPreset = preset;
+  }
   if (o.agent !== undefined) {
     o.agents = o.agent.toLowerCase().split(',').map((k) => k.trim()).filter(Boolean);
     if (o.skip.has('agents')) throw new Refusal('--agent installs the agent in the agents part, so it cannot go with --skip agents.');
@@ -544,7 +556,9 @@ async function partOffice(ctx) {
       machines: [{ name: ctx.machine, computer: c.thisComputer(), hub: true }],
       office: { port, home: wantHome },
     };
+    if (o.brandPreset) fresh.brand = o.brandPreset;
     out(`  + ${show(ctx, cfgFile)}: ${ctx.owner ? `${ctx.owner}'s office, ` : ''}this computer as ${ctx.machine} (the hub), port ${port}, the office's files in ${wantHome}`);
+    if (o.brandPreset) out(`  + the ${o.brandPreset.office_name || o.brand} look: its name, colours and logo (config/brands/${o.brand}.json)`);
     actions.push(() => inst().writeJson(cfgFile, fresh));
   } else {
     let raw;
@@ -566,6 +580,19 @@ async function partOffice(ctx) {
     const curHome = cur.office.home || platformHome();
     if (!samePath(curHome, wantHome)) kept.push(`office.home: yours is ${curHome}; the installer would use ${wantHome}`);
     else out(`  = office.home ${curHome}`);
+    // --brand adds a firm's look only where there is none yet: an existing brand is yours and is kept.
+    if (o.brandPreset) {
+      const look = `the ${o.brandPreset.office_name || o.brand} look`;
+      if (!raw.brand) {
+        out(`  + ${look}: its name, colours and logo (config/brands/${o.brand}.json)`);
+        actions.push(() => {
+          const b = inst().backup(cfgFile);
+          inst().writeJson(cfgFile, Object.assign({}, raw, { brand: o.brandPreset }));
+          if (b) out(`  Your old settings are in ${path.basename(b)}.`);
+        });
+      } else if (JSON.stringify(raw.brand) === JSON.stringify(o.brandPreset)) out(`  = ${look}`);
+      else kept.push(`brand: yours is kept; the installer would use ${look}`);
+    }
     for (const k of kept) out(`  ! ${k}`);
     if (kept.length) out(`    (${show(ctx, cfgFile)} is yours and is kept as it is. To change it, say "set up my WorkSpace" in a chat.)`);
     officeHome = envHome ? path.resolve(envHome) : curHome;
