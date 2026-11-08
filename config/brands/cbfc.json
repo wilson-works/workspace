@@ -15,6 +15,7 @@
   "work": "boards",
   "learn": "50-AI/workspace",
   "courses": ["firm-start"],
+  "one_computer": true,
   "lanes": ["cbfc", "personal"],
   "without": ["office-world"],
   "without_agents": ["bert", "bryn", "nick", "avo", "steady", "tumble"],
