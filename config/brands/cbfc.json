@@ -12,6 +12,7 @@
     "_ds/*/tokens/spacing.css"
   ],
   "universe": "org-chart",
+  "lanes": ["cbfc", "personal"],
   "without": ["office-world"],
   "without_agents": ["bert", "bryn", "nick", "avo", "steady", "tumble"],
   "look": "academy",
