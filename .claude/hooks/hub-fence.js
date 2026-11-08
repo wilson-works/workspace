@@ -1,0 +1,147 @@
+#!/usr/bin/env node
+/**
+ * hub-fence.js — the Hub fence: Claude reads and changes files only inside the Hub, so the rest of
+ * the computer stays private. Added by `node install.js --fence` as a PreToolUse hook in the Hub's
+ * own .claude/settings.json, next to two Claude Code settings that do the main work:
+ *
+ *   permissions.blockReadsOutsideWorkingDirectories / blockWritesOutsideWorkingDirectories
+ *     Claude Code itself refuses its file tools outside the folder the chat is open on, in every
+ *     mode. (blockWrites needs Claude Code 2.1.314 or newer; an older one ignores it.)
+ *
+ * This hook is the second layer, and the only one for shell commands on Windows, where Claude Code
+ * has no sandbox. It refuses, with a reason the session reads:
+ *   - Read, Write, Edit, MultiEdit, NotebookEdit: a file outside the Hub;
+ *   - Glob, Grep, LS: a folder (or an absolute pattern) outside the Hub;
+ *   - Bash, PowerShell: a command that names a path outside the Hub: C:\..., /c/..., /Users/...,
+ *     ~, $HOME, %USERPROFILE%, $env:APPDATA and the like, or ..\.. past the Hub; and a command that
+ *     asks Windows for a personal folder ([Environment]::GetFolderPath).
+ * Inside means the Hub (argv[2]) or the system temp folder. Claude's own plugins (~/.claude/plugins)
+ * may be read, never changed: a private plugin such as Tony's full training lives there.
+ *
+ * Honest limit: it reads a command, it does not run it. A command that builds a path at run time
+ * (a script that opens a file it computes) can get past it.
+ * It never breaks a session: if the hook itself fails, the call goes ahead and Claude Code's own
+ * block still stands. It prints nothing unless it refuses.
+ */
+
+'use strict';
+
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+
+const WIN = process.platform === 'win32';
+const norm = (p) => {
+  const r = path.resolve(p).replace(/[\\/]+$/, '');
+  return WIN || process.platform === 'darwin' ? r.toLowerCase() : r;
+};
+const within = (p, root) => { const a = norm(p); const b = norm(root); return a === b || a.startsWith(b + path.sep); };
+
+// Folders a POSIX shell names from its root. Anything else starting with "/" (a sed or awk pattern,
+// a Windows switch such as /E) is not taken for a path.
+const POSIX_ROOTS = /^\/(Users|home|etc|var|private|Volumes|opt|usr|root|mnt|Library|System|Applications|bin|sbin|srv|media|dev|tmp|cygdrive)(\/|$)/;
+const ENV_DIRS = ['USERPROFILE', 'HOME', 'HOMEPATH', 'APPDATA', 'LOCALAPPDATA', 'OneDrive', 'OneDriveConsumer',
+  'OneDriveCommercial', 'PUBLIC', 'ProgramData', 'ALLUSERSPROFILE', 'TEMP', 'TMP', 'SystemDrive', 'SystemRoot', 'windir'];
+
+function hubOf() {
+  if (process.argv[2]) return path.resolve(process.argv[2]);
+  // <Hub>/50-AI/workspace/.claude/hooks/hub-fence.js
+  return path.resolve(__dirname, '..', '..', '..', '..');
+}
+
+/** A shell word with $HOME, ~, %VAR%, $env:VAR expanded, as far as this hook can tell. */
+function expand(word) {
+  let w = word;
+  const env = (name) => {
+    const key = Object.keys(process.env).find((k) => k.toLowerCase() === name.toLowerCase());
+    if (name.toLowerCase() === 'home' && !key) return os.homedir();
+    if (name.toLowerCase() === 'homepath' && key) return (process.env.HOMEDRIVE || '') + process.env[key];
+    return key ? process.env[key] : null;
+  };
+  if (w === '~' || /^~[\\/]/.test(w)) w = os.homedir() + w.slice(1);
+  w = w.replace(/\$\{?env:([A-Za-z_][A-Za-z0-9_]*)\}?/gi, (m, n) => env(n) || m);
+  w = w.replace(/%([A-Za-z_][A-Za-z0-9_]*)%/g, (m, n) => (ENV_DIRS.some((d) => d.toLowerCase() === n.toLowerCase()) ? env(n) || m : m));
+  w = w.replace(/\$\{?(HOME|USERPROFILE|TMPDIR|TEMP|TMP)\}?/g, (m, n) => env(n) || m);
+  return w;
+}
+
+/** The absolute path a word names, or null when it is not a path this hook can place. */
+function placeOf(word, cwd) {
+  if (!word || word.includes('://')) return null;
+  const w = expand(word);
+  if (/^[A-Za-z]:([\\/]|$)/.test(w) || /^\\\\[^\\]/.test(w)) return w.length === 2 ? `${w}\\` : w;
+  // Git Bash names drive C: as /c/. Only a drive this computer has counts (an awk '/x/' does not).
+  if (WIN && /^\/[A-Za-z](\/|$)/.test(w) && fs.existsSync(`${w[1]}:\\`)) return `${w[1]}:\\${w.slice(3).replace(/\//g, '\\')}`;
+  if (POSIX_ROOTS.test(w)) {
+    if (/^\/dev\/(null|stdout|stderr|stdin|tty)$/.test(w)) return null;
+    if (WIN && /^\/tmp(\/|$)/.test(w)) return path.join(os.tmpdir(), w.slice(4));
+    return w;
+  }
+  if (/(^|[\\/])\.\.([\\/]|$)/.test(w)) return path.resolve(cwd, w);
+  return null;
+}
+
+/** The words of a shell command, quotes taken off, with --flag=VALUE and >FILE split out. */
+function words(cmd) {
+  const out = [];
+  for (const raw of String(cmd).match(/"[^"]*"|'[^']*'|[^\s"'|;&<>(){}]+/g) || []) {
+    const t = raw.replace(/^["']|["']$/g, '');
+    out.push(t);
+    const eq = t.indexOf('=');
+    if (eq > 0) out.push(t.slice(eq + 1));
+  }
+  return out;
+}
+
+function decide(input, hub) {
+  const tool = String(input.tool_name || '');
+  const ti = input.tool_input || {};
+  const cwd = input.cwd || process.cwd();
+  const temp = os.tmpdir();
+  const plugins = path.join(os.homedir(), '.claude', 'plugins');
+  const ok = (p, readOnly) => within(p, hub) || within(p, temp) || (readOnly && within(p, plugins));
+
+  if (['Read', 'Write', 'Edit', 'MultiEdit', 'NotebookEdit'].includes(tool)) {
+    const f = ti.file_path || ti.notebook_path;
+    if (!f) return null;
+    const p = path.resolve(cwd, expand(String(f)));
+    return ok(p, tool === 'Read') ? null : p;
+  }
+  if (['Glob', 'Grep', 'LS'].includes(tool)) {
+    const dir = path.resolve(cwd, expand(String(ti.path || '.')));
+    if (!ok(dir, true)) return dir;
+    const pat = ti.pattern && tool === 'Glob' ? placeOf(String(ti.pattern).split(/[*?[{]/)[0], cwd) : null;
+    if (pat && !ok(path.resolve(cwd, pat), true)) return pat;
+    return null;
+  }
+  if (tool === 'Bash' || tool === 'PowerShell') {
+    const cmd = String(ti.command || '');
+    if (/GetFolderPath|SpecialFolder|Shell\.Application/i.test(cmd)) return 'a personal folder of this computer';
+    for (const w of words(cmd)) {
+      const p = placeOf(w, cwd);
+      if (p && !ok(p, false)) return p;
+    }
+    return null;
+  }
+  return null;
+}
+
+function main() {
+  let text = '';
+  process.stdin.setEncoding('utf8');
+  process.stdin.on('data', (c) => { text += c; });
+  process.stdin.on('end', () => {
+    try {
+      const input = JSON.parse(text || '{}');
+      const hub = hubOf();
+      const outside = decide(input, hub);
+      if (!outside) return;
+      const reason = `Outside the Hub: ${outside}. The Hub fence keeps Claude inside ${hub}, so the rest of this computer stays private. `
+        + 'Work inside the Hub instead. If the person needs a file from somewhere else, ask them to copy it into 00-Inbox in the Hub first.';
+      process.stdout.write(JSON.stringify({ hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: 'deny', permissionDecisionReason: reason } }));
+    } catch (_) { /* never break a session: Claude Code's own block still stands */ }
+  });
+}
+
+if (require.main === module) main();
+module.exports = { decide, placeOf, words, expand };
