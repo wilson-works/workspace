@@ -14,7 +14,7 @@ Work at a firm is clients, deadlines, follow-ups and the admin around them. In t
 
 ## Do this
 
-**1. Make a board.** Think of how your work moves. Month-end might be To do, Waiting on client, In review, Done. On the **Work** page make a new board, or in a chat on your Hub paste:
+**1. Make a board.** Think of how your work moves. On the **Work** page press **New board** and pick a starting point (Month-end close is To do, Waiting on client, In progress, Review, Done), then use **Board settings** to rename the columns your way. Or in a chat on your Hub paste:
 
 ```
 Make me a board called "<name>" with the columns <column 1>, <column 2>, <column 3>, <column 4>. Then add these cards to the first column: <your real tasks for this week, one per line, with a due date if there is one>.
@@ -24,19 +24,21 @@ Use client codes, not names, in card titles.
 
 **2. Connect your Google calendar.** In the office: **Calendar**, then **Calendars**. In Google Calendar on a computer: **Settings**, your calendar under "Settings for my calendars", **Integrate calendar**, and copy the **Secret address in iCal format**. Paste it into the right box and press **Connect all**. The office only reads it; it never changes your Google calendar.
 
-**3. Schedule the tasks.** On a card, choose **Put it on my calendar**, or schedule the whole board at once. Paste:
+**3. Schedule the tasks.** Tap a card, set how long it **takes about**, and press **Find me a time**. Or schedule the whole board at once. Paste:
 
 ```
-Put the cards in the first column of my "<board name>" board on my calendar as proposed blocks, around my meetings, deadlines first. Tell me how long you assumed each one takes.
+For each card in the first column of my "<board name>" board, find it a time on my calendar, deadlines first. Tell me how long you assumed each one takes, and set that on the card first.
 ```
 
 Then open **Calendar** and **Accept**, move or **Decline** each proposal.
 
-**4. Add a repeating task.** Pick something that comes back every week or month. Paste:
+**4. Add a repeating task.** Pick something that comes back every week or month. On its card set a due date and **Repeats**, or paste:
 
 ```
-Add a repeating task "<name>" to my "<board name>" board, every <day or date>, and propose a <length> block on my calendar for it each time.
+Add a task "<name>" to my "<board name>" board, due <date>, repeating every <week or month>, taking about <length>. Then find it a time on my calendar.
 ```
+
+When you finish it, drag it to the last column: it comes back in the first column with its next due date.
 
 **5. Try Plan my day.** On the Calendar page, press **Plan my day** and look at what your assistant proposes.
 

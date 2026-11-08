@@ -100,8 +100,9 @@ hours of focused work a day. Show me the week before you propose any blocks.
 **Schedule these tasks around my calendar**
 
 ```
-Put these tasks on my calendar as proposed blocks, around my meetings: <task, how long, due date; one
-per line>. I'll accept or move them on the Calendar page.
+Add these tasks to my "<board>" board with how long each takes and its due date, then find each one a
+time on my calendar: <task, how long, due date; one per line>. I'll accept or move them on the
+Calendar page.
 ```
 
 **What did I get done?**
@@ -123,15 +124,21 @@ Then add these cards to the first column: <one per line, with a due date if ther
 **A tax-season board**
 
 ```
-Make me a board called "Tax season" with the columns Documents in, Preparing, Questions out, Ready
-to sign, Filed. Add a card for each of these client codes in the first column: <codes>.
+Make me a "Tax season" board from the tax-season starter. Add a card for each of these client codes
+in the first column: <codes>.
 ```
 
 **A repeating task**
 
 ```
-Add a repeating task "<name>" to my <board> board, every <day or date> starting <date>, and put a
-<length> block on my calendar for it each time, as a proposal.
+Add a task "<name>" to my <board> board, due <date>, repeating every <day, week or month>, taking
+about <length>. Then find it a time on my calendar.
+```
+
+**Move a card along**
+
+```
+On my <board> board, move "<task>" to <column>.
 ```
 
 **What's late?**

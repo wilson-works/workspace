@@ -47,30 +47,44 @@ follow-ups and the admin around them. The Work page holds it as boards.
 ### Boards
 
 A board is a list of cards in columns, like sticky notes on a wall (it is often called a kanban).
-You make as many boards as you like and name the columns yourself. Some examples:
+You make as many boards as you like and name the columns yourself. On the Work page, **New board**
+offers five starting points:
 
-- **Month-end:** To do · Waiting on client · In review · Done
-- **Tax season:** Documents in · Preparing · Questions out · Ready to sign · Filed
-- **Admin:** This week · Waiting · Done
+- **Month-end close:** To do · Waiting on client · In progress · Review · Done
+- **Tax season:** Documents in · Preparing · Questions out · Review · Filed
+- **Admin and office:** To do · This week · Doing · Done
+- **Client onboarding:** New · Paperwork · Set up · First month · Done
+- **My board:** To do · Doing · Done
 
-Make one from the Work page, or ask in a chat:
+**Board settings** renames a board and lets you add, rename, reorder or take out columns. The last
+column is always **done**.
+
+Or ask in a chat (it uses the office's boards tool, `office-boards.js`):
 
 ```
 Make me a board called "<name>" with the columns <column 1>, <column 2>, <column 3>. Then add these
-cards to the first column: <one per line>.
+cards to the first column: <one per line, with a due date if there is one>.
 ```
 
 ### Cards (tasks)
 
-Each card is one task. Give it a short name, and if it has one, a **due date**. Move a card to the
-next column as it moves along. Keep client details out of the card title: a client code is enough
-(see [best practices](best-practices.md)).
+Each card is one task. Press **+ Add a card** under a column and type its name. Tap a card to give it
+notes, a **due date**, how long it **takes about**, and whether it **repeats**. Drag a card to the next
+column as it moves along, or pick its column on the card. Keep client details out of the card title:
+a client code is enough (see [best practices](best-practices.md)).
 
 ### Put a task on your calendar
 
-A task with no time set aside tends not to happen. On a card, choose **Put it on my calendar**. The
-office proposes a block of time for it on your Calendar, around what is already there. The block shows
-as **proposed** until you **Accept** it (or **Decline** it, or move it).
+A task with no time set aside tends not to happen. Tap the card, and under **On my calendar**:
+
+- **Find me a time** looks for the first open stretch before the task is due, on weekdays between
+  8:00 and 5:00, around everything already on your Calendar (your Google calendar too). It shows as
+  **proposed** until you **Accept** it on the Calendar (or move it, or say not today). Press it again
+  for another time.
+- **Pick this time**: choose a day and a start time, and it goes straight on your Calendar for as long
+  as the task takes.
+
+The card shows where it landed, for example "Proposed · Tomorrow 9:30 AM".
 
 To schedule a whole list at once, ask in a chat:
 
@@ -83,8 +97,9 @@ anything.
 ### Repeating tasks
 
 Some work comes back every week or month: bank reconciliations, a weekly report, payroll reminders.
-Make it a **repeating** task and it comes back on its own, on the days you choose. Each time it comes
-back, you can put it on the calendar the same way.
+Give the card a due date and set **Repeats** to every day, week or month. When you move it to the last
+column, it is done, and a fresh copy comes back in the first column with its next due date. Each time
+it comes back, put it on the calendar the same way.
 
 ## Calendar
 

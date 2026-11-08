@@ -90,8 +90,9 @@ On the Work page, make a new board and name its columns, or ask in a chat: "Make
 tax season.
 
 **How do I get a task onto my calendar?**
-On the task's card, choose **Put it on my calendar**. The office proposes a time around your meetings.
-It is only on your calendar once you **Accept** it.
+Tap the task's card, then **Find me a time**. The office proposes a time in office hours before it is
+due, around your meetings. It is only on your calendar once you **Accept** it. Or choose a day and
+time yourself and press **Pick this time**.
 
 **How do I connect my Google calendar?**
 Calendar, then **Calendars**. Paste your Google calendar's **Secret address in iCal format** (Google
