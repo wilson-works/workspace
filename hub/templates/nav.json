@@ -14,6 +14,7 @@
     { "say": ["fleet", "other computers", "handoffs", "the board"], "path": "50-AI/fleet-ops/" },
     { "say": ["old stuff", "archive", "cold storage"], "path": "90-Archive/" },
     { "say": ["waiting to be deleted", "dump queue"], "path": "90-Archive/_DumpQueue/" },
+    { "say": ["temp files", "scratch files"], "path": "Temp/" },
     { "say": ["the rules", "the constitution"], "path": "CLAUDE.md" }
   ]
 }

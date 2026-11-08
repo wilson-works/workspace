@@ -29,6 +29,9 @@ const DEFAULT_CODE_ZONE = '20-Coding/Projects';
 // The other spelling a Hub may use for its code zone (a small machine that only keeps the branches
 // it is working on). Probed after the recorded value, before giving up.
 const CODE_ZONE_ALTERNATES = ['20-Coding/Projects', '20-Coding/Active'];
+// Claude's temp files, inside the Hub (not a zone): anything in it may be deleted at any time. The Hub fence's hook
+// (.claude/hooks/hub-fence.js, --fence) sends temp files here instead of the computer's temp folder, under the same name.
+const TEMP_DIR = 'Temp';
 
 /** The zones every Hub has. Same names and numbers on every computer. */
 const ZONES = [
@@ -147,6 +150,6 @@ function projectDir(root, name) {
 }
 
 module.exports = {
-  MARKER, DEFAULT_CODE_ZONE, CODE_ZONE_ALTERNATES, ZONES,
+  MARKER, DEFAULT_CODE_ZONE, CODE_ZONE_ALTERNATES, ZONES, TEMP_DIR,
   isHub, readHub, findHubRoot, resolveHubRoot, candidates, codeZone, projectDir,
 };

@@ -73,7 +73,17 @@ const BOOL_FLAGS = new Set(['--dry-run', '--yes', '--create-repo', '--no-start',
 // The Hub fence (--fence): Claude Code's own blocks on its file tools outside the folder a chat is
 // open on, and .claude/hooks/hub-fence.js for the rest (shell commands on Windows above all).
 const FENCE_KEYS = ['blockReadsOutsideWorkingDirectories', 'blockWritesOutsideWorkingDirectories'];
-const FENCE_MATCHER = 'Read|Write|Edit|MultiEdit|NotebookEdit|Glob|Grep|LS|Bash|PowerShell';
+const FENCE_MATCHER = 'Read|Write|Edit|MultiEdit|NotebookEdit|Glob|Grep|LS|Bash|PowerShell|Monitor';
+// The fence's env block, a daily driver's headroom: one job at a time (one helper agent at a time and none of its
+// own), no background tasks or sessions, no scheduled runs, no workflows. A value of the person's own is kept.
+// Temp files are the hook's part: it allows the Hub's Temp folder and refuses the computer's temp folder. (TMP, TEMP
+// and TMPDIR are not set here: on Windows a Bash command still got the computer's own, measured 2026-11-08 on
+// Claude Code 2.1.319; CLAUDE_CODE_TMPDIR is ignored in a project's settings.)
+const FENCE_ENV = {
+  CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS: '1', CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH: '1',
+  CLAUDE_CODE_DISABLE_BACKGROUND_TASKS: '1', CLAUDE_CODE_DISABLE_AGENT_VIEW: '1',
+  CLAUDE_CODE_DISABLE_CRON: '1', CLAUDE_CODE_DISABLE_WORKFLOWS: '1',
+};
 
 const HELP = `The WilsonWorks Workspace installer: your Hub, the starter skills and the office, in one go.
 
@@ -100,7 +110,8 @@ Options:
   --brand <name>             a firm's own look for the office, from config/brands/<name>.json
                              (cbfc). Added only when your settings have no brand yet
   --fence                    the Hub fence: a chat on your Hub reads and changes files only
-                             inside the Hub, so the rest of this computer stays private
+                             inside the Hub, so the rest of this computer stays private; a temp
+                             file it names goes in the Hub's Temp folder; one job at a time
   --skip <parts>             leave out parts: check,hub,office,skills,agents,fleet
 
 Marks: + add  ~ change  = already there  ! yours differs (kept)  - remove`;
@@ -665,28 +676,57 @@ async function partOffice(ctx) {
     }
   }
 
-  // 2b. The Hub fence (--fence): a chat on the Hub reads and changes files only inside the Hub.
+  // 2b. The Hub fence (--fence): a chat on the Hub reads and changes files only inside the Hub, keeps its temp
+  // files in the Hub's Temp folder (the hook) and works one job at a time (FENCE_ENV).
   if (o.fence && settings) {
     const fenceCmd = `node "${fwd(ROOT)}/.claude/hooks/hub-fence.js" "${fwd(hub)}"`;
     const perms = settings.permissions || {};
-    const on = FENCE_KEYS.every((k) => perms[k] === true) && inst().commandsIn(settings, 'PreToolUse').includes(fenceCmd);
-    if (on) out(`  = the Hub fence: Claude reads and changes files only inside ${hub}`);
+    const env = settings.env || {};
+    const wantEnv = FENCE_ENV;
+    const hubTemp = path.join(hub, hubLib().TEMP_DIR);
+    const fenceGroup = (s) => ((s.hooks && s.hooks.PreToolUse) || [])
+      .find((g) => g && Array.isArray(g.hooks) && g.hooks.some((h) => h && h.command === fenceCmd));
+    const g0 = fenceGroup(settings);
+    // Its two rules (temp files in Temp, one job at a time) go in the Hub's .claude/rules/, so only a fenced Hub has them.
+    const rulesFile = path.join(hub, '.claude', 'rules', 'hub-fence.md');
+    const rulesText = fs.readFileSync(path.join(ROOT, 'hub', 'templates', 'fence-rules.md'), 'utf8');
+    const rulesCur = readText(rulesFile);
+    const rulesRec = ctx.record.fence && ctx.record.fence.rules;
+    const rulesOurs = rulesCur !== null && !!rulesRec && rulesRec.hash === `sha256:${sha(rulesCur)}`;
+    const rulesWrite = rulesCur === null || (rulesCur !== rulesText && rulesOurs);
+    if (rulesCur !== null && rulesCur !== rulesText && !rulesOurs) out(`  ! ${show(ctx, rulesFile)} is yours and differs from the fence's rules; kept`);
+    const on = FENCE_KEYS.every((k) => perms[k] === true) && g0 && g0.matcher === FENCE_MATCHER
+      && Object.keys(wantEnv).every((k) => k in env) && !rulesWrite;
+    for (const [k, v] of Object.entries(wantEnv)) if (k in env && env[k] !== v) out(`  ! the Hub fence: your ${k} (${env[k]}) is kept; the fence would use ${v}`);
+    if (on) out(`  = the Hub fence: Claude works only inside ${hub} (temp files in Temp, one job at a time)`);
     else {
-      out(`  + the Hub fence: Claude reads and changes files only inside ${hub}, so the rest of this computer stays private`);
+      out(`  + the Hub fence: Claude works only inside ${hub} (temp files in Temp, one job at a time), so the rest of this computer stays private`);
       actions.push(() => {
         const cur = inst().readJson(sFile);
         cur.permissions = cur.permissions || {};
         const keys = (ctx.record.fence && ctx.record.fence.keys) || [];
+        const envAdded = Object.assign({}, ctx.record.fence && ctx.record.fence.env);
         for (const k of FENCE_KEYS) if (cur.permissions[k] !== true) { cur.permissions[k] = true; if (!keys.includes(k)) keys.push(k); }
-        if (!inst().commandsIn(cur, 'PreToolUse').includes(fenceCmd)) {
+        cur.env = cur.env || {};
+        for (const [k, v] of Object.entries(wantEnv)) if (!(k in cur.env)) { cur.env[k] = v; envAdded[k] = v; }
+        const g = fenceGroup(cur);
+        if (g) g.matcher = FENCE_MATCHER;
+        else {
           inst().addHooks(cur, { PreToolUse: [{ type: 'command', command: fenceCmd, timeout: 10 }] }, () => FENCE_MATCHER);
           const added = ctx.record.hooks.added.PreToolUse || [];
           if (!added.includes(fenceCmd)) added.push(fenceCmd);
           ctx.record.hooks.added.PreToolUse = added;
         }
+        fs.mkdirSync(hubTemp, { recursive: true });
+        let rules = ctx.record.fence && ctx.record.fence.rules;
+        if (rulesWrite) {
+          fs.mkdirSync(path.dirname(rulesFile), { recursive: true });
+          fs.writeFileSync(rulesFile, rulesText, 'utf8');
+          rules = { file: fwd(path.relative(hub, rulesFile)), hash: `sha256:${sha(rulesText)}` };
+        }
         inst().backup(sFile);
         inst().writeJson(sFile, cur);
-        ctx.record.fence = { keys };
+        ctx.record.fence = { keys, env: envAdded, rules };
         ctx.record.hooks.file = fwd(path.relative(hub, sFile));
         saveRecord(ctx);
       });
@@ -1143,6 +1183,19 @@ async function partRemove(ctx) {
           // The Hub fence's two settings, when this installer added them.
           for (const k of (r.fence && r.fence.keys) || []) if (settings.permissions && settings.permissions[k] === true) delete settings.permissions[k];
           if (settings.permissions && !Object.keys(settings.permissions).length) delete settings.permissions;
+          // And its env values (one job at a time), each only while it still holds the value the fence wrote.
+          for (const [k, v] of Object.entries((r.fence && r.fence.env) || {})) if (settings.env && settings.env[k] === v) delete settings.env[k];
+          if (settings.env && !Object.keys(settings.env).length) delete settings.env;
+          // And its rules file, while it is still the one the fence wrote.
+          const rf = r.fence && r.fence.rules;
+          if (rf && rf.file) {
+            const f = path.join(hub, ...String(rf.file).split('/'));
+            const cur = readText(f);
+            if (cur !== null && `sha256:${sha(cur)}` === rf.hash) {
+              fs.unlinkSync(f);
+              try { fs.rmdirSync(path.dirname(f)); } catch (_) { /* other rules of the person's are still in it */ }
+            }
+          }
           inst().writeJson(sFile, settings);
           r.hooks.added = {};
           r.fence = null;

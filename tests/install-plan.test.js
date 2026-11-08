@@ -241,6 +241,74 @@ test('--remove takes out what it added and keeps what the user changed', (t) => 
   assert.ok(!rec.copies['.claude/skills/alpha'], 'a removed skill is still in the record');
 });
 
+// The Hub fence (--fence): the two file-tool blocks, the hook (Monitor too), the Hub's Temp folder and a daily driver's
+// headroom (the env block), all in the Hub's own settings; the person's own env values are kept, and --remove takes out
+// only what the fence wrote.
+const fenceCmdOf = (sb) => `node "${REPO.replace(/\\/g, '/')}/.claude/hooks/hub-fence.js" "${sb.hub.replace(/\\/g, '/')}"`;
+const fenceGroupOf = (s, cmd) => ((s.hooks && s.hooks.PreToolUse) || []).find((g) => (g.hooks || []).some((h) => h.command === cmd));
+
+test('--fence: files in the Hub, temp files in Temp, one job at a time; the person\'s env kept; --remove takes it out', (t) => {
+  const sb = sandbox(t);
+  const sFile = path.join(sb.hub, '.claude', 'settings.json');
+  fs.mkdirSync(path.dirname(sFile), { recursive: true });
+  fs.writeFileSync(sFile, JSON.stringify({ env: { CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS: '3', MY_SETTING: 'x' } }));
+  const r1 = install(sb, '--yes', '--fence');
+  assert.strictEqual(r1.code, 0, r1.text);
+  assert.match(r1.text, /\+ the Hub fence: Claude works only inside .*\(temp files in Temp, one job at a time\)/, r1.text);
+  assert.match(r1.text, /! the Hub fence: your CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS \(3\) is kept/, r1.text);
+
+  const s = settings(sb);
+  const temp = path.join(sb.hub, 'Temp');
+  assert.strictEqual(s.permissions.blockReadsOutsideWorkingDirectories, true);
+  assert.strictEqual(s.permissions.blockWritesOutsideWorkingDirectories, true);
+  const g = fenceGroupOf(s, fenceCmdOf(sb));
+  assert.ok(g, 'the fence hook is not in the Hub settings');
+  assert.match(g.matcher, /(^|\|)Bash(\||$)/);
+  assert.match(g.matcher, /(^|\|)Monitor(\||$)/, 'Monitor runs a shell command too');
+  assert.strictEqual(s.env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS, '3', 'the person\'s own value was replaced');
+  assert.strictEqual(s.env.MY_SETTING, 'x');
+  assert.ok(!('TEMP' in s.env) && !('TMPDIR' in s.env), 'the fence sets no temp variables (the hook keeps temp files in the Hub)');
+  for (const k of ['CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH', 'CLAUDE_CODE_DISABLE_BACKGROUND_TASKS',
+    'CLAUDE_CODE_DISABLE_AGENT_VIEW', 'CLAUDE_CODE_DISABLE_CRON', 'CLAUDE_CODE_DISABLE_WORKFLOWS']) assert.strictEqual(s.env[k], '1', k);
+  assert.ok(fs.statSync(temp).isDirectory(), 'the Hub has no Temp folder');
+  const rulesFile = path.join(sb.hub, '.claude', 'rules', 'hub-fence.md');
+  const rules = fs.readFileSync(rulesFile, 'utf8');
+  assert.match(rules, /Temp files stay in the Hub/);
+  assert.match(rules, /One job at a time/);
+
+  const r2 = install(sb, '--yes', '--fence');
+  assert.strictEqual(r2.code, 0, r2.text);
+  assert.match(r2.text, /= the Hub fence: Claude works only inside/, r2.text);
+
+  const r3 = install(sb, '--remove', '--yes');
+  assert.strictEqual(r3.code, 0, r3.text);
+  const left = settings(sb);
+  assert.deepStrictEqual(left.env, { CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS: '3', MY_SETTING: 'x' }, 'the fence env is still there, or the person\'s was taken');
+  assert.ok(!left.permissions, 'the fence blocks are still there');
+  assert.ok(!commands(left).some((c) => c.includes('hub-fence.js')), 'the fence hook is still there');
+  assert.ok(!fs.existsSync(rulesFile), 'the fence rules are still there');
+});
+
+test('--fence again on an earlier fence adds Monitor to its hook and the Temp and headroom settings', (t) => {
+  const sb = sandbox(t);
+  const sFile = path.join(sb.hub, '.claude', 'settings.json');
+  fs.mkdirSync(path.dirname(sFile), { recursive: true });
+  const old = 'Read|Write|Edit|MultiEdit|NotebookEdit|Glob|Grep|LS|Bash|PowerShell';
+  fs.writeFileSync(sFile, JSON.stringify({
+    permissions: { blockReadsOutsideWorkingDirectories: true, blockWritesOutsideWorkingDirectories: true },
+    hooks: { PreToolUse: [{ matcher: old, hooks: [{ type: 'command', command: fenceCmdOf(sb), timeout: 10 }] }] },
+  }));
+  const r = install(sb, '--yes', '--fence');
+  assert.strictEqual(r.code, 0, r.text);
+  assert.match(r.text, /\+ the Hub fence/, r.text);
+  const s = settings(sb);
+  assert.strictEqual(s.hooks.PreToolUse.filter((x) => (x.hooks || []).some((h) => h.command === fenceCmdOf(sb))).length, 1, 'the fence hook was added twice');
+  assert.match(fenceGroupOf(s, fenceCmdOf(sb)).matcher, /Monitor/);
+  assert.ok(fs.statSync(path.join(sb.hub, 'Temp')).isDirectory(), 'the Hub has no Temp folder');
+  assert.ok(fs.existsSync(path.join(sb.hub, '.claude', 'rules', 'hub-fence.md')), 'the fence rules were not added');
+  assert.strictEqual(s.env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS, '1');
+});
+
 test('bad options are refused with exit 2 and write nothing', (t) => {
   const sb = sandbox(t);
   const before = snapshot(sb.base);
