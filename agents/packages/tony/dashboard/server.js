@@ -228,7 +228,8 @@ const server = http.createServer((req, res) => {
     const nonce = crypto.randomBytes(12).toString('base64');
     res.writeHead(200, {
       'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store',
-      'Content-Security-Policy': `default-src 'none'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self'; script-src 'nonce-${nonce}'`,
+      // The Academy's fonts.css may import its faces from Google Fonts (John, PR #19): allow those two hosts, nothing else.
+      'Content-Security-Policy': `default-src 'none'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self'; script-src 'nonce-${nonce}'`,
     });
     res.end(page(m, firmLook(), nonce));
     return;
