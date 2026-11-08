@@ -4,7 +4,9 @@ node_modules/
 .vite/
 
 # Your settings name you, your computers and your folders. Never commit them.
+# The installer's backups of them too: an untracked file would make install.ps1/.sh stop updating.
 workspace.config.json
+workspace.config.json.bak-*
 
 # Your own Work projects stay on your computer. Only the two that ship are tracked.
 projects/*

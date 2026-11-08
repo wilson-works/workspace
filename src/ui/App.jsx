@@ -158,7 +158,7 @@ function More() {
 }
 
 // Whose office this is (workspace.config.json): the name in the bar and the tab,
-// and the orb's two colours.
+// the orb's two colours, and a firm's own look when there is one.
 function useBrand(brand) {
   const name = (brand && brand.name) || 'WorkSpace';
   const colors = brand && brand.colors;
@@ -169,6 +169,25 @@ function useBrand(brand) {
       document.documentElement.style.setProperty('--brand-2', colors[1]);
     }
   }, [name, brand && brand.company, colors && colors.join()]);
+  // A firm's own look: a class office.css styles (look-academy), light kept light, and the firm's
+  // design-system stylesheets (its tokens and fonts, served from brand.pack at /brand-pack/).
+  const look = brand && brand.look;
+  const scheme = brand && brand.scheme;
+  const sheets = (brand && brand.stylesheets) || [];
+  const sheetKey = sheets.join('|');
+  useEffect(() => {
+    const root = document.documentElement;
+    [...root.classList].filter((c) => c.startsWith('look-')).forEach((c) => root.classList.remove(c));
+    if (look) root.classList.add(`look-${look}`);
+    if (scheme) root.dataset.theme = scheme; else delete root.dataset.theme;
+    document.querySelectorAll('link[data-brand-pack]').forEach((l) => l.remove());
+    for (const href of sheets) {
+      if (!/^\/brand-pack\/[A-Za-z0-9_][A-Za-z0-9._/-]*\.css$/.test(href)) continue;
+      const link = document.createElement('link');
+      link.rel = 'stylesheet'; link.href = href; link.dataset.brandPack = '';
+      document.head.appendChild(link);
+    }
+  }, [look, scheme, sheetKey]);
   return name;
 }
 

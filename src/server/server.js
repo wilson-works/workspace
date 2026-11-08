@@ -1086,6 +1086,22 @@ function start(opts) {
       return;
     }
 
+    // A brand's design-system pack (brand.pack): its stylesheets and fonts, by plain relative names
+    // inside that folder, nothing else (no "..", only .css and font files).
+    const pack = config.load().brand.pack;
+    if (pack && url.pathname.startsWith('/brand-pack/')) {
+      // decode, not decodeURIComponent: a bad % escape must be a 404, never a crash of the office.
+      const rel = decode(url.pathname.slice('/brand-pack/'.length));
+      const types = { '.css': 'text/css', '.woff2': 'font/woff2', '.woff': 'font/woff' };
+      const type = types[path.extname(rel).toLowerCase()];
+      const f = path.resolve(pack, rel);
+      if (type && !rel.includes('..') && /^[A-Za-z0-9_][A-Za-z0-9._/-]*$/.test(rel) && f.startsWith(path.resolve(pack) + path.sep) && fs.existsSync(f)) {
+        res.writeHead(200, { 'Content-Type': type, 'Cache-Control': 'no-cache' });
+        res.end(fs.readFileSync(f));
+      } else { res.writeHead(404); res.end(); }
+      return;
+    }
+
     if (staticDir) {
       // A browser asks for /favicon.ico whatever the page links: it gets the orb.
       const rel = url.pathname === '/' ? 'index.html'

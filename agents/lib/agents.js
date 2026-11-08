@@ -127,6 +127,7 @@ function validateManifest(m) {
   if (!brand || typeof brand !== 'object' || Array.isArray(brand)) bad(`brand is required, with the colours ${COLORS.join(', ')} as #rrggbb.`);
   else {
     for (const c of COLORS) if (!HEX_RE.test(String(brand[c] || ''))) bad(`brand.${c} must be a colour written #rrggbb.`);
+    if (brand.on_accent != null && !HEX_RE.test(String(brand.on_accent))) bad('brand.on_accent must be a colour written #rrggbb.');
     if (brand.font != null && typeof brand.font !== 'string') bad('brand.font must be text.');
     if (brand.mark != null && !isImageName(brand.mark)) bad('brand.mark must be a file name in the agent folder ending .svg or .png (no folders, no "..").');
   }

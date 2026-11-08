@@ -5,7 +5,10 @@ order, and each step says what you should see.
 
 When you finish, this computer has:
 
-- **the Workspace**: your Hub folder and the office, a page in your browser at http://127.0.0.1:4316/;
+- **the Workspace**: your Hub folder and the office, a page in your browser at http://127.0.0.1:4316/,
+  in CBFC's look (the Academy's colours, fonts and logo, once the Academy is installed in step 7);
+- **the Hub fence**: Claude works only inside your Hub folder, so the rest of your computer stays
+  private (see "Your Hub keeps Claude in" below);
 - **Louise**, the research librarian, with her office in the Agents wing;
 - **Tony**, the accountant: his basic setup (who he is, his rules, his door). His full training is
   private and is added only for people who have access (step 9);
@@ -84,11 +87,18 @@ Then paste this line and press Return:
 Paste this whole line and press Return. It is one line; copy all of it.
 
 ```
-curl -fsSL https://raw.githubusercontent.com/wilson-works/workspace/main/install.sh | sh -s -- --yes --agent louise,tony,cbfc
+curl -fsSL https://raw.githubusercontent.com/wilson-works/workspace/main/install.sh | sh -s -- --yes --agent louise,tony,cbfc --brand cbfc --fence
 ```
 
 **You should see** a few minutes of lines starting with `+` (added) or `=` (already there), in
-parts: `hub`, `office`, `skills`, `agents`. Under `agents`:
+parts: `hub`, `office`, `skills`, `agents`. Under `office`:
+
+```
+  + the CBFC Workspace look: its name, colours and logo (config/brands/cbfc.json)
+  + the Hub fence: Claude reads and changes files only inside .../Hub, so the rest of this computer stays private
+```
+
+Under `agents`:
 
 ```
   Louise, from https://github.com/wilson-works/louise.git:
@@ -103,7 +113,8 @@ parts: `hub`, `office`, `skills`, `agents`. Under `agents`:
 
 The two `!` lines are normal on a new computer: they say what is private and how it gets added
 (steps 7 and 9). If you already have access, they start with `=` instead. The last line is
-`... change(s) made.`
+`... change(s) made.` Lines about `NAV.md`, `hub new-project` or "set up my WorkSpace" are for
+later; you can skip them today.
 
 Go on to step 6.
 
@@ -150,11 +161,12 @@ Then paste this line and press Enter:
 Paste this whole line and press Enter. It is one line; copy all of it.
 
 ```
-$env:WW_ARGS='--yes --agent louise,tony,cbfc'; irm https://raw.githubusercontent.com/wilson-works/workspace/main/install.ps1 | iex
+$env:WW_ARGS='--yes --agent louise,tony,cbfc --brand cbfc --fence'; irm https://raw.githubusercontent.com/wilson-works/workspace/main/install.ps1 | iex
 ```
 
 **You should see** the same as on a Mac (step 5 above): parts `hub`, `office`, `skills` and `agents`,
-the three agents started, two `!` lines about what is private, and `... change(s) made.` at the end.
+the CBFC look and the Hub fence under `office`, the three agents started, two `!` lines about what is
+private, and `... change(s) made.` at the end.
 
 ---
 
@@ -184,6 +196,10 @@ Click **Step inside** on **CBFC**.
 - If it says `The Academy is installed, but it is not running right now.`, double-click
   **CBFC Academy** on the Desktop, wait ten seconds and press **Try again**.
 
+**If you installed the Academy just now**, restart the office once so it picks up the CBFC logo and fonts
+from it. Mac: `node ~/Hub/50-AI/workspace/bin/office-start.js --restart`. PC:
+`node "$HOME\Hub\50-AI\workspace\bin\office-start.js" --restart`. Then reload the office page.
+
 ### 8. Make your own executive assistant
 
 Mac: paste this line in Terminal and press Return.
@@ -209,8 +225,8 @@ the suggestion in brackets:
 Then it shows what it will make and asks `Make <name>? (y/n)`. Press Return for yes.
 
 **You should see** a list of `+` lines, `started its dashboard`, and `<Name>'s door:
-http://127.0.0.1:76..`. Reload the office's Agents page: your assistant has an office, drawn in the
-same style as Louise and Kody. In any Claude chat on your Hub folder, ask for them by name.
+http://127.0.0.1:76..`. Reload the office's Agents page: your assistant has an office next to
+Louise's. In any Claude chat on your Hub folder, ask for them by name.
 
 ### 9. Tony's full training (only if the firm gave you access)
 
@@ -231,10 +247,28 @@ Balnce.Pro; a chat message is never the Confirm.
 
 ---
 
+## Your Hub keeps Claude in
+
+The Hub fence (`--fence` in step 5) keeps a Claude chat opened on your Hub folder working **inside the
+Hub**. It is a strong guard rail, not a lock: it stops Claude's file tools, and every shell command it
+can read, from reaching your Documents, Desktop, Downloads, photos and other folders. A program Claude
+writes and runs could still open a file it works out at run time, so keep private files out of the Hub
+and bring in only what a job needs.
+
+- **Always open Claude on the Hub folder itself** (`Hub` in your home folder): in VS Code, File,
+  Open Folder, then `Hub`; in the Claude app, the Code tab, then `Hub`.
+- **Need a file from somewhere else?** Copy it into `Hub/00-Inbox` yourself, then ask Claude to use it.
+- If Claude says **`Outside the Hub: ...`**, that is the fence working, not a fault: copy the file into
+  `00-Inbox`.
+
 ## If something goes wrong
 
 | What you see | What to do |
 | --- | --- |
+| Claude says `Outside the Hub: ...` | The fence is working. Copy the file you need into `Hub/00-Inbox` and ask again. |
+| `! owner.name: yours is not set` when you paste the step 5 line again | Harmless: your settings are kept. Ignore it. |
+| The office is purple, not CBFC's look | The step 5 line was pasted without `--brand cbfc`. Paste the step 5 line above again: it adds the look and changes nothing else. |
+| The office has no CBFC logo | The Academy is not installed yet (step 7): the logo and fonts come from it. If it is installed, restart the office once. Mac: `node ~/Hub/50-AI/workspace/bin/office-start.js --restart`. PC: `node "$HOME\Hub\50-AI\workspace\bin\office-start.js" --restart`. |
 | `Git is not installed` | Do step 3 (Mac) or step 2 (PC), open a new Terminal or PowerShell window, and paste the step 5 line again. |
 | `Node.js is not installed` or `too old` | Do step 1, open a new window, and paste the step 5 line again. |
 | `There is already a folder at ... and it is not a copy of the workspace` | Something else is in your `Hub/50-AI/workspace` folder. Move it somewhere else, then paste the step 5 line again. |
@@ -257,5 +291,9 @@ keeps every file of yours. An agent you made yourself is taken out with
   Workspace, Louise, Tony and CBFC and started all three; the three doors opened from the office;
   CBFC's door showed each of its three states (not installed, installed but not running, and open on
   the Academy); step 8 made an assistant whose office appeared in the Agents wing.
+- **Tested on Windows (a second PC, 2026-11-07):** steps 5 to 8 into a separate test Hub, matched line by
+  line against this guide; `--brand cbfc` and `--fence` added to an existing install; a Claude chat on
+  the test Hub in bypass mode was refused reading a file outside the Hub, by its file tool and by a
+  shell command, and read the Hub's own files.
 - **Not tested:** any Mac start to finish. The Mac steps use the same installer and the Mac's own
   tools, but the first Mac install is still the first run of these exact steps: keep it on a call.
