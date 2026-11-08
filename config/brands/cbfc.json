@@ -12,6 +12,7 @@
     "_ds/*/tokens/spacing.css"
   ],
   "without": ["office-world"],
+  "without_agents": ["bert", "bryn", "nick", "avo", "steady", "tumble"],
   "look": "academy",
   "scheme": "light"
 }
