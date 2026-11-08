@@ -154,10 +154,12 @@ function officeHooks() {
   const office = (ev) => h(`node "${R}/.claude/hooks/office-hook.js" ${ev}`);
   const inbox = h(`node "${R}/.claude/hooks/office-inbox-hook.js"`);
   const wake = (ev, extra) => h(`node "${R}/bin/office-wake-hook.js" ${ev}`, extra);
+  // Tony's accuracy log (.claude/hooks/tony-log.js): a line when Tony finishes, and the person's next word on it.
+  const tony = (ev) => h(`node "${R}/.claude/hooks/tony-log.js" ${ev}`, { async: true });
   return {
     SessionStart: [office('SessionStart'), h(`node "${R}/bin/ensure-office.js"`, { async: true, timeout: 5 })],
     SessionEnd: [office('SessionEnd'), wake('SessionEnd')],
-    UserPromptSubmit: [office('UserPromptSubmit'), inbox, wake('UserPromptSubmit')],
+    UserPromptSubmit: [office('UserPromptSubmit'), inbox, wake('UserPromptSubmit'), tony('UserPromptSubmit')],
     PreToolUse: [office('PreToolUse')],
     PostToolUse: [office('PostToolUse'), inbox],
     PermissionRequest: [office('PermissionRequest')],
@@ -167,7 +169,7 @@ function officeHooks() {
     Stop: [office('Stop'), wake('Stop', { async: true, asyncRewake: true, timeout: 29000 })],
     StopFailure: [office('StopFailure')],
     SubagentStart: [office('SubagentStart')],
-    SubagentStop: [office('SubagentStop')],
+    SubagentStop: [office('SubagentStop'), tony('SubagentStop')],
   };
 }
 
