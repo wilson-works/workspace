@@ -50,5 +50,6 @@ up), I write it down before the session ends:
 ## My dashboard
 
 `node dashboard/server.js` from this folder (the office starts it for me when `autostart` is true).
-It shows my name, my brains, my rules and my latest memory lines at `http://127.0.0.1:7560/`,
-and it is my door in the office's Agents' wing.
+At `http://127.0.0.1:7560/` it tells the person, in plain words, what I do for them, how to ask me
+(prompts they can copy), what stays with them, and what I learned lately. It takes the firm's look when
+the Workspace has one (the CBFC Academy's), and it is my door in the office's Agents' wing.
