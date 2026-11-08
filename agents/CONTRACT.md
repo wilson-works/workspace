@@ -71,7 +71,7 @@ are only an example here; her own `agent.json` has the real ones.
 | `start` | no | The command that starts its dashboard, run in its folder: a program and its arguments, without a shell (`node dashboard/server.js`, `python dashboard.py`). `node` means the Node that runs the Workspace. |
 | `autostart` | no | `true` or `false`. When `true`, `start` and a probe with a port are required, and the office starts it when the office starts. |
 | `match` | no | Words that find its sessions on the office floor by their title or folder. Only how many there are is shown, never their titles. |
-| `brand` | yes | `bg`, `panel`, `ink`, `accent` and `accent2`, each a colour written `#rrggbb`; `font` (text, optional); `mark` (optional). |
+| `brand` | yes | `bg`, `panel`, `ink`, `accent` and `accent2`, each a colour written `#rrggbb`; `on_accent` (optional, `#rrggbb`: the text on an `accent` button, when `bg` is too dark to read there); `font` (text, optional); `mark` (optional). |
 | `brand.mark`, `art` | no | A plain file name in the agent's own folder ending `.svg` or `.png`: no folders, no `..`. The file must be there. |
 | `jokes` | no | At most 12, each at most 160 characters. What it answers when someone right-clicks its door to knock. |
 | `requires` | no | `{ "skills": [...] }`: the skills it needs, by name only. At most 30 names, each lower-case letters and `-`, starting with a letter, at most 30 characters. See "Required skills" below. |

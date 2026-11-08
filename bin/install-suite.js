@@ -9,7 +9,7 @@
  *                   [--owner <name>] [--office-port <n>] [--skills-scope hub|user]
  *                   [--skills-source <git url or path>] [--fleet none|create|join]
  *                   [--fleet-repo <owner/name|url>] [--create-repo] [--no-start] [--startup]
- *                   [--agent <key>] [--skip <part,part>] [--remove]
+ *                   [--agent <key>] [--brand <name>] [--fence] [--skip <part,part>] [--remove]
  *
  * The parts, in order. Each prints its plan first, then does it after a yes (or at once under --yes):
  *   check   Node 20+ and git are required; Python 3, gh, Claude Code and Tailscale are optional and
@@ -68,8 +68,12 @@ const PARTS = ['check', 'hub', 'office', 'skills', 'agents', 'fleet'];
 const ROLES = ['command', 'builder', 'mobile'];
 const DEFAULT_PORT = 4316;
 const VALUE_FLAGS = new Set(['--hub', '--machine', '--role', '--owner', '--office-port', '--skills-scope',
-  '--skills-source', '--fleet', '--fleet-repo', '--skip', '--agent']);
-const BOOL_FLAGS = new Set(['--dry-run', '--yes', '--create-repo', '--no-start', '--startup', '--remove', '--help']);
+  '--skills-source', '--fleet', '--fleet-repo', '--skip', '--agent', '--brand']);
+const BOOL_FLAGS = new Set(['--dry-run', '--yes', '--create-repo', '--no-start', '--startup', '--remove', '--help', '--fence']);
+// The Hub fence (--fence): Claude Code's own blocks on its file tools outside the folder a chat is
+// open on, and .claude/hooks/hub-fence.js for the rest (shell commands on Windows above all).
+const FENCE_KEYS = ['blockReadsOutsideWorkingDirectories', 'blockWritesOutsideWorkingDirectories'];
+const FENCE_MATCHER = 'Read|Write|Edit|MultiEdit|NotebookEdit|Glob|Grep|LS|Bash|PowerShell';
 
 const HELP = `The WilsonWorks Workspace installer: your Hub, the starter skills and the office, in one go.
 
@@ -93,6 +97,10 @@ Options:
   --startup                  start the office when you log in
   --agent <key,key>          install our agents without asking: louise, or several,
                              louise,tony,cbfc (node agents/bin/agent.js catalog lists them)
+  --brand <name>             a firm's own look for the office, from config/brands/<name>.json
+                             (cbfc). Added only when your settings have no brand yet
+  --fence                    the Hub fence: a chat on your Hub reads and changes files only
+                             inside the Hub, so the rest of this computer stays private
   --skip <parts>             leave out parts: check,hub,office,skills,agents,fleet
 
 Marks: + add  ~ change  = already there  ! yours differs (kept)  - remove`;
@@ -168,6 +176,16 @@ function parseArgs(argv, opts) {
   }
   const interactive = opts && opts.interactive;
   if (o.fleet === 'join' && !o.fleetRepo && !interactive) throw new Refusal('--fleet join needs --fleet-repo <owner/name>.');
+  if (o.brand !== undefined) {
+    const dir = path.join(ROOT, 'config', 'brands');
+    const names = (() => { try { return fs.readdirSync(dir).filter((f) => /\.json$/i.test(f)).map((f) => f.replace(/\.json$/i, '')).sort(); } catch (_) { return []; } })();
+    const key = o.brand.toLowerCase();
+    if (!names.includes(key)) throw new Refusal(`--brand: there is no brand called "${o.brand}". There is: ${names.join(', ') || 'none'}.`);
+    const preset = JSON.parse(fs.readFileSync(path.join(dir, `${key}.json`), 'utf8'));
+    delete preset._readme;
+    o.brand = key;
+    o.brandPreset = preset;
+  }
   if (o.agent !== undefined) {
     o.agents = o.agent.toLowerCase().split(',').map((k) => k.trim()).filter(Boolean);
     if (o.skip.has('agents')) throw new Refusal('--agent installs the agent in the agents part, so it cannot go with --skip agents.');
@@ -544,7 +562,9 @@ async function partOffice(ctx) {
       machines: [{ name: ctx.machine, computer: c.thisComputer(), hub: true }],
       office: { port, home: wantHome },
     };
+    if (o.brandPreset) fresh.brand = o.brandPreset;
     out(`  + ${show(ctx, cfgFile)}: ${ctx.owner ? `${ctx.owner}'s office, ` : ''}this computer as ${ctx.machine} (the hub), port ${port}, the office's files in ${wantHome}`);
+    if (o.brandPreset) out(`  + the ${o.brandPreset.office_name || o.brand} look: its name, colours and logo (config/brands/${o.brand}.json)`);
     actions.push(() => inst().writeJson(cfgFile, fresh));
   } else {
     let raw;
@@ -566,6 +586,19 @@ async function partOffice(ctx) {
     const curHome = cur.office.home || platformHome();
     if (!samePath(curHome, wantHome)) kept.push(`office.home: yours is ${curHome}; the installer would use ${wantHome}`);
     else out(`  = office.home ${curHome}`);
+    // --brand adds a firm's look only where there is none yet: an existing brand is yours and is kept.
+    if (o.brandPreset) {
+      const look = `the ${o.brandPreset.office_name || o.brand} look`;
+      if (!raw.brand) {
+        out(`  + ${look}: its name, colours and logo (config/brands/${o.brand}.json)`);
+        actions.push(() => {
+          const b = inst().backup(cfgFile);
+          inst().writeJson(cfgFile, Object.assign({}, raw, { brand: o.brandPreset }));
+          if (b) out(`  Your old settings are in ${path.basename(b)}.`);
+        });
+      } else if (JSON.stringify(raw.brand) === JSON.stringify(o.brandPreset)) out(`  = ${look}`);
+      else kept.push(`brand: yours is kept; the installer would use ${look}`);
+    }
     for (const k of kept) out(`  ! ${k}`);
     if (kept.length) out(`    (${show(ctx, cfgFile)} is yours and is kept as it is. To change it, say "set up my WorkSpace" in a chat.)`);
     officeHome = envHome ? path.resolve(envHome) : curHome;
@@ -606,6 +639,34 @@ async function partOffice(ctx) {
         ctx.record.hooks.file = fwd(path.relative(hub, sFile));
         saveRecord(ctx);
         if (b) out(`  Your old settings are in ${path.basename(b)}.`);
+      });
+    }
+  }
+
+  // 2b. The Hub fence (--fence): a chat on the Hub reads and changes files only inside the Hub.
+  if (o.fence && settings) {
+    const fenceCmd = `node "${fwd(ROOT)}/.claude/hooks/hub-fence.js" "${fwd(hub)}"`;
+    const perms = settings.permissions || {};
+    const on = FENCE_KEYS.every((k) => perms[k] === true) && inst().commandsIn(settings, 'PreToolUse').includes(fenceCmd);
+    if (on) out(`  = the Hub fence: Claude reads and changes files only inside ${hub}`);
+    else {
+      out(`  + the Hub fence: Claude reads and changes files only inside ${hub}, so the rest of this computer stays private`);
+      actions.push(() => {
+        const cur = inst().readJson(sFile);
+        cur.permissions = cur.permissions || {};
+        const keys = (ctx.record.fence && ctx.record.fence.keys) || [];
+        for (const k of FENCE_KEYS) if (cur.permissions[k] !== true) { cur.permissions[k] = true; if (!keys.includes(k)) keys.push(k); }
+        if (!inst().commandsIn(cur, 'PreToolUse').includes(fenceCmd)) {
+          inst().addHooks(cur, { PreToolUse: [{ type: 'command', command: fenceCmd, timeout: 10 }] }, () => FENCE_MATCHER);
+          const added = ctx.record.hooks.added.PreToolUse || [];
+          if (!added.includes(fenceCmd)) added.push(fenceCmd);
+          ctx.record.hooks.added.PreToolUse = added;
+        }
+        inst().backup(sFile);
+        inst().writeJson(sFile, cur);
+        ctx.record.fence = { keys };
+        ctx.record.hooks.file = fwd(path.relative(hub, sFile));
+        saveRecord(ctx);
       });
     }
   }
@@ -1044,7 +1105,7 @@ async function partRemove(ctx) {
       let n = 0;
       for (const [ev, cmds] of Object.entries(added)) n += inst().commandsIn(settings, ev).filter((cmd) => cmds.includes(cmd)).length;
       if (n) {
-        out(`  - ${show(ctx, sFile)}: the office's ${n} hooks (yours stay; the file is backed up first)`);
+        out(`  - ${show(ctx, sFile)}: the office's ${n} hooks${r.fence && r.fence.keys && r.fence.keys.length ? ' and the Hub fence' : ''} (yours stay; the file is backed up first)`);
         actions.push(() => {
           inst().backup(sFile);
           for (const [ev, cmds] of Object.entries(added)) {
@@ -1056,8 +1117,12 @@ async function partRemove(ctx) {
             }
           }
           if (settings.hooks && !Object.keys(settings.hooks).length) delete settings.hooks;
+          // The Hub fence's two settings, when this installer added them.
+          for (const k of (r.fence && r.fence.keys) || []) if (settings.permissions && settings.permissions[k] === true) delete settings.permissions[k];
+          if (settings.permissions && !Object.keys(settings.permissions).length) delete settings.permissions;
           inst().writeJson(sFile, settings);
           r.hooks.added = {};
+          r.fence = null;
           saveRecord(ctx);
         });
       } else {

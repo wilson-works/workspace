@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="CBFC">
 <defs><clipPath id="ea-cbfc-mark-cl"><rect x="1" y="1" width="62" height="62" rx="14"/></clipPath></defs>
-<rect x="1" y="1" width="62" height="62" rx="14" fill="#1F5155"/>
-<path d="M0 0H64V10L10 64H0Z" fill="#2F6F73" clip-path="url(#ea-cbfc-mark-cl)"/>
-<rect x="5.500" y="5.500" width="53" height="53" rx="10" fill="none" stroke="#C9A24A" stroke-width="1.200"/>
-<rect x="8.200" y="8.200" width="47.600" height="47.600" rx="7.600" fill="none" stroke="#9E7B2F" stroke-width="1.200"/>
-<text x="32.900" y="43.100" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-weight="700" fill="#9E7B2F">C</text>
-<text x="32" y="42" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-weight="700" fill="#C9A24A">C</text>
-<path d="M32 49.200L34.400 51.800L32 54.400L29.600 51.800Z" fill="#3FA7AC"/>
+<rect x="1" y="1" width="62" height="62" rx="14" fill="#26262A"/>
+<path d="M0 0H64V10L10 64H0Z" fill="#3A3A40" clip-path="url(#ea-cbfc-mark-cl)"/>
+<rect x="5.500" y="5.500" width="53" height="53" rx="10" fill="none" stroke="#D40032" stroke-width="1.200"/>
+<rect x="8.200" y="8.200" width="47.600" height="47.600" rx="7.600" fill="none" stroke="#5A5A62" stroke-width="1.200"/>
+<text x="32.900" y="43.100" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-weight="700" fill="#D40032">C</text>
+<text x="32" y="42" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="30" font-weight="700" fill="#FFFFFF">C</text>
+<path d="M32 49.200L34.400 51.800L32 54.400L29.600 51.800Z" fill="#D40032"/>
 </svg>

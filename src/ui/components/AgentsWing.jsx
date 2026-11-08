@@ -115,6 +115,7 @@ function Office({ a, asks, onQuestions, token, watching, onWatch, onChanged }) {
   };
   const style = {
     '--a-bg': b.bg, '--a-panel': b.panel, '--a-ink': b.ink, '--a-accent': b.accent, '--a-accent2': b.accent2 || b.accent,
+    '--a-on-accent': b.on_accent || undefined,
     fontFamily: b.font || undefined,
   };
   const onKnock = (e) => {

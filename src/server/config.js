@@ -24,6 +24,30 @@ const DEFAULT_COLORS = ['#A855F7', '#6D28D9'];
 const POOLS = ['trees', 'stars', 'rivers'];
 const NAME_RE = /^[A-Z0-9][A-Z0-9-]{0,23}$/;
 const HEX_RE = /^#[0-9a-f]{6}$/i;
+// A file inside a brand's pack: plain names, "/" between folders, no "..", one "*" folder at most.
+const PACK_FILE_RE = /^(?!.*\.\.)[A-Za-z0-9_*][A-Za-z0-9._*-]*(\/[A-Za-z0-9_*][A-Za-z0-9._*-]*)*$/;
+
+/** brand.stylesheets inside brand.pack, each as found on this computer ("*" is the first folder that has it). */
+function packSheets(pack, list) {
+  const out = [];
+  for (const rel of Array.isArray(list) ? list : []) {
+    if (typeof rel !== 'string' || !PACK_FILE_RE.test(rel) || !/\.css$/i.test(rel) || (rel.match(/\*/g) || []).length > 1) continue;
+    const parts = rel.split('/');
+    const star = parts.findIndex((p) => p === '*');
+    let found = null;
+    if (star < 0) found = fs.existsSync(path.join(pack, ...parts)) ? rel : null;
+    else {
+      let dirs = [];
+      try { dirs = fs.readdirSync(path.join(pack, ...parts.slice(0, star))).sort(); } catch (_) { /* no such folder */ }
+      for (const d of dirs) {
+        const cand = [...parts.slice(0, star), d, ...parts.slice(star + 1)];
+        if (fs.existsSync(path.join(pack, ...cand))) { found = cand.join('/'); break; }
+      }
+    }
+    if (found) out.push(found);
+  }
+  return out;
+}
 
 function file() {
   return process.env.WORKSPACE_CONFIG || path.join(ROOT, 'workspace.config.json');
@@ -100,11 +124,21 @@ function normalize(raw) {
   const colors = Array.isArray(brand.colors) && brand.colors.length >= 2 && brand.colors.slice(0, 2).every((c) => HEX_RE.test(String(c)))
     ? brand.colors.slice(0, 2).map(String)
     : DEFAULT_COLORS;
-  let logo = str(brand.logo);
-  if (logo) {
-    logo = path.resolve(ROOT, logo);
-    if (!/\.(svg|png)$/i.test(logo) || !fs.existsSync(logo)) logo = null;
-  }
+  // "~/..." is the user's home, so one brand file works on every computer (and on a Mac and a PC).
+  const brandFile = (v, ext) => {
+    let f = str(v);
+    if (!f) return null;
+    f = path.resolve(ROOT, f.replace(/^~(?=[\\/])/, os.homedir()));
+    return ext.test(f) && fs.existsSync(f) ? f : null;
+  };
+  const logo = brandFile(brand.logo, /\.(svg|png)$/i);
+  // brand.pack: a firm's own design-system folder on this computer (CBFC's: the Academy's app folder).
+  // The office serves its stylesheets and fonts at /brand-pack/, and links brand.stylesheets from it.
+  const pack = brandFile(brand.pack, /./);
+  const stylesheets = pack ? packSheets(pack, brand.stylesheets) : [];
+  const look = /^[a-z][a-z-]{0,19}$/.test(String(brand.look || '')) ? brand.look : null;
+  // brand.scheme "light" keeps the office light whatever the computer prefers (office.css can force light only).
+  const scheme = brand.scheme === 'light' ? 'light' : null;
   const hubUrl = str(r.hub_url);
   const office = r.office && typeof r.office === 'object' ? r.office : {};
   const port = Number(office.port);
@@ -115,7 +149,7 @@ function normalize(raw) {
   return {
     use: str(r.use) === 'company' ? 'company' : 'personal',
     owner: { name: str(owner.name) },
-    brand: { office_name: str(brand.office_name) || 'WorkSpace', company: str(brand.company), colors, logo },
+    brand: { office_name: str(brand.office_name) || 'WorkSpace', company: str(brand.company), colors, logo, look, scheme, pack, stylesheets },
     machines,
     hub_url: hubUrl && /^https?:\/\//i.test(hubUrl) ? hubUrl.replace(/\/+$/, '') : null,
     code_roots: list(r.code_roots),
@@ -304,6 +338,9 @@ function brand() {
     owner: c.owner.name,
     colors: c.brand.colors,
     logo: !!c.brand.logo,
+    look: c.brand.look,
+    scheme: c.brand.scheme,
+    stylesheets: c.brand.stylesheets.map((rel) => `/brand-pack/${rel}`),
   };
 }
 

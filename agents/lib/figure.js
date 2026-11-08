@@ -19,12 +19,12 @@ const SKIN = {
   fair: { base: '#F3D2B8', shadow: '#DDB096', light: '#F8DECA', label: 'fair' },
   light: { base: '#E9BE9F', shadow: '#D29C7E', light: '#F1C9AC', label: 'light (Louise)' },
   medium: { base: '#D9A27A', shadow: '#BF865F', light: '#E3B38F', label: 'medium' },
-  brown: { base: '#B97850', shadow: '#9A5F3C', light: '#C68B62', label: 'brown (Kody)' },
+  brown: { base: '#B97850', shadow: '#9A5F3C', light: '#C68B62', label: 'brown' },
   deep: { base: '#7A4B30', shadow: '#5E3622', light: '#8C5A3C', label: 'deep' },
 };
 
 const HAIR = {
-  short: { label: 'short (like Kody)' },
+  short: { label: 'short' },
   bun: { label: 'swept with a bun (like Louise)' },
   curly: { label: 'curly' },
 };
@@ -34,7 +34,7 @@ const HAIR_COLOUR = { base: '#2A1E17', light: '#3F2F26' }; // Kody's hair and it
 // Outfits: Kody's navy and Louise's bottle green, then four more in the same main / shadow / light steps.
 // accent is the brighter tone the agent's room and dashboard are painted from (agent.json brand).
 const OUTFIT = {
-  navy: { main: '#23345C', shadow: '#14213D', light: '#2E4370', accent: '#5B7FCC', label: 'navy (Kody)' },
+  navy: { main: '#23345C', shadow: '#14213D', light: '#2E4370', accent: '#5B7FCC', label: 'navy' },
   green: { main: '#2F5A45', shadow: '#24473A', light: '#3E7259', accent: '#4FA37A', label: 'bottle green (Louise)' },
   burgundy: { main: '#6E2A26', shadow: '#4E1C1A', light: '#8A3A33', accent: '#C2554B', label: 'burgundy' },
   teal: { main: '#2F6F73', shadow: '#1F5155', light: '#3F8A8E', accent: '#3FA7AC', label: 'teal' },

@@ -13,7 +13,7 @@ A basic setup for the WilsonWorks Workspace (2026-11-06). The contract it follow
 | `rules/` | Its standing rules, each one checkable. |
 | `memory/` | What it has learned. `MEMORY.md` is the index, one line per lesson. |
 | `dashboard/server.js` | Its page, on this computer only: `http://127.0.0.1:7570/`. |
-| `mark.svg`, `art.svg` | Its sign on the office door, and the figure standing in the doorway. |
+| `mark.svg` | Its sign on the office door. There is no figure in the doorway: the CBFC Academy has no agent of its own yet (the team will build it), so its office shows the door only. |
 | `subagent.md` | How Claude Code calls it. It is copied to `<Hub>/.claude/agents/cbfc.md`. |
 
 ## Use it
