@@ -15,8 +15,10 @@
  *   - Bash, PowerShell: a command that names a path outside the Hub: C:\..., /c/..., /Users/...,
  *     ~, $HOME, %USERPROFILE%, $env:APPDATA and the like, or ..\.. past the Hub; and a command that
  *     asks Windows for a personal folder ([Environment]::GetFolderPath).
- * Inside means the Hub (argv[2]) or the system temp folder. Claude's own plugins (~/.claude/plugins)
- * may be read, never changed: a private plugin such as Tony's full training lives there.
+ * Inside means the Hub (argv[2]), the system temp folder, and Claude's own folders for this Hub's chats
+ * (the folder of this session's transcript: saved tool results and memory) and ~/.claude/plans. Claude's
+ * own plugins (~/.claude/plugins) may be read, never changed: a private plugin such as Tony's full
+ * training lives there. Quoted commands (bash -c "...", python -c "...") are read inside, two levels deep.
  *
  * Honest limit: it reads a command, it does not run it. A command that builds a path at run time
  * (a script that opens a file it computes) can get past it.
@@ -61,9 +63,11 @@ function expand(word) {
   if (w === '~' || /^~[\\/]/.test(w)) w = os.homedir() + w.slice(1);
   w = w.replace(/\$\{?env:([A-Za-z_][A-Za-z0-9_]*)\}?/gi, (m, n) => env(n) || m);
   w = w.replace(/%([A-Za-z_][A-Za-z0-9_]*)%/g, (m, n) => (ENV_DIRS.some((d) => d.toLowerCase() === n.toLowerCase()) ? env(n) || m : m));
-  w = w.replace(/\$\{?(HOME|USERPROFILE|TMPDIR|TEMP|TMP)\}?/g, (m, n) => env(n) || m);
+  // Every folder variable in $NAME / ${NAME} form ($APPDATA, $LOCALAPPDATA, $OneDrive ...), not only a few.
+  w = w.replace(DOLLAR_DIRS, (m, n) => env(n) || m);
   return w;
 }
+const DOLLAR_DIRS = new RegExp(`\\$\\{?(${ENV_DIRS.concat('TMPDIR').join('|')})\\}?(?![A-Za-z0-9_])`, 'gi');
 
 /** The absolute path a word names, or null when it is not a path this hook can place. */
 function placeOf(word, cwd) {
@@ -81,14 +85,21 @@ function placeOf(word, cwd) {
   return null;
 }
 
-/** The words of a shell command, quotes taken off, with --flag=VALUE and >FILE split out. */
-function words(cmd) {
+/**
+ * The words of a shell command, quotes taken off, with --flag=VALUE and >FILE split out. A quoted word is also
+ * split into its own words, two levels deep, so bash -c "cat D:/x", python -c "open('D:/x')", node -e "..." and
+ * powershell -c 'Get-Content C:\...' are read too (John, PR #18 bounce 1, item 1). One side effect, accepted: a
+ * commit message holding a path past the Hub (../..) is refused like the path itself.
+ */
+function words(cmd, depth = 0) {
   const out = [];
   for (const raw of String(cmd).match(/"[^"]*"|'[^']*'|[^\s"'|;&<>(){}]+/g) || []) {
+    const quoted = /^["']/.test(raw);
     const t = raw.replace(/^["']|["']$/g, '');
     out.push(t);
     const eq = t.indexOf('=');
     if (eq > 0) out.push(t.slice(eq + 1));
+    if (quoted && depth < 2) out.push(...words(t, depth + 1));
   }
   return out;
 }
@@ -99,7 +110,10 @@ function decide(input, hub) {
   const cwd = input.cwd || process.cwd();
   const temp = os.tmpdir();
   const plugins = path.join(os.homedir(), '.claude', 'plugins');
-  const ok = (p, readOnly) => within(p, hub) || within(p, temp) || (readOnly && within(p, plugins));
+  // Claude's own folders for this Hub's chats: where it saves a big tool or connector result and reads it back,
+  // and its memory (the folder holding this session's transcript), plus its plans. Other projects' stay refused.
+  const own = [input.transcript_path ? path.dirname(String(input.transcript_path)) : null, path.join(os.homedir(), '.claude', 'plans')].filter(Boolean);
+  const ok = (p, readOnly) => within(p, hub) || within(p, temp) || own.some((d) => within(p, d)) || (readOnly && within(p, plugins));
 
   if (['Read', 'Write', 'Edit', 'MultiEdit', 'NotebookEdit'].includes(tool)) {
     const f = ti.file_path || ti.notebook_path;
@@ -112,13 +126,22 @@ function decide(input, hub) {
     if (!ok(dir, true)) return dir;
     const pat = ti.pattern && tool === 'Glob' ? placeOf(String(ti.pattern).split(/[*?[{]/)[0], cwd) : null;
     if (pat && !ok(path.resolve(cwd, pat), true)) return pat;
+    // A ".." anywhere in a Glob pattern, even after a wildcard (*/../../x): place it with each wildcard part as one folder.
+    if (ti.pattern && tool === 'Glob' && /(^|[\\/])\.\.([\\/]|$)/.test(String(ti.pattern))) {
+      const p = path.resolve(dir, String(ti.pattern).split(/[\\/]/).map((s) => (/[*?[{]/.test(s) ? 'x' : s)).join(path.sep));
+      if (!ok(p, true)) return p;
+    }
     return null;
   }
   if (tool === 'Bash' || tool === 'PowerShell') {
     const cmd = String(ti.command || '');
     if (/GetFolderPath|SpecialFolder|Shell\.Application/i.test(cmd)) return 'a personal folder of this computer';
-    for (const w of words(cmd)) {
-      const p = placeOf(w, cwd);
+    // Folder variables first, across the whole command: ${APPDATA} would otherwise be split at its braces.
+    const ws = words(cmd.replace(DOLLAR_DIRS, (m) => expand(m)));
+    for (let i = 0; i < ws.length; i += 1) {
+      // cmd's own switches (cmd /c dir, cmd /k) are not drive C: or K:.
+      if (/^\/[A-Za-z]$/.test(ws[i]) && i > 0 && /^cmd(\.exe)?$/i.test(ws[i - 1])) continue;
+      const p = placeOf(ws[i], cwd);
       if (p && !ok(p, false)) return p;
     }
     return null;

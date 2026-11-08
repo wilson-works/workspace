@@ -1090,7 +1090,8 @@ function start(opts) {
     // inside that folder, nothing else (no "..", only .css and font files).
     const pack = config.load().brand.pack;
     if (pack && url.pathname.startsWith('/brand-pack/')) {
-      const rel = decodeURIComponent(url.pathname.slice('/brand-pack/'.length));
+      // decode, not decodeURIComponent: a bad % escape must be a 404, never a crash of the office.
+      const rel = decode(url.pathname.slice('/brand-pack/'.length));
       const types = { '.css': 'text/css', '.woff2': 'font/woff2', '.woff': 'font/woff' };
       const type = types[path.extname(rel).toLowerCase()];
       const f = path.resolve(pack, rel);

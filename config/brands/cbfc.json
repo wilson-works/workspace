@@ -1,5 +1,5 @@
 {
-  "_readme": "CBFC's look for a team member's office: the install line adds it with --brand cbfc. It is the CBFC Academy's own look (look academy), built from the Academy's design-system pack: its colour, type and spacing tokens and its fonts, read from the CBFC Academy on that computer (installed on its own, in the home folder), together with its logo. Nothing of CBFC's is in this public repo. Until the Academy is there, the office uses the pack's values written into office.css and system fonts. Light only.",
+  "_readme": "CBFC's look for a team member's office: the install line adds it with --brand cbfc. It is the CBFC Academy's own look (look academy), built from the Academy's design-system pack: its colour, type and spacing tokens and its fonts, read from the CBFC Academy on that computer (installed on its own, in the home folder), together with its logo. The pack, its fonts, the logo and the Academy itself stay on the firm's computers; this public repo holds only the brand's colour values (in office.css, as fallbacks), which are not private. Until the Academy is there, the office uses those values and system fonts. Light only.",
   "office_name": "CBFC Workspace",
   "company": "",
   "colors": ["#FF003B", "#D40032"],

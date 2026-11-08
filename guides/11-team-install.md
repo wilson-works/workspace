@@ -196,6 +196,10 @@ Click **Step inside** on **CBFC**.
 - If it says `The Academy is installed, but it is not running right now.`, double-click
   **CBFC Academy** on the Desktop, wait ten seconds and press **Try again**.
 
+**If you installed the Academy just now**, restart the office once so it picks up the CBFC logo and fonts
+from it. Mac: `node ~/Hub/50-AI/workspace/bin/office-start.js --restart`. PC:
+`node "$HOME\Hub\50-AI\workspace\bin\office-start.js" --restart`. Then reload the office page.
+
 ### 8. Make your own executive assistant
 
 Mac: paste this line in Terminal and press Return.
@@ -245,9 +249,11 @@ Balnce.Pro; a chat message is never the Confirm.
 
 ## Your Hub keeps Claude in
 
-The Hub fence (`--fence` in step 5) means a Claude chat opened on your Hub folder reads and changes
-files **only inside the Hub**. Your Documents, Desktop, Downloads, photos and every other folder stay
-private, whatever mode the chat is in.
+The Hub fence (`--fence` in step 5) keeps a Claude chat opened on your Hub folder working **inside the
+Hub**. It is a strong guard rail, not a lock: it stops Claude's file tools, and every shell command it
+can read, from reaching your Documents, Desktop, Downloads, photos and other folders. A program Claude
+writes and runs could still open a file it works out at run time, so keep private files out of the Hub
+and bring in only what a job needs.
 
 - **Always open Claude on the Hub folder itself** (`Hub` in your home folder): in VS Code, File,
   Open Folder, then `Hub`; in the Claude app, the Code tab, then `Hub`.
@@ -268,7 +274,7 @@ Start with the **Start at the firm** course on the Work page (`projects/firm-sta
 | Claude says `Outside the Hub: ...` | The fence is working. Copy the file you need into `Hub/00-Inbox` and ask again. |
 | `! owner.name: yours is not set` when you paste the step 5 line again | Harmless: your settings are kept. Ignore it. |
 | The office is purple, not CBFC's look | The step 5 line was pasted without `--brand cbfc`. Paste the step 5 line above again: it adds the look and changes nothing else. |
-| The office has no CBFC logo | The Academy is not installed yet (step 7). The logo and fonts come from it. |
+| The office has no CBFC logo | The Academy is not installed yet (step 7): the logo and fonts come from it. If it is installed, restart the office once. Mac: `node ~/Hub/50-AI/workspace/bin/office-start.js --restart`. PC: `node "$HOME\Hub\50-AI\workspace\bin\office-start.js" --restart`. |
 | `Git is not installed` | Do step 3 (Mac) or step 2 (PC), open a new Terminal or PowerShell window, and paste the step 5 line again. |
 | `Node.js is not installed` or `too old` | Do step 1, open a new window, and paste the step 5 line again. |
 | `There is already a folder at ... and it is not a copy of the workspace` | Something else is in your `Hub/50-AI/workspace` folder. Move it somewhere else, then paste the step 5 line again. |
@@ -291,7 +297,7 @@ keeps every file of yours. An agent you made yourself is taken out with
   Workspace, Louise, Tony and CBFC and started all three; the three doors opened from the office;
   CBFC's door showed each of its three states (not installed, installed but not running, and open on
   the Academy); step 8 made an assistant whose office appeared in the Agents wing.
-- **Tested on Windows (FIELD, 2026-11-07):** steps 5 to 8 into a separate test Hub, matched line by
+- **Tested on Windows (a second PC, 2026-11-07):** steps 5 to 8 into a separate test Hub, matched line by
   line against this guide; `--brand cbfc` and `--fence` added to an existing install; a Claude chat on
   the test Hub in bypass mode was refused reading a file outside the Hub, by its file tool and by a
   shell command, and read the Hub's own files.
