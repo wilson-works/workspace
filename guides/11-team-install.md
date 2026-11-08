@@ -255,6 +255,12 @@ private, whatever mode the chat is in.
 - If Claude says **`Outside the Hub: ...`**, that is the fence working, not a fault: copy the file into
   `00-Inbox`.
 
+## Learn
+
+Start with the **Start at the firm** course on the Work page (`projects/firm-start`). The
+[staff manual](staff/manual.md), [FAQ](staff/faq.md), [best practices](staff/best-practices.md) and
+[firm prompt library](../prompts/firm.md) are for every day after.
+
 ## If something goes wrong
 
 | What you see | What to do |
