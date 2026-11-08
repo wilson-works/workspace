@@ -14,7 +14,10 @@ When you finish, this computer has:
   private and is added only for people who have access (step 9);
 - **CBFC**: a door in the office that opens the CBFC Academy on this computer. The Academy itself is
   private to the firm and is installed on its own (step 7);
-- the way to **make your own executive assistant** by answering seven short questions (step 8).
+- the way to **make your own executive assistant** by answering seven short questions (step 8);
+- **today's office in CBFC's look** (step 10): Today with Kody as your own assistant, your boards on Work,
+  Learn, the Calendar, and the Agents wing with Kody, Louise and Tony, plus Ask CBFC and the CBFC Tax
+  Planner from your Academy. It comes as a ZIP from the firm, because it is private to the firm.
 
 ## Read this first
 
@@ -240,6 +243,24 @@ claude plugin install the-accountant-tony@the-accountant-jev
 ```
 
 If step 5 printed `! ... no access`, you do not need this: ask the office manager if your work needs it.
+
+### 10. Today's office in CBFC's look
+
+Steps 1 to 7 give you the Workspace's own office. This step swaps it for **today's office** on the same
+address and bookmark, http://127.0.0.1:4316/. It needs steps 5 and 7 done first.
+
+1. Ask the office manager for `CBFC-Workspace-<date>.zip` and its guide, `CBFC-Workspace-Staff-Guide.md`
+   (both in the firm's Google Drive). Put the ZIP in your **Downloads** folder and leave it as it is: do not
+   unzip it yourself.
+2. Paste the one line from that guide (PC in PowerShell, Mac in Terminal). It asks
+   `What should Kody call you?`: type your first name and press Return (Enter).
+
+**You should see** a few parts, starting with `check` and ending with `office`, and, at the end,
+`... change(s) made. Open http://127.0.0.1:4316/ (reload it if it was open).` Reload the office page: it
+says `Good morning, <your name>`, with the **Morning with Kody** box. The firm's guide says what each door
+opens and what to do if something goes wrong.
+
+When the office manager shares a newer ZIP, put it in Downloads and paste the same line again.
 
 **Live money is always a person's.** Tony never sends an invoice, pays a bill, charges a card, runs
 payroll or moves funds. A week of books goes to QuickBooks only after you click **Confirm** in
