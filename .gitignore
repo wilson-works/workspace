@@ -13,6 +13,7 @@ projects/*
 !projects/README.md
 !projects/getting-started/
 !projects/demo-app/
+!projects/firm-start/
 
 # Your own logo and brand files (brand.logo in workspace.config.json).
 brand/
