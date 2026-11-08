@@ -95,7 +95,7 @@ parts: `hub`, `office`, `skills`, `agents`. Under `office`:
 
 ```
   + the CBFC Workspace look: its name, colours and logo (config/brands/cbfc.json)
-  + the Hub fence: Claude reads and changes files only inside .../Hub, so the rest of this computer stays private
+  + the Hub fence: Claude works only inside .../Hub (temp files in Temp, one job at a time), so the rest of this computer stays private
 ```
 
 Under `agents`:
@@ -260,6 +260,14 @@ and bring in only what a job needs.
 - **Need a file from somewhere else?** Copy it into `Hub/00-Inbox` yourself, then ask Claude to use it.
 - If Claude says **`Outside the Hub: ...`**, that is the fence working, not a fault: copy the file into
   `00-Inbox`.
+- **Temp files:** a temporary file Claude names goes in `Hub/Temp`, not the computer's temp folder, but
+  the programs it runs, and Claude Code itself, may still use the computer's temp folder.
+- **One job at a time:** one helper agent at a time and no scheduled or overnight runs, though a short
+  check Claude starts (30 minutes at most) or a connector's task can still finish in the background.
+- **The ways out are the ones you approve:** connectors (MCP), web search and pages, and the browser. Each
+  asks you first, and the Hub's rules keep a connector to reading until you say it may write.
+- **To change it**, edit `Hub/.claude/settings.json` (or ask the person who set up your computer). The
+  fence is yours to loosen, which is why it is a guard rail and not a lock.
 
 ## If something goes wrong
 
@@ -295,5 +303,8 @@ keeps every file of yours. An agent you made yourself is taken out with
   line against this guide; `--brand cbfc` and `--fence` added to an existing install; a Claude chat on
   the test Hub in bypass mode was refused reading a file outside the Hub, by its file tool and by a
   shell command, and read the Hub's own files.
+- **Tested on Windows (2026-11-08), one chat, not a full install:** a chat on a fenced test Hub was refused
+  the computer's temp folder (as `/tmp` and as `$TEMP`) and a Windows file, and each refusal named the
+  Hub's `Temp` folder; the one-job-at-a-time settings reached its shell commands.
 - **Not tested:** any Mac start to finish. The Mac steps use the same installer and the Mac's own
   tools, but the first Mac install is still the first run of these exact steps: keep it on a call.

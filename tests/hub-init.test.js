@@ -23,7 +23,7 @@ test.after(() => {
 });
 
 const OPTS = { machine: 'DESK', role: 'command', owner: 'Alex', date: '2026-10-05' };
-const SKELETON = ['20-Coding/Projects', '20-Coding/_Caches', '30-Media/_Ingest', '50-AI/agents', '90-Archive/_DumpQueue'];
+const SKELETON = ['20-Coding/Projects', '20-Coding/_Caches', '30-Media/_Ingest', '50-AI/agents', '90-Archive/_DumpQueue', 'Temp'];
 
 let n = 0;
 function freshRoot() {
@@ -64,6 +64,7 @@ test('a fresh init makes the zones, the skeleton, the marker, the rules, the zon
   assert.match(rules, /`20-Coding\/Projects\/`/);
   assert.match(rules, /node 50-AI\/workspace\/bin\/ask-owner\.js/);
   assert.ok(rules.split('\n').length <= 120, 'the constitution stays short');
+  assert.doesNotMatch(rules, /One job at a time/, 'only a fenced Hub limits its sessions (install.js --fence adds that rule)');
 
   const nav = JSON.parse(read(root, '.hub/nav.json'));
   assert.ok(nav.rows.some((r) => r.path === '20-Coding/Projects/<repo>/'), 'the code zone is filled into the rows');

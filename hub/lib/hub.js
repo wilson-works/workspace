@@ -11,7 +11,8 @@
  *   doctor(root, opts)            a read-only report: { items: [{ level: ok|note|fix, text }], fixes }
  *
  * init makes the zones and their skeleton folders (the folders inside hub/templates/zones/ are the list; the code
- * zone stands in for 20-Coding/Projects), .hub/hub.json (the contract in docs/ARCHITECTURE.md), .hub/nav.json (only
+ * zone stands in for 20-Coding/Projects) and Temp/ (Claude's temp files, safe to empty), .hub/hub.json (the contract
+ * in docs/ARCHITECTURE.md), .hub/nav.json (only
  * when absent: it is yours to edit), CLAUDE.md and each zone's README.md from the templates, then NAV.md.
  * opts: { machine, role, owner, codeZone, workspace, date, dryRun, yes, replace, ask }.
  * Marks: + add, ~ change, = already there, ! yours differs and is kept. A file of yours that differs is replaced only
@@ -33,7 +34,7 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 const rootLib = require('./root');
 
-const { ZONES, MARKER, DEFAULT_CODE_ZONE } = rootLib;
+const { ZONES, MARKER, DEFAULT_CODE_ZONE, TEMP_DIR } = rootLib;
 const TEMPLATES = path.join(__dirname, '..', 'templates');
 const ROLES = ['command', 'builder', 'mobile'];
 const FIELDS = ['machine', 'role', 'code_zone', 'workspace', 'owner'];
@@ -43,7 +44,7 @@ const NAV_JSON = path.join('.hub', 'nav.json');
 const STAMP_RE = /^<!-- regenerated (\d{4}-\d{2}-\d{2}) by hub nav\. Edit \.hub\/nav\.json, not this file\. -->\n?/m;
 const STALE_DAYS = 8;
 const TREE_MAX = 30;
-const ROOT_BELONGS = new Set([...ZONES.map((z) => z.dir), 'CLAUDE.md', NAV_FILE, '.hub', '.claude']);
+const ROOT_BELONGS = new Set([...ZONES.map((z) => z.dir), TEMP_DIR, 'CLAUDE.md', NAV_FILE, '.hub', '.claude']);
 const OS_JUNK = new Set(['.ds_store', 'desktop.ini', 'thumbs.db']);
 const DUMP_PILES = [/^migration-/i, /^_work$/i, /^sort[-_ ]?later$/i, /^misc$/i];
 const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -287,7 +288,7 @@ function markerText(obj) {
 
 /* ------------------------------------------------------------------ init */
 
-/** The folders every Hub has: each zone, then the folders inside its template (the code zone for 20-Coding/Projects). */
+/** The folders every Hub has: each zone, then the folders inside its template (the code zone for 20-Coding/Projects), then Temp. */
 function skeleton(codeZoneRel) {
   const out = [];
   for (const z of ZONES) {
@@ -297,6 +298,7 @@ function skeleton(codeZoneRel) {
       out.push(rel === DEFAULT_CODE_ZONE ? codeZoneRel || DEFAULT_CODE_ZONE : rel);
     }
   }
+  out.push(TEMP_DIR);
   return [...new Set(out)];
 }
 
@@ -712,7 +714,7 @@ function doctor(rootIn, opts) {
     }
   }
 
-  // The root: only the zones, CLAUDE.md, NAV.md, .hub and .claude belong there.
+  // The root: only the zones, Temp, CLAUDE.md, NAV.md, .hub and .claude belong there.
   const rootEntries = entries(root).filter((d) => !OS_JUNK.has(d.name.toLowerCase()));
   const strays = rootEntries.filter((d) => !ROOT_BELONGS.has(d.name));
   for (const d of strays) {

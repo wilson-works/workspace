@@ -12,13 +12,17 @@
  * has no sandbox. It refuses, with a reason the session reads:
  *   - Read, Write, Edit, MultiEdit, NotebookEdit: a file outside the Hub;
  *   - Glob, Grep, LS: a folder (or an absolute pattern) outside the Hub;
- *   - Bash, PowerShell: a command that names a path outside the Hub: C:\..., /c/..., /Users/...,
+ *   - Bash, PowerShell, Monitor: a command that names a path outside the Hub: C:\..., /c/..., /Users/...,
  *     ~, $HOME, %USERPROFILE%, $env:APPDATA and the like, or ..\.. past the Hub; and a command that
  *     asks Windows for a personal folder ([Environment]::GetFolderPath).
- * Inside means the Hub (argv[2]), the system temp folder, and Claude's own folders for this Hub's chats
- * (the folder of this session's transcript: saved tool results and memory) and ~/.claude/plans. Claude's
- * own plugins (~/.claude/plugins) may be read, never changed: a private plugin such as Tony's full
- * training lives there. Quoted commands (bash -c "...", python -c "...") are read inside, two levels deep.
+ * Inside means the Hub (argv[2]) and Claude's own folders for this Hub's chats (the folder of this
+ * session's transcript: saved tool results and memory) and ~/.claude/plans. Temp files go in the Hub's
+ * own Temp folder (the refusal says so); the computer's temp folder is outside, by name, by $TEMP or
+ * $TMPDIR, or as /tmp. Claude Code's own temp folder (where it saves a command's output) and Claude's plugins
+ * (~/.claude/plugins, where a private plugin such as Tony's full training lives) may be read, never
+ * changed. Quoted commands (bash -c "...", python -c "...") are read inside, two levels deep.
+ * Connectors (MCP), web search and fetch, and the browser are not file tools: the fence leaves them
+ * alone, and they ask the person as usual.
  *
  * Honest limit: it reads a command, it does not run it. A command that builds a path at run time
  * (a script that opens a file it computes) can get past it.
@@ -44,6 +48,17 @@ const within = (p, root) => { const a = norm(p); const b = norm(root); return a 
 const POSIX_ROOTS = /^\/(Users|home|etc|var|private|Volumes|opt|usr|root|mnt|Library|System|Applications|bin|sbin|srv|media|dev|tmp|cygdrive)(\/|$)/;
 const ENV_DIRS = ['USERPROFILE', 'HOME', 'HOMEPATH', 'APPDATA', 'LOCALAPPDATA', 'OneDrive', 'OneDriveConsumer',
   'OneDriveCommercial', 'PUBLIC', 'ProgramData', 'ALLUSERSPROFILE', 'TEMP', 'TMP', 'SystemDrive', 'SystemRoot', 'windir'];
+// The Hub's temp folder (TEMP_DIR in hub/lib/root.js; this hook stands alone, so the name is written here too).
+const HUB_TEMP = 'Temp';
+
+/** Claude Code's own temp folders (<temp>/claude on Windows, <temp>/claude-<uid> elsewhere): read-only, for its saved output. */
+function claudeTemps() {
+  const bases = [process.env.CLAUDE_CODE_TMPDIR, os.tmpdir(),
+    WIN && process.env.LOCALAPPDATA && path.join(process.env.LOCALAPPDATA, 'Temp'),
+    !WIN && '/tmp', process.platform === 'darwin' && '/private/tmp'].filter(Boolean);
+  const leaf = WIN ? 'claude' : `claude-${typeof process.getuid === 'function' ? process.getuid() : ''}`;
+  return [...new Set(bases.map((b) => path.join(b, leaf)))];
+}
 
 function hubOf() {
   if (process.argv[2]) return path.resolve(process.argv[2]);
@@ -108,12 +123,13 @@ function decide(input, hub) {
   const tool = String(input.tool_name || '');
   const ti = input.tool_input || {};
   const cwd = input.cwd || process.cwd();
-  const temp = os.tmpdir();
-  const plugins = path.join(os.homedir(), '.claude', 'plugins');
+  // Read-only: Claude's plugins, and Claude Code's own temp folder (its saved command output). The computer's temp
+  // folder is not inside: temp files go in the Hub's Temp folder.
+  const readable = [path.join(os.homedir(), '.claude', 'plugins'), ...claudeTemps()];
   // Claude's own folders for this Hub's chats: where it saves a big tool or connector result and reads it back,
   // and its memory (the folder holding this session's transcript), plus its plans. Other projects' stay refused.
   const own = [input.transcript_path ? path.dirname(String(input.transcript_path)) : null, path.join(os.homedir(), '.claude', 'plans')].filter(Boolean);
-  const ok = (p, readOnly) => within(p, hub) || within(p, temp) || own.some((d) => within(p, d)) || (readOnly && within(p, plugins));
+  const ok = (p, readOnly) => within(p, hub) || own.some((d) => within(p, d)) || (readOnly && readable.some((d) => within(p, d)));
 
   if (['Read', 'Write', 'Edit', 'MultiEdit', 'NotebookEdit'].includes(tool)) {
     const f = ti.file_path || ti.notebook_path;
@@ -133,7 +149,7 @@ function decide(input, hub) {
     }
     return null;
   }
-  if (tool === 'Bash' || tool === 'PowerShell') {
+  if (tool === 'Bash' || tool === 'PowerShell' || tool === 'Monitor') {
     const cmd = String(ti.command || '');
     if (/GetFolderPath|SpecialFolder|Shell\.Application/i.test(cmd)) return 'a personal folder of this computer';
     // Folder variables first, across the whole command: ${APPDATA} would otherwise be split at its braces.
@@ -157,14 +173,17 @@ function main() {
     try {
       const input = JSON.parse(text || '{}');
       const hub = hubOf();
+      // The Hub's Temp folder, where the refusal sends temp files: it comes back if someone emptied it by deleting it.
+      try { fs.mkdirSync(path.join(hub, HUB_TEMP), { recursive: true }); } catch (_) { /* the Hub itself may be gone */ }
       const outside = decide(input, hub);
       if (!outside) return;
       const reason = `Outside the Hub: ${outside}. The Hub fence keeps Claude inside ${hub}, so the rest of this computer stays private. `
-        + 'Work inside the Hub instead. If the person needs a file from somewhere else, ask them to copy it into 00-Inbox in the Hub first.';
+        + `Work inside the Hub instead; for a temporary file use ${path.join(hub, HUB_TEMP)}. `
+        + 'If the person needs a file from somewhere else, ask them to copy it into 00-Inbox in the Hub first.';
       process.stdout.write(JSON.stringify({ hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: 'deny', permissionDecisionReason: reason } }));
     } catch (_) { /* never break a session: Claude Code's own block still stands */ }
   });
 }
 
 if (require.main === module) main();
-module.exports = { decide, placeOf, words, expand };
+module.exports = { decide, placeOf, words, expand, claudeTemps, HUB_TEMP };

@@ -68,6 +68,44 @@ test("Claude's own folder for this chat (saved tool results, memory) is inside; 
   refused(call('Read', { file_path: path.join(os.homedir(), '.claude', 'projects', 'someone-else', 's.jsonl') }, { transcript_path }));
 });
 
+test("temp files: the Hub's Temp folder is inside, the computer's own temp folder is not", () => {
+  const { HUB_TEMP } = require('../.claude/hooks/hub-fence');
+  assert.equal(HUB_TEMP, require('../hub/lib/root').TEMP_DIR, 'the hook and hub init name a different Temp folder');
+  allowed(call('Write', { file_path: path.join(hub, 'Temp', 'scratch.csv') }));
+  allowed(call('Bash', { command: 'python make.py > Temp/out.txt && cat Temp/out.txt' }));
+  // os.tmpdir() is the computer's temp folder here (the test Hub is a folder inside it, so name a file beside it).
+  refused(call('Write', { file_path: path.join(os.tmpdir(), 'fence-elsewhere.txt') }));
+  refused(call('Read', { file_path: path.join(os.tmpdir(), 'fence-elsewhere.txt') }));
+  refused(call('Bash', { command: 'cat /tmp/fence-elsewhere.txt' }));
+  // $TEMP and $TMPDIR are placed where they point: the computer's temp folder is refused, a TMPDIR set to the Hub's Temp is not.
+  if (process.env.TEMP) refused(call('Bash', { command: 'echo hi > $TEMP/x.txt' }));
+  const was = process.env.TMPDIR;
+  process.env.TMPDIR = path.join(hub, 'Temp');
+  try { allowed(call('Bash', { command: 'echo hi > $TMPDIR/x.txt' })); } finally {
+    if (was === undefined) delete process.env.TMPDIR; else process.env.TMPDIR = was;
+  }
+});
+
+test("Claude Code's own temp folder (its saved command output) may be read, never written", () => {
+  const leaf = process.platform === 'win32' ? 'claude' : `claude-${process.getuid()}`;
+  const saved = path.join(os.tmpdir(), leaf, 'abc123', 'tasks', 'b1.output');
+  allowed(call('Read', { file_path: saved }));
+  refused(call('Write', { file_path: saved }));
+});
+
+test('Monitor runs a shell command, so it is fenced like Bash', () => {
+  refused(call('Monitor', { command: `tail -f ${fwd(outside)}`, description: 'x', timeout_ms: 1000 }));
+  allowed(call('Monitor', { command: 'tail -f Temp/build.log', description: 'x', timeout_ms: 1000 }));
+});
+
+test('connectors (MCP), web search and fetch, the browser and web addresses in a command are not fenced', () => {
+  allowed(call('mcp__quickbooks__list_accounts', { realm: 'x' }));
+  allowed(call('mcp__chrome-devtools__navigate_page', { url: 'https://example.com' }));
+  allowed(call('WebFetch', { url: 'https://example.com', prompt: 'x' }));
+  allowed(call('WebSearch', { query: 'irs mileage rate' }));
+  allowed(call('Bash', { command: 'curl -s https://api.example.com/v1/rates -o Temp/rates.json' }));
+});
+
 test("cmd's own switches are not drives: cmd /c dir is allowed, cmd /c type C:\\... is not", () => {
   allowed(call('Bash', { command: 'cmd /c dir' }));
   refused(call('Bash', { command: `cmd /c "type ${outside}"` }));
