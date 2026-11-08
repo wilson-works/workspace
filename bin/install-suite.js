@@ -316,6 +316,28 @@ async function ourOfficeOn(officeHome, port) {
   return !!a && Number(a.port) === port && pidAlive(Number(a.pid)) && portInUse(port);
 }
 
+/**
+ * A firm's staff office (the CBFC staff office, installed after this Workspace) runs on this Workspace's own port and
+ * keeps its files in <local app data>/CBFCWorkspace (CBFC_OFFICE_HOME overrides). When it is the one on the port, the
+ * Workspace's own office steps aside instead of reporting the port as taken by something else.
+ */
+function staffOfficeHome() {
+  const env = process.env.CBFC_OFFICE_HOME && process.env.CBFC_OFFICE_HOME.trim();
+  if (env) return path.resolve(env);
+  if (process.platform === 'win32') return path.join(process.env.LOCALAPPDATA || path.join(os.homedir(), 'AppData', 'Local'), 'CBFCWorkspace');
+  if (process.platform === 'darwin') return path.join(os.homedir(), 'Library', 'Application Support', 'CBFCWorkspace');
+  return path.join(process.env.XDG_DATA_HOME || path.join(os.homedir(), '.local', 'share'), 'CBFCWorkspace');
+}
+// Its record must also be fresh: the staff office re-stamps alive_at every 30 s, and a record left behind after it
+// stopped can name a pid Windows has since given to another program (John, PR #22).
+async function staffOfficeOn(port) {
+  let a = null;
+  try { a = JSON.parse(fs.readFileSync(path.join(staffOfficeHome(), 'office.alive'), 'utf8')); } catch (_) { return false; }
+  const at = a && Date.parse(a.alive_at);
+  if (!Number.isFinite(at) || Date.now() - at >= 90000) return false;
+  return ourOfficeOn(staffOfficeHome(), port);
+}
+
 async function pickPort(officeHome) {
   if (!(await portInUse(DEFAULT_PORT)) || (await ourOfficeOn(officeHome, DEFAULT_PORT))) return DEFAULT_PORT;
   for (let p = DEFAULT_PORT + 1; p < DEFAULT_PORT + 80; p += 1) if (!(await portInUse(p))) return p;
@@ -697,6 +719,7 @@ async function partOffice(ctx) {
   let start = null;
   if (o.noStart) out('  The office is not started (--no-start). Start it with: node bin/office-start.js');
   else if (await ourOfficeOn(officeHome, port)) { out(`  = the office is running: http://127.0.0.1:${port}/`); ctx.officeUp = true; }
+  else if (await staffOfficeOn(port)) { out(`  = your firm's staff office is running here: http://127.0.0.1:${port}/ (it takes the Workspace office's place)`); ctx.officeUp = true; }
   else if (await portInUse(port)) {
     out(`  ! port ${port} is in use by something else, so the office cannot start there. Set office.port in ${show(ctx, cfgFile)} to a free port (any number from 1024 up), then run this again.`);
     ctx.failed.push('office');
