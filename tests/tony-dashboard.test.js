@@ -6,7 +6,7 @@
  * is 404 for a bad % escape and for "..", 200 for a real file in the pack, 404 with no brand; /health 200 after.
  */
 
-const { test, after } = require('node:test');
+const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
 const os = require('os');
@@ -19,21 +19,29 @@ const hub = fs.mkdtempSync(path.join(os.tmpdir(), 'tony-page-'));
 const tony = path.join(hub, '50-AI', 'agents', 'tony');
 const settings = path.join(hub, '50-AI', 'workspace', 'workspace.config.json');
 const pack = path.join(hub, 'pack');
-const PORT = 4413;
+let PORT = 0;   // a free port the system gives, so an earlier run still letting go of its port never collides
+let proc = null;
 
 fs.cpSync(SRC, tony, { recursive: true });
-const m = JSON.parse(fs.readFileSync(path.join(tony, 'agent.json'), 'utf8'));
-m.probe.port = PORT;
-m.door.local = `http://127.0.0.1:${PORT}/`;
-fs.writeFileSync(path.join(tony, 'agent.json'), JSON.stringify(m));
 fs.mkdirSync(path.join(pack, 'tokens'), { recursive: true });
 fs.writeFileSync(path.join(pack, 'tokens', 'colors.css'), ':root{--red-600:#D40032}');
 fs.mkdirSync(path.dirname(settings), { recursive: true });
 const brand = (on) => fs.writeFileSync(settings, JSON.stringify({ brand: on ? { look: 'academy', pack, stylesheets: ['tokens/colors.css'] } : {} }));
 brand(true);
 
-const proc = spawn(process.execPath, [path.join(tony, 'dashboard', 'server.js')], { cwd: tony, stdio: 'ignore' });
-after(() => { proc.kill(); fs.rmSync(hub, { recursive: true, force: true }); });
+before(async () => {
+  PORT = await new Promise((resolve) => { const s = require('net').createServer().listen(0, '127.0.0.1', () => { const p = s.address().port; s.close(() => resolve(p)); }); });
+  const m = JSON.parse(fs.readFileSync(path.join(tony, 'agent.json'), 'utf8'));
+  m.probe.port = PORT;
+  m.door.local = `http://127.0.0.1:${PORT}/`;
+  fs.writeFileSync(path.join(tony, 'agent.json'), JSON.stringify(m));
+  proc = spawn(process.execPath, [path.join(tony, 'dashboard', 'server.js')], { cwd: tony, stdio: 'ignore' });
+});
+// Windows will not remove a folder a live process works in: wait for Tony's page to exit, then remove it.
+after(async () => {
+  if (proc && proc.exitCode === null && proc.signalCode === null) { const gone = new Promise((r) => proc.once('exit', r)); proc.kill(); await gone; }
+  fs.rmSync(hub, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
+});
 
 function get(p) {
   return new Promise((resolve) => {
