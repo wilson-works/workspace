@@ -2,10 +2,10 @@
 
 /**
  * install-staff-office.test.js: when a firm's staff office (the CBFC staff office) runs on this Workspace's port, a
- * second paste of the install line steps aside instead of marking the office step failed (HQ, 2026-11-07: "pasting
- * the Workspace line again after the staff office runs prints 'port in use' and marks its office step failed").
- * The staff office is recognised only by its own record, <local app data>/CBFCWorkspace/office.alive naming a live
- * pid on that port; anything else on the port is still reported, as before.
+ * second paste of the install line steps aside instead of marking the office step failed (on 2026-11-07, pasting the
+ * Workspace line again after the staff office ran printed "port in use" and marked its office step failed).
+ * The staff office is recognised only by its own fresh record, <local app data>/CBFCWorkspace/office.alive naming a
+ * live pid on that port and stamped within 90 s; anything else on the port is still reported, as before.
  */
 
 const test = require('node:test');
@@ -79,10 +79,25 @@ test("a second paste steps aside for the firm's staff office on the Workspace's 
   assert.strictEqual(first.code, 0, first.text);
   // The staff office takes the port and leaves its record, as the CBFC staff office's server does.
   fs.mkdirSync(sb.staffHome, { recursive: true });
-  fs.writeFileSync(path.join(sb.staffHome, 'office.alive'), JSON.stringify({ pid: process.pid, port: l.port, started_at: new Date().toISOString() }));
+  fs.writeFileSync(path.join(sb.staffHome, 'office.alive'), JSON.stringify({ pid: process.pid, port: l.port, started_at: new Date().toISOString(), alive_at: new Date().toISOString() }));
   const again = install(sb, l.port);
   assert.match(again.text, /your firm's staff office is running here/, again.text);
   assert.doesNotMatch(again.text, /in use by something else/, again.text);
+});
+
+test('a stale staff office record (not re-stamped for over 90 s) does not hide a real port problem', async (t) => {
+  const sb = sandbox(t);
+  const l = await listener();
+  t.after(() => l.close());
+  const first = install(sb, l.port, '--no-start');
+  assert.strictEqual(first.code, 0, first.text);
+  // A record left behind: its pid is alive (Windows may have reused it), but it was last stamped ten minutes ago.
+  const old = new Date(Date.now() - 600000).toISOString();
+  fs.mkdirSync(sb.staffHome, { recursive: true });
+  fs.writeFileSync(path.join(sb.staffHome, 'office.alive'), JSON.stringify({ pid: process.pid, port: l.port, started_at: old, alive_at: old }));
+  const again = install(sb, l.port);
+  assert.match(again.text, /in use by something else/, again.text);
+  assert.doesNotMatch(again.text, /staff office is running/, again.text);
 });
 
 test('anything else on the port is still reported (no staff office record)', async (t) => {

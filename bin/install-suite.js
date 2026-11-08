@@ -328,7 +328,15 @@ function staffOfficeHome() {
   if (process.platform === 'darwin') return path.join(os.homedir(), 'Library', 'Application Support', 'CBFCWorkspace');
   return path.join(process.env.XDG_DATA_HOME || path.join(os.homedir(), '.local', 'share'), 'CBFCWorkspace');
 }
-const staffOfficeOn = (port) => ourOfficeOn(staffOfficeHome(), port);
+// Its record must also be fresh: the staff office re-stamps alive_at every 30 s, and a record left behind after it
+// stopped can name a pid Windows has since given to another program (John, PR #22).
+async function staffOfficeOn(port) {
+  let a = null;
+  try { a = JSON.parse(fs.readFileSync(path.join(staffOfficeHome(), 'office.alive'), 'utf8')); } catch (_) { return false; }
+  const at = a && Date.parse(a.alive_at);
+  if (!Number.isFinite(at) || Date.now() - at >= 90000) return false;
+  return ourOfficeOn(staffOfficeHome(), port);
+}
 
 async function pickPort(officeHome) {
   if (!(await portInUse(DEFAULT_PORT)) || (await ourOfficeOn(officeHome, DEFAULT_PORT))) return DEFAULT_PORT;
