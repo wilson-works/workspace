@@ -1467,3 +1467,37 @@ button.tm-row:hover { border-color: color-mix(in srgb, var(--accent) 35%, var(--
 .net-chart { margin-top: 6px; }
 .net-chart > .sfold-head { margin: 4px 0 10px; }
 .kcard .pill { white-space: normal; max-width: 100%; }
+
+/* ---- look: academy (brand.look "academy", config/brands/cbfc.json): the CBFC Academy's own look, so
+   the office and the Academy feel like one place. A charcoal bar with a red rule under it and grey
+   uppercase links (white, underlined in red, where you are); a flat paper page with white cards and
+   hairline borders; Archivo for text and Oswald for headings (brand.fonts, from the Academy on this
+   computer; system fonts until it is there); squarer corners. Light only (brand.scheme). ---- */
+.look-academy body { font-family: "Archivo", "Helvetica Neue", Arial, sans-serif; }
+.look-academy body::before, .look-academy body::after { display: none; }
+.look-academy .bar {
+  height: 64px; background: #26262A; color: #FFFFFF; backdrop-filter: none;
+  border-bottom: 3px solid var(--accent);
+}
+.look-academy .brand-name { color: #FFFFFF; font-size: 15px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.look-academy .brand-logo { height: 30px; max-width: 120px; border-radius: 0; }
+.look-academy .brand-company { color: #B9B9C0; }
+.look-academy .tabs-top .tab, .look-academy .machine {
+  border-radius: 0; background: none; background-image: none; box-shadow: none; color: #B9B9C0;
+  font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 23px 12px 20px; margin-bottom: -3px; border-bottom: 3px solid transparent;
+}
+.look-academy .tabs-top .tab:hover, .look-academy .machine:hover { background: none; color: #FFFFFF; }
+.look-academy .tabs-top .tab.on, .look-academy .machine.on { background: none; background-image: none; color: #FFFFFF; border-bottom-color: var(--accent); }
+.look-academy .machine-count { color: inherit; }
+.look-academy .bar-right { color: #B9B9C0; }
+.look-academy .bar-new { background: #FFFFFF; color: #26262A; border-color: #FFFFFF; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; font-size: 12px; }
+.look-academy .bar-new:hover { background: #EFEFED; }
+.look-academy .pulse-eyebrow { font-family: inherit; font-weight: 700; letter-spacing: 0.1em; color: var(--accent); }
+.look-academy .pulse-hello, .look-academy .panel-head h2 {
+  font-family: "Oswald", "Arial Narrow", "Helvetica Neue", Arial, sans-serif; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.01em; text-shadow: none;
+}
+.look-academy .room { border-radius: 8px; box-shadow: none; background: #FFFFFF; }
+.look-academy .desk { border-radius: 8px; }
+.look-academy .panel { border-radius: 8px; }

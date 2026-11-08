@@ -187,6 +187,19 @@ function useBrand(brand) {
     if (!el) { el = document.createElement('style'); el.id = 'brand-theme'; document.head.appendChild(el); }
     el.textContent = css;
   }, [css]);
+  // A brand's own look (a class office.css styles), a fixed light or dark, and its fonts.
+  const look = brand && brand.look;
+  const scheme = brand && brand.scheme;
+  const fonts = !!(brand && brand.fonts);
+  useEffect(() => {
+    const root = document.documentElement;
+    [...root.classList].filter((c) => c.startsWith('look-')).forEach((c) => root.classList.remove(c));
+    if (look) root.classList.add(`look-${look}`);
+    if (scheme) root.dataset.theme = scheme; else delete root.dataset.theme;
+    let link = document.getElementById('brand-fonts');
+    if (!fonts) { if (link) link.remove(); return; }
+    if (!link) { link = document.createElement('link'); link.id = 'brand-fonts'; link.rel = 'stylesheet'; link.href = '/brand-font/fonts.css'; document.head.appendChild(link); }
+  }, [look, scheme, fonts]);
   return name;
 }
 

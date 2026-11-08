@@ -116,12 +116,19 @@ function normalize(raw) {
   const colors = Array.isArray(brand.colors) && brand.colors.length >= 2 && brand.colors.slice(0, 2).every((c) => HEX_RE.test(String(c)))
     ? brand.colors.slice(0, 2).map(String)
     : DEFAULT_COLORS;
-  let logo = str(brand.logo);
-  if (logo) {
-    // "~/..." is the user's home, so one brand file works on every computer (and on a Mac and a PC).
-    logo = path.resolve(ROOT, logo.replace(/^~(?=[\\/])/, os.homedir()));
-    if (!/\.(svg|png)$/i.test(logo) || !fs.existsSync(logo)) logo = null;
-  }
+  // "~/..." is the user's home, so one brand file works on every computer (and on a Mac and a PC).
+  const brandFile = (v, ext) => {
+    let f = str(v);
+    if (!f) return null;
+    f = path.resolve(ROOT, f.replace(/^~(?=[\\/])/, os.homedir()));
+    return ext.test(f) && fs.existsSync(f) ? f : null;
+  };
+  const logo = brandFile(brand.logo, /\.(svg|png)$/i);
+  // brand.fonts: a stylesheet of @font-face rules whose fonts sit next to it (the office serves both).
+  const fonts = brandFile(brand.fonts, /\.css$/i);
+  const look = /^[a-z][a-z-]{0,19}$/.test(String(brand.look || '')) ? brand.look : null;
+  // brand.scheme "light" keeps the office light whatever the computer prefers (office.css can force light only).
+  const scheme = brand.scheme === 'light' ? 'light' : null;
   const hubUrl = str(r.hub_url);
   const office = r.office && typeof r.office === 'object' ? r.office : {};
   const port = Number(office.port);
@@ -132,7 +139,7 @@ function normalize(raw) {
   return {
     use: str(r.use) === 'company' ? 'company' : 'personal',
     owner: { name: str(owner.name) },
-    brand: { office_name: str(brand.office_name) || 'WorkSpace', company: str(brand.company), colors, logo, theme: themeOf(brand.theme) },
+    brand: { office_name: str(brand.office_name) || 'WorkSpace', company: str(brand.company), colors, logo, theme: themeOf(brand.theme), look, scheme, fonts },
     machines,
     hub_url: hubUrl && /^https?:\/\//i.test(hubUrl) ? hubUrl.replace(/\/+$/, '') : null,
     code_roots: list(r.code_roots),
@@ -322,6 +329,9 @@ function brand() {
     colors: c.brand.colors,
     logo: !!c.brand.logo,
     theme: c.brand.theme,
+    look: c.brand.look,
+    scheme: c.brand.scheme,
+    fonts: !!c.brand.fonts,
   };
 }
 

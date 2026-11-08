@@ -14,10 +14,6 @@
   },
   "start": "node dashboard/server.js",
   "autostart": true,
-  "match": [
-    "cbfc",
-    "academy"
-  ],
   "brand": {
     "bg": "#1C1C20",
     "panel": "#2E2E34",
@@ -25,13 +21,7 @@
     "accent": "#D40032",
     "accent2": "#FF003B",
     "on_accent": "#FFFFFF",
-    "font": "Inter, system-ui, sans-serif",
+    "font": "Archivo, Inter, system-ui, sans-serif",
     "mark": "mark.svg"
-  },
-  "art": "art.svg",
-  "jokes": [
-    "Welcome to the Academy. The library is straight ahead.",
-    "Ask CBFC is in. So am I.",
-    "Planning is on the top bar. I checked twice."
-  ]
+  }
 }
