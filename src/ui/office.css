@@ -1539,6 +1539,16 @@ html.look-academy {
   text-transform: uppercase; letter-spacing: 0.01em; text-shadow: none;
 }
 
+/* A session's emblem becomes the Academy's avatar plate: a square charcoal plate, its symbol in white,
+   no WilsonWorks disc, frame or glow. */
+html.look-academy .avatar {
+  border-radius: var(--radius-none, 0); background: var(--surface-dark, #26262A) !important;
+  border: 0 !important; box-shadow: none !important; animation: none !important;
+}
+html.look-academy .avatar::before, html.look-academy .avatar::after { display: none; }
+html.look-academy .avatar .avatar-glyph, html.look-academy .avatar .avatar-underlay { filter: brightness(0) invert(1); animation: none !important; }
+html.look-academy .avatar-link { border-radius: 0; }
+
 /* Surfaces: white cards, hairline borders, the pack's tight corners and quiet shadow. */
 .look-academy .room { border-radius: var(--radius-md, 8px); box-shadow: none; background: var(--surface-card, #FFFFFF); }
 .look-academy .desk { border-radius: var(--radius-md, 8px); }
