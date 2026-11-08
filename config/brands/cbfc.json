@@ -1,33 +1,16 @@
 {
-  "_readme": "CBFC's look for a team member's office: the install line adds it with --brand cbfc. It follows the CBFC Academy: its colours, its charcoal bar and paper page (look academy), light only, and its own fonts and logo. The fonts and logo are not in this public repo: they are read from the CBFC Academy on that computer (installed on its own, in the home folder), so the office uses system fonts and the WorkSpace orb until the Academy is there.",
+  "_readme": "CBFC's look for a team member's office: the install line adds it with --brand cbfc. It is the CBFC Academy's own look (look academy), built from the Academy's design-system pack: its colour, type and spacing tokens and its fonts, read from the CBFC Academy on that computer (installed on its own, in the home folder), together with its logo. Nothing of CBFC's is in this public repo. Until the Academy is there, the office uses the pack's values written into office.css and system fonts. Light only.",
   "office_name": "CBFC Workspace",
   "company": "",
   "colors": ["#FF003B", "#D40032"],
   "logo": "~/cbfc-academy/app/assets/logo/cbfc-logo-white.svg",
-  "fonts": "~/cbfc-academy/app/fonts/cbfc-fonts.css",
+  "pack": "~/cbfc-academy/app",
+  "stylesheets": [
+    "_ds/*/tokens/fonts.css",
+    "_ds/*/tokens/colors.css",
+    "_ds/*/tokens/typography.css",
+    "_ds/*/tokens/spacing.css"
+  ],
   "look": "academy",
-  "scheme": "light",
-  "theme": {
-    "light": {
-      "bg": "#F7F7F5",
-      "room": "#FFFFFF",
-      "card": "#FFFFFF",
-      "card-hover": "#FFFFFF",
-      "line": "#E2E2E0",
-      "ink": "#26262A",
-      "ink-2": "#44444B",
-      "muted": "#6A6A73",
-      "accent": "#D40032",
-      "accent-soft": "rgba(212, 0, 50, 0.07)",
-      "said": "#EFEFED",
-      "you": "#26262A",
-      "you-ink": "#FFFFFF",
-      "glow": "rgba(212, 0, 50, 0.18)",
-      "progress": "#D40032",
-      "aurora-1": "rgba(0, 0, 0, 0)",
-      "aurora-2": "rgba(0, 0, 0, 0)",
-      "aurora-3": "rgba(0, 0, 0, 0)",
-      "flow": "#D40032"
-    }
-  }
+  "scheme": "light"
 }

@@ -1468,36 +1468,112 @@ button.tm-row:hover { border-color: color-mix(in srgb, var(--accent) 35%, var(--
 .net-chart > .sfold-head { margin: 4px 0 10px; }
 .kcard .pill { white-space: normal; max-width: 100%; }
 
-/* ---- look: academy (brand.look "academy", config/brands/cbfc.json): the CBFC Academy's own look, so
-   the office and the Academy feel like one place. A charcoal bar with a red rule under it and grey
-   uppercase links (white, underlined in red, where you are); a flat paper page with white cards and
-   hairline borders; Archivo for text and Oswald for headings (brand.fonts, from the Academy on this
-   computer; system fonts until it is there); squarer corners. Light only (brand.scheme). ---- */
-.look-academy body { font-family: "Archivo", "Helvetica Neue", Arial, sans-serif; }
-.look-academy body::before, .look-academy body::after { display: none; }
-.look-academy .bar {
-  height: 64px; background: #26262A; color: #FFFFFF; backdrop-filter: none;
-  border-bottom: 3px solid var(--accent);
+/* ---- look: academy (brand.look "academy", config/brands/cbfc.json): the office in the CBFC Academy's
+   own look, built from the Academy's design-system pack (brand.pack + brand.stylesheets: its colour,
+   type and spacing tokens and its fonts, read from the Academy on this computer). Every value below
+   is a pack token, with the pack's own value as the fallback for a computer without the Academy.
+   No WilsonWorks marks: no orb, no glowing dot, no aurora or stars, no glows. The agents' door cards
+   take the look too; each agent's own dashboard keeps its own. Light only (brand.scheme). ---- */
+html.look-academy {
+  --bg: var(--surface-page, #F7F7F5);
+  --room: var(--surface-card, #FFFFFF);
+  --card: var(--surface-card, #FFFFFF);
+  --card-hover: var(--surface-card, #FFFFFF);
+  --line: var(--border-default, #E2E2E0);
+  --ink: var(--text-body, #26262A);
+  --ink-2: var(--ink-700, #44444B);
+  --muted: var(--text-muted, #6A6A73);
+  --accent: var(--red-600, #D40032);
+  --accent-soft: var(--red-50, #FFF0F3);
+  --said: var(--surface-well, #EFEFED);
+  --you: var(--surface-dark, #26262A);
+  --you-ink: var(--text-inverse, #FFFFFF);
+  --glow: transparent;
+  --progress: var(--red-500, #FF003B);
+  --flow: var(--red-600, #D40032);
+  --aurora-1: transparent;
+  --aurora-2: transparent;
+  --aurora-3: transparent;
+  --stars: 0;
+  --brand-1: var(--red-500, #FF003B);
+  --brand-2: var(--red-600, #D40032);
+  --shadow: var(--shadow-card, 0 1px 2px rgba(38, 38, 42, 0.06));
+  /* who runs on which model: the pack's earth tones, not WilsonWorks purples */
+  --tone-opus: var(--umber-700, #6B5340);
+  --tone-fable: var(--olive-500, #6F6B4C);
+  --tone-sonnet: var(--clay-500, #A05C3B);
+  --tone-haiku: var(--camel-300, #C8A878);
+  --tone-unknown: var(--ink-500, #6A6A73);
 }
-.look-academy .brand-name { color: #FFFFFF; font-size: 15px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.look-academy body { font-family: var(--font-sans, "Archivo", "Helvetica Neue", Arial, sans-serif); }
+.look-academy body::before, .look-academy body::after { display: none; }
+.look-academy .brand-mark, .look-academy .pulse-dot { display: none; }
+
+/* The bar: the Academy's charcoal top bar, a red rule under it, grey caps links. */
+.look-academy .bar {
+  height: 64px; background: var(--surface-dark, #26262A); color: var(--text-inverse, #FFFFFF); backdrop-filter: none;
+  border-bottom: 3px solid var(--red-500, #FF003B);
+}
+.look-academy .brand-name { color: var(--text-inverse, #FFFFFF); font-size: 15px; font-weight: 700; letter-spacing: var(--tracking-caps, 0.14em); text-transform: uppercase; }
 .look-academy .brand-logo { height: 30px; max-width: 120px; border-radius: 0; }
-.look-academy .brand-company { color: #B9B9C0; }
+.look-academy .brand-company { color: var(--ink-300, #B9B9C0); }
 .look-academy .tabs-top .tab, .look-academy .machine {
-  border-radius: 0; background: none; background-image: none; box-shadow: none; color: #B9B9C0;
-  font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  border-radius: 0; background: none; background-image: none; box-shadow: none; color: var(--ink-300, #B9B9C0);
+  font-size: 13px; font-weight: 600; letter-spacing: var(--tracking-wide, 0.06em); text-transform: uppercase;
   padding: 23px 12px 20px; margin-bottom: -3px; border-bottom: 3px solid transparent;
 }
-.look-academy .tabs-top .tab:hover, .look-academy .machine:hover { background: none; color: #FFFFFF; }
-.look-academy .tabs-top .tab.on, .look-academy .machine.on { background: none; background-image: none; color: #FFFFFF; border-bottom-color: var(--accent); }
+.look-academy .tabs-top .tab:hover, .look-academy .machine:hover { background: none; color: var(--text-inverse, #FFFFFF); }
+.look-academy .tabs-top .tab.on, .look-academy .machine.on { background: none; background-image: none; color: var(--text-inverse, #FFFFFF); border-bottom-color: var(--red-500, #FF003B); }
 .look-academy .machine-count { color: inherit; }
-.look-academy .bar-right { color: #B9B9C0; }
-.look-academy .bar-new { background: #FFFFFF; color: #26262A; border-color: #FFFFFF; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; font-size: 12px; }
-.look-academy .bar-new:hover { background: #EFEFED; }
-.look-academy .pulse-eyebrow { font-family: inherit; font-weight: 700; letter-spacing: 0.1em; color: var(--accent); }
+.look-academy .bar-right { color: var(--ink-300, #B9B9C0); }
+.look-academy .bar-new {
+  background: var(--white, #FFFFFF); color: var(--text-body, #26262A); border-color: var(--white, #FFFFFF);
+  font-weight: 700; letter-spacing: var(--tracking-wide, 0.06em); text-transform: uppercase; font-size: 12px;
+}
+.look-academy .bar-new:hover { background: var(--gray-100, #EFEFED); }
+
+/* Headings: the pack's display face, caps; kickers in red caps, like the Academy's date line. */
+.look-academy .pulse-eyebrow { font-family: inherit; font-weight: 600; letter-spacing: var(--tracking-caps, 0.14em); color: var(--text-accent, #D40032); }
 .look-academy .pulse-hello, .look-academy .panel-head h2 {
-  font-family: "Oswald", "Arial Narrow", "Helvetica Neue", Arial, sans-serif; font-weight: 600;
+  font-family: var(--font-display, "Oswald", "Arial Narrow", sans-serif); font-weight: 600;
   text-transform: uppercase; letter-spacing: 0.01em; text-shadow: none;
 }
-.look-academy .room { border-radius: 8px; box-shadow: none; background: #FFFFFF; }
-.look-academy .desk { border-radius: 8px; }
-.look-academy .panel { border-radius: 8px; }
+
+/* Surfaces: white cards, hairline borders, the pack's tight corners and quiet shadow. */
+.look-academy .room { border-radius: var(--radius-md, 8px); box-shadow: none; background: var(--surface-card, #FFFFFF); }
+.look-academy .desk { border-radius: var(--radius-md, 8px); }
+.look-academy .panel { border-radius: var(--radius-md, 8px); }
+
+/* The agents' door cards take the look; the agent's own colours stay inside its dashboard. */
+html.look-academy .aoffice {
+  --a-bg: var(--surface-card, #FFFFFF) !important;
+  --a-panel: var(--surface-card, #FFFFFF) !important;
+  --a-ink: var(--text-body, #26262A) !important;
+  --a-accent: var(--red-500, #FF003B) !important;
+  --a-accent2: var(--red-600, #D40032) !important;
+  --a-on-accent: var(--white, #FFFFFF) !important;
+  font-family: var(--font-sans, "Archivo", Arial, sans-serif) !important;
+  background: var(--surface-card, #FFFFFF);
+  border: 1px solid var(--border-default, #E2E2E0);
+  border-radius: var(--radius-md, 8px);
+  box-shadow: var(--shadow-card, none);
+}
+html.look-academy .aoffice-light, html.look-academy .azzz { display: none; }
+html.look-academy .adoor-frame { border-color: var(--border-strong, #CFCFCC); box-shadow: none; }
+html.look-academy .adoor-room { background: var(--ink-700, #44444B); }
+html.look-academy .aoffice:not(.is-lit) .adoor-room { filter: none; }
+html.look-academy .adoor-leaf {
+  background: var(--surface-dark, #26262A); border-color: var(--ink-700, #44444B); box-shadow: none; color: var(--text-inverse, #FFFFFF);
+}
+html.look-academy .adoor-figure { filter: none; }
+html.look-academy .adoor-knob { background: var(--red-500, #FF003B); box-shadow: none; }
+html.look-academy .aplaque-eyebrow { font-family: inherit; font-weight: 600; letter-spacing: var(--tracking-caps, 0.14em); color: var(--text-accent, #D40032); opacity: 1; }
+html.look-academy .panel .aplaque-name {
+  font-family: var(--font-display, "Oswald", "Arial Narrow", sans-serif); font-weight: 600; text-transform: uppercase; letter-spacing: var(--tracking-wide, 0.06em);
+}
+html.look-academy .aplaque-status { background: var(--surface-well, #EFEFED); }
+html.look-academy .aoffice.state-running .astatus-dot { box-shadow: none; animation: none; }
+html.look-academy .aenter {
+  border-radius: var(--radius-lg, 14px); box-shadow: none; text-transform: uppercase; letter-spacing: var(--tracking-wide, 0.06em); font-size: 13px;
+}
+html.look-academy .aenter:hover { background: var(--red-600, #D40032); transform: none; }

@@ -24,21 +24,29 @@ const DEFAULT_COLORS = ['#A855F7', '#6D28D9'];
 const POOLS = ['trees', 'stars', 'rivers'];
 const NAME_RE = /^[A-Z0-9][A-Z0-9-]{0,23}$/;
 const HEX_RE = /^#[0-9a-f]{6}$/i;
-// brand.theme: the office's own colour tokens (office.css :root), light and dark, for a white-label
-// office such as config/brands/cbfc.json. Only these names, and only plain colours, reach the page.
-const THEME_KEYS = ['bg', 'room', 'card', 'card-hover', 'line', 'ink', 'ink-2', 'muted', 'accent', 'accent-soft',
-  'said', 'you', 'you-ink', 'glow', 'progress', 'aurora-1', 'aurora-2', 'aurora-3', 'flow'];
-const COLOUR_RE = /^(#[0-9a-f]{3,8}|rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(,\s*(0|1|0?\.\d+)\s*)?\))$/i;
-function themeOf(t) {
-  if (!t || typeof t !== 'object') return null;
-  const out = {};
-  for (const mode of ['light', 'dark']) {
-    const src = t[mode] && typeof t[mode] === 'object' ? t[mode] : {};
-    const m = {};
-    for (const k of THEME_KEYS) if (typeof src[k] === 'string' && COLOUR_RE.test(src[k].trim())) m[k] = src[k].trim();
-    if (Object.keys(m).length) out[mode] = m;
+// A file inside a brand's pack: plain names, "/" between folders, no "..", one "*" folder at most.
+const PACK_FILE_RE = /^(?!.*\.\.)[A-Za-z0-9_*][A-Za-z0-9._*-]*(\/[A-Za-z0-9_*][A-Za-z0-9._*-]*)*$/;
+
+/** brand.stylesheets inside brand.pack, each as found on this computer ("*" is the first folder that has it). */
+function packSheets(pack, list) {
+  const out = [];
+  for (const rel of Array.isArray(list) ? list : []) {
+    if (typeof rel !== 'string' || !PACK_FILE_RE.test(rel) || !/\.css$/i.test(rel) || (rel.match(/\*/g) || []).length > 1) continue;
+    const parts = rel.split('/');
+    const star = parts.findIndex((p) => p === '*');
+    let found = null;
+    if (star < 0) found = fs.existsSync(path.join(pack, ...parts)) ? rel : null;
+    else {
+      let dirs = [];
+      try { dirs = fs.readdirSync(path.join(pack, ...parts.slice(0, star))).sort(); } catch (_) { /* no such folder */ }
+      for (const d of dirs) {
+        const cand = [...parts.slice(0, star), d, ...parts.slice(star + 1)];
+        if (fs.existsSync(path.join(pack, ...cand))) { found = cand.join('/'); break; }
+      }
+    }
+    if (found) out.push(found);
   }
-  return Object.keys(out).length ? out : null;
+  return out;
 }
 
 function file() {
@@ -124,8 +132,10 @@ function normalize(raw) {
     return ext.test(f) && fs.existsSync(f) ? f : null;
   };
   const logo = brandFile(brand.logo, /\.(svg|png)$/i);
-  // brand.fonts: a stylesheet of @font-face rules whose fonts sit next to it (the office serves both).
-  const fonts = brandFile(brand.fonts, /\.css$/i);
+  // brand.pack: a firm's own design-system folder on this computer (CBFC's: the Academy's app folder).
+  // The office serves its stylesheets and fonts at /brand-pack/, and links brand.stylesheets from it.
+  const pack = brandFile(brand.pack, /./);
+  const stylesheets = pack ? packSheets(pack, brand.stylesheets) : [];
   const look = /^[a-z][a-z-]{0,19}$/.test(String(brand.look || '')) ? brand.look : null;
   // brand.scheme "light" keeps the office light whatever the computer prefers (office.css can force light only).
   const scheme = brand.scheme === 'light' ? 'light' : null;
@@ -139,7 +149,7 @@ function normalize(raw) {
   return {
     use: str(r.use) === 'company' ? 'company' : 'personal',
     owner: { name: str(owner.name) },
-    brand: { office_name: str(brand.office_name) || 'WorkSpace', company: str(brand.company), colors, logo, theme: themeOf(brand.theme), look, scheme, fonts },
+    brand: { office_name: str(brand.office_name) || 'WorkSpace', company: str(brand.company), colors, logo, look, scheme, pack, stylesheets },
     machines,
     hub_url: hubUrl && /^https?:\/\//i.test(hubUrl) ? hubUrl.replace(/\/+$/, '') : null,
     code_roots: list(r.code_roots),
@@ -328,10 +338,9 @@ function brand() {
     owner: c.owner.name,
     colors: c.brand.colors,
     logo: !!c.brand.logo,
-    theme: c.brand.theme,
     look: c.brand.look,
     scheme: c.brand.scheme,
-    fonts: !!c.brand.fonts,
+    stylesheets: c.brand.stylesheets.map((rel) => `/brand-pack/${rel}`),
   };
 }
 

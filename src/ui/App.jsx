@@ -157,23 +157,11 @@ function More() {
   );
 }
 
-// A white-label theme (brand.theme, checked by the server: token names and plain colours only) as
-// CSS that comes after office.css, so it re-themes the whole office, light and dark.
-function themeCss(theme) {
-  if (!theme) return '';
-  const decl = (m) => Object.entries(m || {}).map(([k, v]) => `--${k}: ${v};`).join(' ');
-  let css = '';
-  if (theme.light) css += `:root { ${decl(theme.light)} }\n`;
-  if (theme.dark) css += `@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { ${decl(theme.dark)} } }\n`;
-  return css;
-}
-
 // Whose office this is (workspace.config.json): the name in the bar and the tab,
-// the orb's two colours, and a white-label theme when there is one.
+// the orb's two colours, and a firm's own look when there is one.
 function useBrand(brand) {
   const name = (brand && brand.name) || 'WorkSpace';
   const colors = brand && brand.colors;
-  const css = themeCss(brand && brand.theme);
   useEffect(() => {
     document.title = brand && brand.company ? `${name} · ${brand.company}` : name;
     if (colors && colors.length >= 2) {
@@ -181,25 +169,25 @@ function useBrand(brand) {
       document.documentElement.style.setProperty('--brand-2', colors[1]);
     }
   }, [name, brand && brand.company, colors && colors.join()]);
-  useEffect(() => {
-    let el = document.getElementById('brand-theme');
-    if (!css) { if (el) el.remove(); return; }
-    if (!el) { el = document.createElement('style'); el.id = 'brand-theme'; document.head.appendChild(el); }
-    el.textContent = css;
-  }, [css]);
-  // A brand's own look (a class office.css styles), a fixed light or dark, and its fonts.
+  // A firm's own look: a class office.css styles (look-academy), light kept light, and the firm's
+  // design-system stylesheets (its tokens and fonts, served from brand.pack at /brand-pack/).
   const look = brand && brand.look;
   const scheme = brand && brand.scheme;
-  const fonts = !!(brand && brand.fonts);
+  const sheets = (brand && brand.stylesheets) || [];
+  const sheetKey = sheets.join('|');
   useEffect(() => {
     const root = document.documentElement;
     [...root.classList].filter((c) => c.startsWith('look-')).forEach((c) => root.classList.remove(c));
     if (look) root.classList.add(`look-${look}`);
     if (scheme) root.dataset.theme = scheme; else delete root.dataset.theme;
-    let link = document.getElementById('brand-fonts');
-    if (!fonts) { if (link) link.remove(); return; }
-    if (!link) { link = document.createElement('link'); link.id = 'brand-fonts'; link.rel = 'stylesheet'; link.href = '/brand-font/fonts.css'; document.head.appendChild(link); }
-  }, [look, scheme, fonts]);
+    document.querySelectorAll('link[data-brand-pack]').forEach((l) => l.remove());
+    for (const href of sheets) {
+      if (!/^\/brand-pack\/[A-Za-z0-9_][A-Za-z0-9._/-]*\.css$/.test(href)) continue;
+      const link = document.createElement('link');
+      link.rel = 'stylesheet'; link.href = href; link.dataset.brandPack = '';
+      document.head.appendChild(link);
+    }
+  }, [look, scheme, sheetKey]);
   return name;
 }
 

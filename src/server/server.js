@@ -1086,18 +1086,19 @@ function start(opts) {
       return;
     }
 
-    // A brand's own fonts (brand.fonts): its stylesheet at /brand-font/fonts.css, and the .woff2 files
-    // in that stylesheet's folder by their plain names, nothing else.
-    const fontsCss = config.load().brand.fonts;
-    const fontFile = url.pathname.startsWith('/brand-font/') ? url.pathname.slice('/brand-font/'.length) : null;
-    if (fontsCss && fontFile !== null) {
-      const f = fontFile === 'fonts.css' ? fontsCss
-        : /^[A-Za-z0-9][A-Za-z0-9._-]*\.woff2$/.test(fontFile) ? path.join(path.dirname(fontsCss), fontFile) : null;
-      if (f && fs.existsSync(f)) {
-        res.writeHead(200, { 'Content-Type': f === fontsCss ? 'text/css' : 'font/woff2', 'Cache-Control': 'max-age=86400' });
+    // A brand's design-system pack (brand.pack): its stylesheets and fonts, by plain relative names
+    // inside that folder, nothing else (no "..", only .css and font files).
+    const pack = config.load().brand.pack;
+    if (pack && url.pathname.startsWith('/brand-pack/')) {
+      const rel = decodeURIComponent(url.pathname.slice('/brand-pack/'.length));
+      const types = { '.css': 'text/css', '.woff2': 'font/woff2', '.woff': 'font/woff' };
+      const type = types[path.extname(rel).toLowerCase()];
+      const f = path.resolve(pack, rel);
+      if (type && !rel.includes('..') && /^[A-Za-z0-9_][A-Za-z0-9._/-]*$/.test(rel) && f.startsWith(path.resolve(pack) + path.sep) && fs.existsSync(f)) {
+        res.writeHead(200, { 'Content-Type': type, 'Cache-Control': 'no-cache' });
         res.end(fs.readFileSync(f));
-        return;
-      }
+      } else { res.writeHead(404); res.end(); }
+      return;
     }
 
     if (staticDir) {
